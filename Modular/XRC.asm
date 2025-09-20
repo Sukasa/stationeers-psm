@@ -6,6 +6,7 @@
 # Performs condition transfers from device Setting value to STACK UNIT
 # Only transfers non-zero values, relies on PLC or ASP to clear Zone RAM value
 # XRC can process 13-24 inputs per tick depending on how many are nonzero
+# The ideal loading is 22 buttons, on the assumption that at most two buttons will be activated on the same tick
 
   alias STACK_UNIT d0
   define Type Setting
