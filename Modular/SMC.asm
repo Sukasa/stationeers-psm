@@ -12,7 +12,9 @@
 start:
   yield
   lb r15 1512322581 Error Sum
+  bdns d0 nolight
   s d0 On r15
+nolight:
   bdns d1 start
   l r0 d1 Setting
   beqz r0 start
