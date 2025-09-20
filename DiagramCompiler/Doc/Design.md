@@ -15,6 +15,7 @@ In a given environment, we have logic-network-connected devices of the following
 - DISPLAY UNITS are output devices which users observe to interpret the process state (e.g. displays, graphs, lights, the colour of input buttons)
 - OPERATION UNITS are devices which effect changes in our processes (e.g. valves, vents, doors, lights)
 - STACK UNITS are those which have RAM which is remotely manipulatable via the `get`/`put` IC10 instructions (e.g. sorters, IC10s, RAM chips)
+- DATA UNITS are words in a STACK UNIT, usually automatically allocated to implement specific functions, but also manually allocatable. Those with fixed addresses get allocation priority, followed by those with address constraints, then those without constraints.
 
 
 To manage the devices in a given operation zone. Each ZONE has a RAM chip which is used to mirror and maintain state data. We then have a variety of OPERATIONS between UNITS.
@@ -24,7 +25,8 @@ To manage the devices in a given operation zone. Each ZONE has a RAM chip which 
 - [XR] INTERRUPT ROUTER transfers `Setting` values to ZONE RAM only when nonzero, and expect Application Processors to clear that state. These always have maximum Priority.
 
 - [PL] PROCESS LOGIC perform zone-specific logic from values in Zone RAM, to values in Zone RAM.
-- [AS] ALARM STATE (a specialization of PL) updates ALARM STATE values based on ALARM CHECK values and an ACKNOWLEDGE signal.
+- [AT] ALARM TRIGGER updates ALARM TRIGGER values based on process values.
+- [AS] ALARM STATE (a specialization of PL) updates ALARM STATE values based on ALARM TRIGGER values and an ACKNOWLEDGE signal.
 
 - [OR] OUTPUT ROUTER (the inverse of INPUT ROUTER) transfer information from ZONE RAM to DISPLAY UNITS and OPERATION UNITS.
 - [AA] ALARM ANNUNCIATOR (a specialization of OR) read ALARM STATE values effect them on displays to visualize inactive/active/acknowledged alarms.
@@ -33,31 +35,101 @@ To manage the devices in a given operation zone. Each ZONE has a RAM chip which 
 - [SM] SYSTEM MONITOR observes other IC10 implementations for `Error` states, and sets both an ALARM STATE and directly activates a "Fault" light to make operators aware of malfunctioning control systems at a high criticality.
 
 
+To produce the necessary code to implement these connections, we want to draw diagrams of the process, annotate them with equipment ReferenceIDs and any hand-screwed configuration, and have the system generate the programs for the IC10s, and burner programs for the IC10's NVRAM.
 
-# IR INLINE
+Ideally, we'd like to be able to save not just the diagrams, but generate manifests of what equipment needs to be installed to implement them, and what chips need (re)programming to effect the changes from one diagram revision to the next.
+
+To effect this, we want to design FUNCTIONS, allocate them to hardware, and be able to preview those allocations time costs.
+
+
+## VERSION 1.0
+
+- You can create a new Equipment Type by defining and labelling its port configurations (Gas,Liquid,Network,Power), and defining its supported Logic Types.
+
+- You have a list of Zones.
+- You have a list of Diagrams. Equipment, Networks, and drawing Elements can appear on multiple Diagrams each.
+
+- You can create Equipment by adding it to at least one Zone. If it doesn't appear on at least one Diagram, you will get a warning.
+- If a piece of Equipment is written to by Functions in more than one Zone, you will get a warning.
+
+- You can create visual-only elements to Diagrams, ideally with some snapping and routing helpers.
+- You can draw Networks on Diagrams -- Gas, Liquid, and Electrical -- ideally with some snapping and routing helpers. The same Network can be depicted differently on separate Diagrams, and there can be off-page connections.
+- You can give Equipment a name, a ReferenceID, and some freehand notes.
+
+- IC10 Equipment has a special treatment; you can label them as using custom software, or you can tag them as PROCESSOR equipment.
+- Utility Memory has a special treatment; you can tag them OR IC10s as being Zone RAM.
+- Functions must be assigned to Zones. They have to get allocated to a PROCESSOR and will allocate pieces of Zone RAM for their needs, but both should be automatically allocated but manually overridable.
+- Metafunctions -- recipes that create a whole batch of related functions easily -- ought to be a thing.
+- Functions need a PRIORITY. This is the maximum number of ticks -- there are two ticks per second -- that is allowed to pass without this function executing. This is used to prioritize how functions are distributed across PROCESSORS. [XR] functions, for instance, have a fixed PRIORITY of 1; their whole point is that they run every tick.
+- Custom [PL] functions have custom code, and can (and usually *must*) include substitutions which will be filled in at compile time.
+
+
+## In summary...
+
+- EquipmentTypes
+- Zones
+- Diagrams
+- Drawings
+- Equipment
+- Networks
+- Metafunctions
+- Functions
+- Data Units
+
+Each of those need storage for permanent elements, and we need a helper class that lets us procedurally generate more and validate and compile on the result of that.
+
+
+# [IR] INLINE
 	l %R0% %SRef% %SLogic%
 	putd %RAM% %PVAddr% %R0%
-# IR ALARM TEST (append to above, one per test)
+
+# [SR] INLINE (for constant SlotNo)
+	ls %R0% %SRef% %SSlotNo% %SLogic%
+	putd %RAM% %PVAddr% %R0%
+
+# [XR] INLINE
+	l %R0% %SRef% Setting
+	breqz %R0% 2
+	putd %RAM% %IntAddr% %IntSignal% # If IntSignal is %R0%, it writes pass-through.
+
+# [AT] INLINE (append to each [IR/SR], one per test on that same variable)
 # e.g. if ALSelOp=sgt, R1 = (PV > PVALValue)
 	%ALSelOp% %R1% %R0% %PVALValue%
 	putd %RAM% %ATAddr% %R1%
 
+# [AS] Prologue (required for each chip that includes 1+ [AS] INLINE)
 # NVRAM TABLE %TB_ACKON%
 	0 0 0 1 2 2
 # NVRAM TABLE %TB_ACKNO%
 	0 1 0 1 1 2
-# AS INLINE (once per tick)
+# AS INLINE (once per tick; needs one ACKAddr per chip)
 	getd %R_ACK% %RAM% %ACKAddr%
 	select %R_ACK% %R_ACK% %TB_ACKON% %TB_ACKNO%
 	putd %RAM% %ACKAddr% 0
 
-# AS INLINE (append to IR ALARM TEST)
-	getd %R2% %RAM% %ASAddr%  # Read current alarm state
+# [AS] INLINE (append after each [AT])
 	select %R1% %R1% 3 0      # +3 to table addr if trigger is on
+	getd %R2% %RAM% %ASAddr%  # Read current alarm state
 	add %R1% %R1% %R2%        # Add table offset
 	add %R1% %R1% %R_ACK%     # Add table select
 	getd %R1% db %R1%         # Read table in local NVRAM
 	putd %RAM% %ASAddr% %R1%  # Write new alarm state
+
+# [OR] INLINE
+	getd %R0% %RAM% %MVAddr%
+	s %DRef% %DLogic% %R0%
+
+# [AA] Init (once at powerup for each chip that includes 1+ [AA] INLINE)
+	move   r0 0
+	move   r2 1
+# [AA] Prologue (required for each chip that includes 1+ [AA] INLINE)
+	select r1 0 1
+# [AA] INLINE
+	getd %R0% %RAM% %ASAddr%
+	s %AARef% On r%R0%
+
+
+
 
 
 # [IRC] v1 - Processes a list of input mappings and the RAM addresses to write them to
