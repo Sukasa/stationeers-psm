@@ -32,7 +32,7 @@ To manage the devices in a given operation zone. Each ZONE has a RAM chip which 
 - [AA] ALARM ANNUNCIATOR (a specialization of OR) read ALARM STATE values effect them on displays to visualize inactive/active/acknowledged alarms.
 
 - [SD] STACK DATA (splitting the difference between OR and PL) are block transfers of data between STACK UNITS, e.g. transferring data between ZONE RAM blocks, or interfacing with advanced network devices
-- [SM] SYSTEM MONITOR observes other IC10 implementations for `Error` states, and sets both an ALARM STATE and directly activates a "Fault" light to make operators aware of malfunctioning control systems at a high criticality.
+- [SM] SYSTEM MONITOR observes an IC10 for `Error` states, and sets both an ALARM STATE and directly activates a "Fault" light to make operators aware of malfunctioning control systems at a high criticality.
 
 
 To produce the necessary code to implement these connections, we want to draw diagrams of the process, annotate them with equipment ReferenceIDs and any hand-screwed configuration, and have the system generate the programs for the IC10s, and burner programs for the IC10's NVRAM.
@@ -79,41 +79,85 @@ To effect this, we want to design FUNCTIONS, allocate them to hardware, and be a
 Each of those need storage for permanent elements, and we need a helper class that lets us procedurally generate more and validate and compile on the result of that.
 
 
-# [IR] INLINE
-	l %R0% %SRef% %SLogic%
-	putd %RAM% %PVAddr% %R0%
+## Functions
 
-# [SR] INLINE (for constant SlotNo)
+Functions have code blocks in a few types, and configuration variables which can be manually set or automatically filled.
+
+Each Code Block can run at...
+- Zone Init: once when powering up, once per zone.
+- Processor Init: once when powering up, once per chip on which this function type appears.
+- Prologue: once per processor cycle, before all instances.
+- Instance Intro: once per function instance.
+- Array: once per value of a named Configuration Variable, contiguous between instance intro and instance outro.
+- Instance Outro: once per function instance.
+- Epilogue: once per processor cycle, after all instances.
+
+Each Code Block can have optional constraints...
+- Immediately After Function in Configuration Variable X
+- Same Processor as Function in Configuration Variable X
+- Different Processor as Function in Configuration Variable X
+
+Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as exactly one block passes its constraints. This is how you can have a function which depends on another function, and have it generate different code varying by whether it ends up in the same Processor as that other function or not.
+
+Each Configuration Variable comes in a variety of types:
+- Constant: some user-filled constant, with optional default and with constraints including 'numeric', 'text', 'logic'
+- Equipment: a piece of equipment by PSMID, but its ReferenceId is what will be exposed as a variable. Filterable by a list of required logic types.
+- Data: an arbitrary data unit in the zone, with an optional user-bypassable filter for name.
+- Buffer: a shared block of RAM in the zone used by all instances of this function which have the same value of a named Constant configuration variable. Otherwise the same as Data.
+- Function: another function object, with an optional filter for type.
+- Register: a register allocated to this function, can be fixed or any available.
+- a Configuration Variable can be of 'Array' type so long as there is a Code Block of Array type matching it.
+
+Each Configuration Variable exposes some Configuration Values to the code compiler.
+- Constant exposes `%name%` (its value)
+- Equipment exposes `%name%` (its RefId)
+- Data exposes `%name.RAM%` and `%name.Addr%`, the storage device and first address offset within that device.
+- Buffer exposes `%B.RAM` and `%B.name%`, the storage device and first address offset within that device.
+- Function exposes each of its configuration variable values with its own `name.` as a prefix.
+- Register exposes `%name%` (its value)
+- array CVs are only valid within an Array code block of the same variable
+
+Substitutions are made in code blocks...
+- `%name%` is replaced with the matching configuration value.
+- `%name|name|..%` is replaced with the first configuration value which is not the empty string.
+
+
+# [IR] INSTANCE INTRO
+	l %R0% %SRef% %SLogic%
+# [IR] ARRAY (PV)
+	putd %PV.RAM% %PV.Addr% %R0%
+
+# [SR] INSTANCE INTRO
 	ls %R0% %SRef% %SSlotNo% %SLogic%
-	putd %RAM% %PVAddr% %R0%
+# [SR] ARRAY (PV)
+	putd %PV.RAM% %PV.Addr% %R0%
 
 # [XR] INLINE
 	l %R0% %SRef% Setting
 	breqz %R0% 2
-	putd %RAM% %IntAddr% %IntSignal% # If IntSignal is %R0%, it writes pass-through.
+	putd %RAM% %IntAddr% %IntSignal|R0%
 
 # [AT] INLINE (append to each [IR/SR], one per test on that same variable)
 # e.g. if ALSelOp=sgt, R1 = (PV > PVALValue)
-	%ALSelOp% %R1% %R0% %PVALValue%
-	putd %RAM% %ATAddr% %R1%
+	%ALSelOp% %R1% %IF.R0% %PVALValue%
+	putd %AT.RAM% %AT.Addr% %R1%
 
 # [AS] Prologue (required for each chip that includes 1+ [AS] INLINE)
-# NVRAM TABLE %TB_ACKON%
+# NVRAM TABLE %B.ACKON%
 	0 0 0 1 2 2
-# NVRAM TABLE %TB_ACKNO%
+# NVRAM TABLE %B.ACKNO%
 	0 1 0 1 1 2
-# AS INLINE (once per tick; needs one ACKAddr per chip)
-	getd %R_ACK% %RAM% %ACKAddr%
-	select %R_ACK% %R_ACK% %TB_ACKON% %TB_ACKNO%
-	putd %RAM% %ACKAddr% 0
-
+# [AS] INLINE (once per tick; needs one ACKAddr per chip)
+	getd %R_ACK% %ACK.RAM% %ACK.Addr%
+	select %R_ACK% %R_ACK% %B.ACKON% %B.ACKNO%
+	putd %ACK.RAM% %ACK.Addr% 0
 # [AS] INLINE (append after each [AT])
-	select %R1% %R1% 3 0      # +3 to table addr if trigger is on
-	getd %R2% %RAM% %ASAddr%  # Read current alarm state
-	add %R1% %R1% %R2%        # Add table offset
-	add %R1% %R1% %R_ACK%     # Add table select
-	getd %R1% db %R1%         # Read table in local NVRAM
-	putd %RAM% %ASAddr% %R1%  # Write new alarm state
+	select %R2% %AT.R1% 3 0       # +3 to table addr if trigger is on
+	getd %R3% %AS.RAM% %AS.Addr%  # Read current alarm state
+	add %R2% %R2% %R3%            # Add table offset
+	add %R2% %R2% %R_ACK%         # Add table select
+	getd %R2% %B.RAM% %R2%       # Read table
+	putd %AS.RAM% %AS.Addr% %R2%  # Write new alarm state
 
 # [OR] INLINE
 	getd %R0% %RAM% %MVAddr%
