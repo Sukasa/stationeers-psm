@@ -37,9 +37,9 @@ noclear:
   pop r6            # Pre-pop first entry to enable cycle optimization in loop
   
 loop:
-  get r1 d0 r6      # Read Zone RAM state
-  max r4 r1 r5      # Set to Acknowledged if ACK flag set.  If the ALARM STATE is somehow not 0-2, this will almost certainly cause ASP state corruption or crash.
-  select r4 r1 r4 0 # Set back to 0 if original alarm NORMAL, else (UNACK/ALARM) based on original value from zone ram
+  get r7 d0 r6      # Read Zone RAM state
+  max r4 r7 r5      # Set to Acknowledged if ACK flag set.  If the ALARM STATE is somehow not 0-2, this will almost certainly cause ASP state corruption or crash.
+  select r4 r7 r4 0 # Set back to 0 if original alarm NORMAL, else (UNACK/ALARM) based on original value from zone ram
   poke r3 r4        # poke to own stack for AAC
   put d0 r6 r4      # put to zone RAM
   add rr4 rr4 1     # Stats aggregate
