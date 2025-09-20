@@ -11,13 +11,13 @@
   alias STACK_UNIT d0
   define ACKADDR 1
 
-  poke 25 -1 # End of list sentinel value
+  poke 31 -1 # End of list sentinel value
 
 start:
   yield
   
 go:
-  move sp 61
+  move sp 62
   move r3 30
   mul r6 r1 1000
   add r6 r6 r0
