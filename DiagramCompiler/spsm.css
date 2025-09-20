@@ -1,0 +1,15 @@
+
+body, table, #popup .window, #picker .window, .pin-top {
+	background: #3aa;
+	color: #000;
+}
+
+body, table, button, input {
+	font-family: 'Times New Roman', serif;
+	font-size: 16px !important;
+}
+
+*                          { user-select: none; }
+textarea, input[type=text] { user-select: initial; }
+canvas                     { pointer-events: none; }
+
