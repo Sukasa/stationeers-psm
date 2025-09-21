@@ -76,7 +76,9 @@ To effect this, we want to design FUNCTIONS, allocate them to hardware, and be a
 - Functions
 - Data Units
 
-Each of those need storage for permanent elements, and we need a helper class that lets us procedurally generate more and validate and compile on the result of that.
+Each of those need storage for permanent elements, and we need an interpretation layer that lets us virtually generate more, and validate and compile on the result of that.
+
+We want to be able to override the configuration of the virtually generated functions and data units that come out of a Metafunction.
 
 
 ## Functions
@@ -106,6 +108,7 @@ Each Configuration Variable comes in a variety of types:
 - Buffer: a shared block of RAM in the zone used by all instances of this function which have the same value of a named Constant configuration variable. Otherwise the same as Data.
 - Function: another function object, with an optional filter for type.
 - Register: a register allocated to this function, can be fixed or any available.
+- Code: multiline text with syntax highlighting for use in custom PL blocks
 - a Configuration Variable can be of 'Array' type so long as there is a Code Block of Array type matching it.
 
 Each Configuration Variable exposes some Configuration Values to the code compiler.
