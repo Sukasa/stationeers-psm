@@ -21,7 +21,7 @@
   alias Scratch r0
   alias Scratch2 r1
   
-  move IC10 HASH("StructureCircuitHousing")
+  move IC10 2037291645
   
 start:
   yield

@@ -1,52 +1,80 @@
 # SPSM PROJECT - ASC ALARM STATE CONTROL
 # Revision: 2025-09-19
 # Variant: Stack-Driven w/ Aggregate, Shared ACK
-# Timing: 3-Tick Fixed
-# Format: n: RAM Address (14)
+# Timing: 10 AS/tick, 3 ticks/cycle
+# Format: n: RAM Address (13)
 # Reads a configurable set of in-alarm flags from a connected STACK UNIT, pushing back NORMAL/UNACK/ACKED state values to the same stack addresses
 # Reads the Alarm Reset signal from the STACK UNIT and clears it after resetting.  Updates its own `Setting` with alarm statistics every full cycle through its alarm list
 # Scans up to 30 alarms at a fixed 0.67 Hz update rate.  Uses ACK handler that allows for multiple ASPs to share one ACK flag without contention
-# Provides an AAC-compatible value store in Stack 1-30 to match AAC chip
+# Provides an AAC-compatible value store in Stack 1-30 to match AAC chip.  Zone RAM addresses at 32..61
 
-  alias STACK_UNIT d0
+  alias StackUnit d0
   define ACKADDR 1
 
-  poke 31 -1 # End of list sentinel value
+  alias StsNrml r0
+  alias StsUnAk r1
+  alias StsAckd r2
+  alias StkPtr  r3  
+  alias LUT0    r4
+  alias LUT1    r5
+  alias LUT2    r6
+  alias Acknldg r7
+  alias LUT3    r8
+  alias LUT4    r9
+  alias LUT5    r10
+  alias RamAddr r11
+  alias PerTick r12
+  alias Step    r13
+  alias Scrtch2 r14
+  alias Scratch r15
+
+  poke 31 -1 # Init safety sentinel value
+  move r4 0	# Init alarm state LUT
+  move r5 1
+  move r6 2  
+  move r8 0
+  move r9 2
+  move r10 2
 
 start:
-  yield
-  
-go:
   move sp 62
-  move r3 30
-  mul r6 r1 1000
-  add r6 r6 r0
-  mul r7 r2 1000000
-  add r6 r6 r7
-  s db Setting r6
-  get r6 d0 ACKADDR
-  snez r6 r6
-  or r7 r5 r6
-  bneq r7 3 noclear
+  move RamAddr 30
+  
+  mul Scratch StsAckd 1000	    # Put aggregate statistics together
+  add Scratch Scratch StsNrml
+  mul Scrtch2 StsUnAk 1000000
+  add Scratch Scratch Scrtch2
+  s db Setting Scratch
+  move StsNrml 0
+  move StsAckd 0
+  move StsUnAk 0
+  
+  get Scratch d0 ACKADDR		# Process alarm acknowledgement signal, in a way that won't clobber other ASCs using the same address
+  snez Scratch Scratch
+  or Scrtch2 Acknldg Scratch
+  bne Scrtch2 9 noclear
   put d0 ACKADDR 0
-  move r6 0
+  move Scratch 0
 
 noclear:
-  select r5 r6 2 0
-  yield
-  pop r6            # Pre-pop first entry to enable cycle optimization in loop
+  select Acknldg Scratch 8 4
+  move Step 3
   
-loop:
-  get r7 d0 r6      # Read Zone RAM state
-  max r4 r7 r5      # Set to Acknowledged if ACK flag set.  If the ALARM STATE is somehow not 0-2, this will almost certainly cause ASP state corruption or crash.
-  select r4 r7 r4 0 # Set back to 0 if original alarm NORMAL, else (UNACK/ALARM) based on original value from zone ram
-  poke r3 r4        # poke to own stack for AAC
-  put d0 r6 r4      # put to zone RAM
-  add rr4 rr4 1     # Stats aggregate
-  sub r3 r3 1       # Decrement stack ram index pointer
-  pop r6            # Cycle optimization: no forced jump at end of hot loop
-  bgez r6 loop      # Negative RAM address == end of list, zero/positive = continue loop
-  ble sp 33 go      # If we took long enough to take 3 ticks, don't extra-yield
-  ble sp 47 start   # If we took long enough to take 2 ticks, extra yield once
-  yield             # Otherwise extra-yield *twice* to stay at 0.67Hz
-  j start           # (the second yield is at start)
+tick:
+  sub Step Step 1
+  bltz Step start
+  move PerTick 10
+  yield
+  
+next:
+  sub PerTick PerTick 1			# Keep track of how many ALARM STATE values we have processed this tick
+  sub StkPtr StkPtr 1           # Decrement stack ram index pointer
+  pop RamAddr					# Get the next Zone RAM address for ALARM STATE
+  bltz RamAddr next				# If it's invalid, skip this entry
+  get Scratch d0 RamAddr        # Read Zone RAM state
+  add rr15 rr15 1               # Stats aggregate (pre-LUT because I have to)
+  or Scratch Scratch Acknldg    # Set to Acknowledged if ACK flag set.  If the ALARM STATE is somehow not 0-2, this will almost certainly cause ASP state corruption or crash.
+  poke StkPtr rr15              # Use LUT to write new ALARM STATE to Zone RAM
+  put d0 RamAddr rr15           # Also write it to self RAM for AAC
+  bgez PerTick next             # Check anti-race-condition limiter
+  j tick
