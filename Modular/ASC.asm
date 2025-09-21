@@ -38,7 +38,7 @@
 
 start:
   move sp 62
-  move RamAddr 30
+  move StkPtr 31
   
   mul Scratch StsAckd 1000	    # Put aggregate statistics together
   add Scratch Scratch StsNrml
@@ -76,5 +76,5 @@ next:
   or Scratch Scratch Acknldg    # Set to Acknowledged if ACK flag set.  If the ALARM STATE is somehow not 0-2, this will almost certainly cause ASP state corruption or crash.
   poke StkPtr rr15              # Use LUT to write new ALARM STATE to Zone RAM
   put d0 RamAddr rr15           # Also write it to self RAM for AAC
-  bgez PerTick next             # Check anti-race-condition limiter
+  bnez PerTick next             # Check anti-race-condition limiter
   j tick
