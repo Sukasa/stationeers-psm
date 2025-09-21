@@ -14,7 +14,6 @@
   alias IdIndicator d2
   alias ZoneRAM d4
   
-  alias AlarmPresent r15
   alias NetworkIndex r14
   alias NetworkMax r13
   alias DevRefId r12  
@@ -60,6 +59,8 @@ scan:
   beqz Scratch scan					# If not, check the next network device
   bdns IdIndicator no_ind_err		# If we have an ID indicator linked, light it up with the erroring RefId
   s IdIndicator On 1
+  s IdIndicator Color 4
+  s IdIndicator Mode 0
   s IdIndicator Setting DevRefId
   
 no_ind_err:
