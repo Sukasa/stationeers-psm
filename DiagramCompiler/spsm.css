@@ -1,6 +1,6 @@
 
 body, table, #popup .window, #picker .window, .pin-top {
-	background: #3aa;
+	background: #4bb;
 	color: #000;
 }
 
@@ -9,7 +9,97 @@ body, table, button, input {
 	font-size: 16px !important;
 }
 
+h1,h2,h3,h4,h5 { margin: initial; }
+
 *                          { user-select: none; }
 textarea, input[type=text] { user-select: initial; }
 canvas                     { pointer-events: none; }
 
+.window-outer {
+	position: fixed;
+	margin: 0;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+}
+
+.window-inner {
+	position: absolute;
+	pointer-events: initial;
+	border: 2px outset;
+}
+
+.window-inner.center {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.window-title {
+	padding: 2px;
+	background: #0000AA;
+	color: white;
+	font-weight: bold;
+}
+
+.window-body {
+	background: #CCC;
+	padding: 4px;
+	overflow-x: clip;
+	overflow-y: auto;
+}
+
+.window-inner.autosize {
+	min-width: 33vw;
+	max-width: max-content;
+}
+
+.window-inner.autosize .window-body {
+	min-height: 20vh;
+	max-height: calc(100vh - 6em);
+}
+
+.window-inner.psm-diagram {
+	top: 0.5vh;
+	left: 0.5vw;
+	width: 49.5vw;
+	height: 98.5vh;
+}
+
+.window-inner.psm-properties {
+	left: 50.5vw;
+	width: 24.5vw;
+	top: 0.5vh;
+	height: 98.5vh;
+}
+
+.window-inner.psm-navigator {
+	left: 75.5vw;
+	width: 24vw;
+	top: 0.5vh;
+	height: 98.5vh;
+}
+
+.window-inner.psm-diagram .window-body,
+.window-inner.psm-properties .window-body,
+.window-inner.psm-navigator .window-body {
+	height: 100%;
+}
+
+@media print {
+	.window-outer, .window-title {
+		display: none;
+	}
+	.window-outer.printable, .window-inner.printable {
+		display: initial;
+		border: none !important;
+		min-width: unset !important;
+		max-width: unset !important;
+	}
+	.window-inner.printable > .window-body {
+		position: initial !important;
+		display: block !important;
+	}
+}

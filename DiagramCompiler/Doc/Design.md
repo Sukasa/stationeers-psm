@@ -81,6 +81,13 @@ Each of those need storage for permanent elements, and we need an interpretation
 We want to be able to override the configuration of the virtually generated functions and data units that come out of a Metafunction.
 
 
+## GUI Design
+
+- Left side: Diagram Explorer (pan, zoom, select, add, remove, edit). Can also be maximized. When Printing, this is the only part of the UI included.
+- Mid-right: Property panels (the selected item in Diagram Explorer, plus each pinned property panel, all in a scrollable pane)
+- Far right: Navigator (filterable tree of all objects)
+
+
 ## Functions
 
 Functions have code blocks in a few types, and configuration variables which can be manually set or automatically filled.
