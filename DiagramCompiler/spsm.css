@@ -25,10 +25,25 @@ canvas                     { pointer-events: none; }
 	pointer-events: none;
 }
 
+.window-outer.modal {
+	pointer-events: initial;
+	background-attachment: fixed;
+	background-image: radial-gradient(
+		circle at center,
+		black 1px,
+		transparent 0
+	);
+	background-size: 4px 4px;
+	background-repeat: round;
+}
+
 .window-inner {
 	position: absolute;
 	pointer-events: initial;
 	border: 2px outset;
+	background: #CCC;
+	display: flex;
+	flex-direction: column;
 }
 
 .window-inner.center {
@@ -42,13 +57,22 @@ canvas                     { pointer-events: none; }
 	background: #0000AA;
 	color: white;
 	font-weight: bold;
+	flex-shrink: 1;
 }
 
-.window-body {
-	background: #CCC;
+.window-inner.dialog .window-body {
 	padding: 4px;
+}
+
+.window-inner.dialog .window-body,
+.window-inner.vscroll .window-body {
 	overflow-x: clip;
 	overflow-y: auto;
+}
+
+.window-inner.xyscroll .window-body {
+	overflow-x: scroll !important;
+	overflow-y: scroll !important;
 }
 
 .window-inner.autosize {
@@ -62,29 +86,30 @@ canvas                     { pointer-events: none; }
 }
 
 .window-inner.psm-diagram {
-	top: 0.5vh;
-	left: 0.5vw;
-	width: 49.5vw;
-	height: 98.5vh;
+	left: 25vw;
+	width: 50vw;
 }
 
 .window-inner.psm-properties {
-	left: 50.5vw;
-	width: 24.5vw;
-	top: 0.5vh;
-	height: 98.5vh;
-}
-
-.window-inner.psm-navigator {
 	left: 75.5vw;
 	width: 24vw;
+}
+
+.window-inner.psm-navigation {
+	left: 0.5vw;
+	width: 24vw;
+}
+
+.window-inner.psm-diagram,
+.window-inner.psm-properties,
+.window-inner.psm-navigation {
 	top: 0.5vh;
 	height: 98.5vh;
 }
 
 .window-inner.psm-diagram .window-body,
 .window-inner.psm-properties .window-body,
-.window-inner.psm-navigator .window-body {
+.window-inner.psm-navigation .window-body {
 	height: 100%;
 }
 

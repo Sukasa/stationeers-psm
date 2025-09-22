@@ -191,7 +191,7 @@ function renderWindow(target, options, content) {
 }
 
 function renderWorkspaceSelector(target) {
-	renderWindow(target, { title: "Load Workspace", className: "center autosize" }, [
+	renderWindow(target, { title: "Load Workspace", className: "center autosize dialog modal" }, [
 		["h1", "=Available"],
 		...avail_workspaces.map(w => ["div", [
 			["button", "=Load", {'?click': () => loadWorkspace(w)}],
@@ -217,19 +217,19 @@ function render() {
 function renderWorkspace(target, workspace) {
 	workspace.save();
 
-	renderDiagramView(renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable' }), workspace.data, workspace.state.diagram);
-	renderProperties(renderWindow(target, { title: 'Properties', className: 'psm-properties' }), workspace.data, workspace.state.properties);
-	renderNavigator(renderWindow(target, { title: 'Navigation', className: 'psm-navigator' }), workspace.data, workspace.state.navigation);
+	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll' }, renderDiagramView(workspace.data, workspace.state.diagram));
+	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state.properties));
+	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state.navigation));
 }
 
-function renderDiagramView(T, D, S) {
-	return [];
+function renderDiagramView(D, S) {
+	return [["h2", "=diagram"]];
 }
 
-function renderProperties(T, D, S) {
-	return [];
+function renderProperties(D, S) {
+	return [["h2", "=props"]];
 }
 
-function renderNavigator(T, D, S) {
-	return [];
+function renderNavigation(D, S) {
+	return [["h2", "=nav"]];
 }
