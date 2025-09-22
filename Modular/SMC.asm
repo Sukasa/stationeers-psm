@@ -71,7 +71,8 @@ no_ind_err:
   
 no_refid:							# Start watching the error'd chip until it stops being errored
   yield
-  l Scratch DevRefId Error
+  bdns Scratch start		        # Make sure the erroring housing still exists before checking it again
+  l Scratch DevRefId Error			# Just in case someone removes it (i.e. temporary socket)
   bnez Scratch still_error
   j start
   
