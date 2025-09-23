@@ -127,10 +127,6 @@ Each Configuration Variable exposes some Configuration Values to the code compil
 - Register exposes `%name%` (its value)
 - array CVs are only valid within an Array code block of the same variable
 
-Substitutions are made in code blocks...
-- `%name%` is replaced with the matching configuration value.
-- `%name|name|..%` is replaced with the first configuration value which is not the empty string.
-
 
 # [IR] INSTANCE INTRO
 	l %R0% %SRef% %SLogic%
@@ -145,7 +141,7 @@ Substitutions are made in code blocks...
 # [XR] INLINE
 	l %R0% %SRef% Setting
 	breqz %R0% 2
-	putd %RAM% %IntAddr% %IntSignal|R0%
+	putd %RAM% %IntAddr% %IntSignal%
 
 # [AT] INLINE (append to each [IR/SR], one per test on that same variable)
 # e.g. if ALSelOp=sgt, R1 = (PV > PVALValue)
@@ -162,11 +158,11 @@ Substitutions are made in code blocks...
 	select %R_ACK% %R_ACK% %B.ACKON% %B.ACKNO%
 	putd %ACK.RAM% %ACK.Addr% 0
 # [AS] INLINE (append after each [AT])
-	select %R2% %AT.R1% 3 0       # +3 to table addr if trigger is on
-	getd %R3% %AS.RAM% %AS.Addr%  # Read current alarm state
-	add %R2% %R2% %R3%            # Add table offset
+	select %AT.R1% %AT.R1% 3 0    # +3 to table addr if trigger is on
+	getd %R2% %AS.RAM% %AS.Addr%  # Read current alarm state
+	add %R2% %R2% %AT.R1%         # Add table offset
 	add %R2% %R2% %R_ACK%         # Add table select
-	getd %R2% %B.RAM% %R2%       # Read table
+	getd %R2% %B.RAM% %R2%        # Read table
 	putd %AS.RAM% %AS.Addr% %R2%  # Write new alarm state
 
 # [OR] INLINE
