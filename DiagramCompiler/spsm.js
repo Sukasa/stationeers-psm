@@ -204,12 +204,14 @@ function renderWorkspaceSelector(target) {
 }
 
 function render() {
-	document.body.innerHTML = '';
+	const root = document.body;
+	root.innerHTML = '';
 	windowZ = 1;
+
 	if( ! active_workspace ) {
-		renderWorkspaceSelector(document.body)
+		renderWorkspaceSelector(root)
 	} else {
-		renderWorkspace(document.body, active_workspace)
+		renderWorkspace(root, active_workspace)
 	}
 };
 
