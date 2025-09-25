@@ -95,7 +95,7 @@ const functiondef_db = {
 		],
 		validate(report, workspace) {
 			// Check the specific type of the input function.
-			if( -1 === ['IR','SR'].indexOf(workspace.ReadRelation(this, 'Input')?.NodeClass) )
+			if( -1 === ['IR','SR'].indexOf(workspace.ReadRelation(this, 'Input')?.kind) )
 				report('error', 'Alarm Test function depends on an Input or Slot Input function');
 		},
 		blocks: [
@@ -141,7 +141,7 @@ const functiondef_db = {
 		],
 		validate(report, workspace) {
 			// Check the specific type of the input function.
-			if( 'AT' !== workspace.ReadRelation(this, 'Input')?.NodeClass )
+			if( 'AT' !== workspace.ReadRelation(this, 'Input')?.kind )
 				report('alarm', 'Alarm State function depends on an Alarm Test function');
 		},
 		blocks: [
@@ -197,7 +197,7 @@ const functiondef_db = {
 		],
 		validate(report, workspace) {
 			// Check the specific type of the input function.
-			if( 'AS' !== workspace.ReadRelation(this, 'Input')?.NodeClass )
+			if( 'AS' !== workspace.ReadRelation(this, 'Input')?.kind )
 				report('error', 'Input must be an Alarm State function');
 
 			// Check the logic support of the selected device.
@@ -252,7 +252,7 @@ const test_workspace = [
 	{type: 'rel', fromNode: 'UV8201', fromPin: 'Destination', toNode: 'HL94912'},
 
 	{type: 'function', kind: 'OR', id: 'EQ818293', config: {}},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', viaNode: 'UK381091', viaPin: 'Destination'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', toNode: 'HL13014', viaNode: 'UK381091', viaPin: 'Destination'},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', toNode: 'TW818194', toPin: 'Setting'},
 
 	{type: 'function', kind: 'AT', id: 'UG82030', config: {
@@ -265,7 +265,7 @@ const test_workspace = [
 	{type: 'function', kind: 'AS', id: 'UG7364', config: {}},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'Input', toNode: 'UG82030'},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'State', toNode: 'HL92103'},
-	{type: 'rel', fromNode: 'UG7364', fromPin: 'AckSignal', viaNode: 'UV8201', viaPin: 'Destination'},
+	{type: 'rel', fromNode: 'UG7364', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
 
 	{type: 'function', kind: 'AA', id: 'UG175689', config: {}},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Input', toNode: 'UG7364'},
@@ -317,3 +317,133 @@ const test_workspace = [
 		'ReferenceId': 4127,
 	}},
 ];
+
+
+class GraphLayer {
+	constructor(parent) {
+		this.parent = parent || null;
+		this.Objs = {};
+		this.Rels = {};
+	}
+
+	Deserialize(str) {
+		if( this.parent )
+			throw new Error("cannot deserialize into non-root graph layer");
+
+		this.Objs = {};
+		this.Rels = {};
+		const raw = JSON.parse(str);
+		if( !(raw instanceof Array) )
+			throw new Error("expected deserialized graph data to be an array");
+		raw.forEach(e => { if( e.type !== 'rel' ) this.AddObject(e); });
+		raw.forEach(e => { if( e.type === 'rel' ) this.AddRel(e);    });
+	}
+
+	Serialize() {
+		const list = [];
+		Object.keys(this.Objs).forEach(k => {
+			list.push(this.Objs[k]);
+
+			this.Rels[k].forEach(r => {
+				if( r.fromNode === k ) list.push(r);
+			})
+		});
+		return JSON.stringify(list);
+	}
+
+	AddObject(def) {
+		if( !def || !def.id || !def.type || def.type === 'rel' )
+			throw new Error("incomplete object; requires {id:,type:}");
+		if( this.Objs[def.id] ) {
+			console.warn(`replacing object "${def.id}"`);
+		} else if( parent?.FindObject(def.id) ) {
+			console.warn(`shadowing object "${def.id}"`);
+		}
+
+		this.Objs[def.id] = def;
+	}
+
+	// Remove an object ONLY if it actually exists in this layer.
+	// Note that relations to this object in CHILD LAYERS will not be properly destroyed by this!
+	RemoveObject(def) {
+		if( def !== this.Objs[def.id] ) return;
+		delete this.Objs[def.id];
+		this.Rels[def.id]?.forEach(rel => {
+			// Delete this relation from each list it participates in.
+			this._unregister_rel(rel, rel.fromNode);
+			this._unregister_rel(rel, rel.toNode);
+			if( rel.viaNode ) this._unregister_rel(rel, rel.viaNode);
+		});
+	}
+
+	AddRel(def) {
+		if( !def || !def.fromNode || !def.toNode )
+			throw new Error("incomplete relation; requires {fromNode:,toNode:}");
+		if( def.fromIndex !== undefined && ('number' !== def.fromIndex || def.fromIndex < 0) )
+			throw new Error("illegal index relation number; must be undefined or else >= 0");
+		if( def.type === undefined ) def.type = 'rel';
+		if( !this.FindObject(def.fromNode) || !this.FindObject(def.toNode) || (def.viaNode && !this.FindObject(def.viaNode)))
+			throw new Error("cannot create relation; all referenced objects must exist");
+
+		this._register_rel(def, def.fromNode);
+		this._register_rel(def, def.toNode);
+		if( def.viaNode ) this._register_rel(def, def.viaNode);
+	}
+
+	// Remove a relation ONLY if it actually exists in this layer.
+	RemoveRel(def) {
+		if( -1 === this.Rels.indexOf(def) ) return;
+		this._unregister_rel(def, def.fromNode);
+		this._unregister_rel(def, def.toNode);
+		if( def.viaNode ) this._unregister_rel(def, def.viaNode);
+	}
+
+	_register_rel(d, n) {
+		const a = this.Rels[n] ?? [];
+		if( d.fromIndex !== undefined && a.find(r => d.fromNode === r.fromNode && d.fromPin === r.fromPin && d.fromIndex === r.fromIndex))
+			throw new Error("cannot create relation; index relation conflicts with another index of the same pin!");
+		this.Rels[n] = a;
+		a.push(d);
+	}
+
+	_unregister_rel(d, n) {
+		const a = this.Rels[n];
+		if( ! a ) return;
+		const i = a.indexOf(d);
+		if( i !== -1 ) a.splice(i, 1);
+		if( a.length === 0 ) {
+			delete this.Rels[n];
+		} else if( d.index !== null ) {
+			// Renumber array-pin relations with higher indices.
+			this.Rels[n].forEach(r => {
+				if( r.fromNode === d.fromNode && r.fromPin === d.fromPin && r.fromIndex !== undefined && r.fromIndex > d.fromIndex )
+					r.fromIndex--;
+			})
+		}
+	}
+
+	FindObject(objId) {
+		return this.Objs[objId] ?? parent?.FindObject(objId) ?? undefined;
+	}
+
+	// List all relation objects related to a given node object.
+	FindRelations(objId, intoResult) {
+		intoResult = intoResult ?? [];
+		if( parent ) this.parent.FindRelations(objId, intoResult);
+		this.Rels[objId]?.forEach(r => intoResult.push(r));
+		return intoResult;
+	}
+
+	// Read the node at the OTHER END of a specific non-array relationship pin.
+	ReadRelation(objId, pinName) {
+		if( !objId || !pinName || !this.FindObject(objId) ) return undefined;
+		const rel = this.FindRelations(objId).find(r => r.fromPin === pinName && r.index === undefined);
+		return (rel && this.Objs[rel.toNode]) || undefined;
+	}
+}
+
+(function() {
+
+
+
+})();
