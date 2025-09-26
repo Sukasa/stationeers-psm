@@ -276,42 +276,54 @@ const test_workspace = [
 	{type: 'data', id: 'HL83018', transient:true, config: {}},
 	{type: 'data', id: 'HL92103', transient:true, config: {}},
 
-	{type: 'Zone', id: 'ZHab1', properties: {
+	{type: 'zone', id: 'ZHab1', properties: {
 		'Name': 'Habitat 1',
 	}},
 
-	{type: 'rel', fromNode: 'EK419931', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'LC183102', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'RG3123', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'TW818194', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'RI39151', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'TW3716', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'drawing', id: 'DW927741', properties: {
+		'Name': 'Habitat 1 Air Temperature Management',
+	}},
+
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 0, toNode: 'EK419931', properties: {x:23, y:-4, as:'icon'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 1, toNode: 'LC183102', properties: {x:23, y:-3, as:'icon'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 2, toNode: 'RG3123', properties: {x:23, y:-2, as:'icon'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 3, toNode: 'TW818194', properties: {x:23, y:-1, as:'icon'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:23, y:-0, as:'icon'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:23, y:1, as:'icon'}},
+
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UV8201', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG82030', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG7364', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
+
 	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', toNode: 'RG3123'},
 	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'RG3123'},
 
-	{type: 'Equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
+	{type: 'equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
 		'Name': 'Foyer Gas Sensor',
 		'ReferenceId': 4108,
 	}},
-	{type: 'Equipment', kind: 'Wall Heater', id: 'LC183102', properties: {
+	{type: 'equipment', kind: 'Wall Heater', id: 'LC183102', properties: {
 		'Name': 'Foyer Wall Heater',
 		'ReferenceId': 1320,
 	}},
-	{type: 'Equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
+	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
 		'Name': 'Foyer Control',
 		'ReferenceId': 4118,
 	}},
-	{type: 'Equipment', kind: 'LED Display', id: 'TW818194', properties: {
+	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
 		'Name': 'Temp Wall Display',
 		'Initialize': {Color:2, On:1, Mode:4},
 		'ReferenceId': 4102,
 	}},
-	{type: 'Equipment', kind: 'Button', id: 'RI39151', properties: {
+	{type: 'equipment', kind: 'Button', id: 'RI39151', properties: {
 		'Name': 'ACK button',
 		'Initialize': {Color:5},
 		'ReferenceId': 4120,
 	}},
-	{type: 'Equipment', kind: 'LED Panel', id: 'TW3716', properties: {
+	{type: 'equipment', kind: 'LED Panel', id: 'TW3716', properties: {
 		'Name': 'Low Temp Alarm Lamp',
 		'Initialize': {Color:5, On:1},
 		'ReferenceId': 4127,
@@ -324,6 +336,32 @@ class GraphLayer {
 		this.parent = parent || null;
 		this.Objs = {};
 		this.Rels = {};
+	}
+
+	Objects(filter) {
+		const res = Object.keys(this.Objs).map(k => this.Objs[k]);
+		if( 'function' === typeof filter )
+			return res.filter(filter);
+		return res;
+	}
+
+	FindObject(objId) {
+		return this.Objs[objId] ?? this.parent?.FindObject(objId) ?? undefined;
+	}
+
+	// List all relation objects related to a given node object.
+	FindRelations(objId, intoResult) {
+		intoResult = intoResult ?? [];
+		if( this.parent ) this.parent.FindRelations(objId, intoResult);
+		this.Rels[objId]?.forEach(r => intoResult.push(r));
+		return intoResult;
+	}
+
+	// Read the node at the OTHER END of a specific non-array relationship pin.
+	ReadRelation(objId, pinName) {
+		if( !objId || !pinName || !this.FindObject(objId) ) return undefined;
+		const rel = this.FindRelations(objId).find(r => r.fromPin === pinName && r.index === undefined);
+		return (rel && this.Objs[rel.toNode]) || undefined;
 	}
 
 	Deserialize(str) {
@@ -343,11 +381,13 @@ class GraphLayer {
 		const list = [];
 		Object.keys(this.Objs).forEach(k => {
 			list.push(this.Objs[k]);
-
+		});
+		Object.keys(this.Rels).forEach(k => {
 			this.Rels[k].forEach(r => {
 				if( r.fromNode === k ) list.push(r);
-			})
+			});
 		});
+
 		return JSON.stringify(list);
 	}
 
@@ -356,7 +396,7 @@ class GraphLayer {
 			throw new Error("incomplete object; requires {id:,type:}");
 		if( this.Objs[def.id] ) {
 			console.warn(`replacing object "${def.id}"`);
-		} else if( parent?.FindObject(def.id) ) {
+		} else if( this.parent?.FindObject(def.id) ) {
 			console.warn(`shadowing object "${def.id}"`);
 		}
 
@@ -379,7 +419,7 @@ class GraphLayer {
 	AddRel(def) {
 		if( !def || !def.fromNode || !def.toNode )
 			throw new Error("incomplete relation; requires {fromNode:,toNode:}");
-		if( def.fromIndex !== undefined && ('number' !== def.fromIndex || def.fromIndex < 0) )
+		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0) )
 			throw new Error("illegal index relation number; must be undefined or else >= 0");
 		if( def.type === undefined ) def.type = 'rel';
 		if( !this.FindObject(def.fromNode) || !this.FindObject(def.toNode) || (def.viaNode && !this.FindObject(def.viaNode)))
@@ -400,8 +440,8 @@ class GraphLayer {
 
 	_register_rel(d, n) {
 		const a = this.Rels[n] ?? [];
-		if( d.fromIndex !== undefined && a.find(r => d.fromNode === r.fromNode && d.fromPin === r.fromPin && d.fromIndex === r.fromIndex))
-			throw new Error("cannot create relation; index relation conflicts with another index of the same pin!");
+		if( a.find(r => d.fromNode === r.fromNode && d.fromPin === r.fromPin && d.fromIndex === r.fromIndex))
+			throw new Error("cannot create relation; conflicts with an existing relation!");
 		this.Rels[n] = a;
 		a.push(d);
 	}
@@ -421,29 +461,61 @@ class GraphLayer {
 			})
 		}
 	}
+}
 
-	FindObject(objId) {
-		return this.Objs[objId] ?? parent?.FindObject(objId) ?? undefined;
+class ReportReceiver {
+	constructor() {
+		this.reports = [];
+		this.fatal = false;
+		this.category = null;
+		this.ordinal = 0;
+
+		this.report = this._report.bind(this);
 	}
 
-	// List all relation objects related to a given node object.
-	FindRelations(objId, intoResult) {
-		intoResult = intoResult ?? [];
-		if( parent ) this.parent.FindRelations(objId, intoResult);
-		this.Rels[objId]?.forEach(r => intoResult.push(r));
-		return intoResult;
+	setCategory(cat) {
+		this.category = cat;
 	}
 
-	// Read the node at the OTHER END of a specific non-array relationship pin.
-	ReadRelation(objId, pinName) {
-		if( !objId || !pinName || !this.FindObject(objId) ) return undefined;
-		const rel = this.FindRelations(objId).find(r => r.fromPin === pinName && r.index === undefined);
-		return (rel && this.Objs[rel.toNode]) || undefined;
+	_report(sev, msg) {
+		if( msg === undefined && typeof sev === 'string' ) {
+			msg = sev;
+			sev = 'info';
+		} else if( typeof sev !== 'string' ) {
+			throw new Error('illegal arguments to report function');
+		}
+
+		this.reports.push({severity:sev, order:++this.ordinal, category:this.category, message:msg});
+		if( sev === 'error' ) this.fatal = true;
 	}
 }
 
 (function() {
 
+	const def = new GraphLayer();
+	def.Deserialize(JSON.stringify(test_workspace));
 
+	// Gather function-related assets in Zone.
+	const assets = def.FindRelations('ZHab1')
+		.filter(rel => rel.fromNode === 'ZHab1' && (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
+
+	// Gather Functions in Zone
+	const inzone = def.FindRelations('ZHab1')
+		.filter(rel => rel.fromPin === 'Zone')
+		.map(rel => def.FindObject(rel.fromNode))
+		.filter(o => o.type === 'function');
+
+	//DEBUG: console.log(`Assets`, assets);
+	//DEBUG: console.log(`Functions`, inzone);
+
+	// Validate Functions
+	const rc = new ReportReceiver();
+	inzone.forEach(f => ValidateFunction(rc.report, f, def));
+
+	console.log(rc.reports);
 
 })();
+
+function ValidateFunction(report, fnObj, layer) {
+	//TODO:
+}
