@@ -80,7 +80,7 @@ const functiondef_db = {
 	"AT": {
 		fullname: 'Alarm Test',
 		rels: [
-			{name: 'Input', type: 'function',},
+			{name: 'Input', type: 'function', functiontype:['IR','SR'], },
 			{name: 'Destination', type: 'data', array: true, allocate: true, },
 		],
 		config: [
@@ -256,7 +256,7 @@ const test_workspace = [
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', toNode: 'TW818194', toPin: 'Setting'},
 
 	{type: 'function', kind: 'AT', id: 'UG82030', config: {
-		'Test': 'lt',
+		'Test': 'slt',
 		'Threshold': 283,
 	}},
 	{type: 'rel', fromNode: 'UG82030', fromPin: 'Input', toNode: 'UK381091'},
@@ -529,9 +529,12 @@ class ReportReceiver {
 
 	// Validate Functions
 	const rc = new ReportReceiver();
-	funcs.forEach(f => ValidateFunction(rc.report, f, def));
+	funcs.forEach(f => {
+		rc.setCategory(f.id);
+		ValidateFunction(rc.report, f, def);
+	});
 
-	rc.reports.forEach(e => console.log(`${e.severity}: ${e.message}`));
+	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
 })();
 
 function SortByIndex(a, b) {
@@ -550,6 +553,69 @@ function ValidateFunction(report, fnObj, layer) {
 		applicable.sort(SortByIndex);
 		ValidateFunctionRel(reldef, applicable, fnObj, report, layer);
 	});
+
+	// Validate configurations
+	fdef.config.forEach(cfgdef => {
+		const value = fnObj.config[cfgdef.name];
+		if( value === undefined && !(cfgdef.allocate || cfgdef.value !== undefined) ) {
+			report('error', `Configuration value "${cfgdef.name}" missing required value`);
+		} else if( value ?? cfgdef.value ) {
+			ValidateConfigValue(cfgdef, value ?? cfgdef.value, fnObj, report, layer);
+		}
+	})
+}
+
+function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
+{
+	switch(cfgdef.type) {
+		case 'constant':
+			if( cfgdef.subtype === 'number' ) {
+				if( typeof val === 'string' ) val = parseFloat(val);
+				if( typeof val !== 'number' || isNaN(val) ) {
+					report('error', `Register value "${cfgdef.name}" is not a number`);
+				}
+			
+			} else if( cfgdef.subtype === 'integer' ) {
+				if( typeof val === 'string' ) val = parseInt(val);
+				if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
+					report('error', `Register value "${cfgdef.name}" is not an integer`);
+				}
+			
+			} else if( cfgdef.subtype === 'list' ) {
+				if( !(cfgdef.options instanceof Array) ) {
+					report('error', `Illegal configuration definition; subtype "list" implies an array "options" to pick from`);
+				} else if( ! cfgdef.options.find(i => i.name === val) ) {
+					report('error', `Value "${val}" not a valid option for configuration value "${cfgdef.name}"`);
+				}
+			}
+			break;
+
+		case 'register':
+			if( typeof val === 'string' ) val = parseInt(val);
+			if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
+				report('error', `Register value "${cfgdef.name}" is not an integer`);
+			} else if( val < 0 || val > 15 ) {
+				report('error', `Register value "${cfgdef.name}" is out of valid range (0..15 inclusive)`);
+			}
+			break;
+
+		case 'buffer':
+			if( typeof val === 'string' ) {
+				try { val = JSON.parse(val); }
+				catch {
+					report('error', `Buffer value "${cfgdef.name}" must be an array, or a JSON string encoding an array!`);
+				}
+			}
+			if( !(val instanceof Array) || val.length < 1 ) {
+				report('error', `Buffer value "${cfgdef.name}" must be a non-empty array`);
+			} else if( val.find(i => typeof i !== 'number') ) {
+				report('error', `Buffer value "${cfgdef.name}" must have only numeric entries`);
+			}
+			break;
+		
+		default:
+			report('error', `Unhandled configuration type "${cfgdef.type}"`);
+	}
 }
 
 function ValidateFunctionRel(reldef, rels, fnObj, report, layer)
