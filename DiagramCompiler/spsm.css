@@ -1,7 +1,18 @@
 
-body, table, #popup .window, #picker .window, .pin-top {
-	background: #4bb;
-	color: #000;
+@media screen {
+	body, table, #popup .window, #picker .window, .pin-top {
+		background: #4BB;
+		color: #000;
+	}
+
+	.window-inner {
+		background: #CCC;
+	}
+
+	.window-title {
+		background: #0000AA;
+		color: #FFF;
+	}
 }
 
 body, table, button, input {
@@ -9,7 +20,7 @@ body, table, button, input {
 	font-size: 16px !important;
 }
 
-h1,h2,h3,h4,h5 { margin: initial; }
+h1,h2,h3,h4,h5 { margin: 0.2em 0.3em; }
 
 *                          { user-select: none; }
 textarea, input[type=text] { user-select: initial; }
@@ -41,7 +52,6 @@ canvas                     { pointer-events: none; }
 	position: absolute;
 	pointer-events: initial;
 	border: 2px outset;
-	background: #CCC;
 	display: flex;
 	flex-direction: column;
 }
@@ -54,8 +64,6 @@ canvas                     { pointer-events: none; }
 
 .window-title {
 	padding: 2px;
-	background: #0000AA;
-	color: white;
 	font-weight: bold;
 	flex-shrink: 1;
 }
@@ -70,9 +78,11 @@ canvas                     { pointer-events: none; }
 	overflow-y: auto;
 }
 
-.window-inner.xyscroll .window-body {
-	overflow-x: scroll !important;
-	overflow-y: scroll !important;
+@media screen {
+	.window-inner.xyscroll .window-body {
+		overflow-x: scroll !important;
+		overflow-y: scroll !important;
+	}
 }
 
 .window-inner.autosize {
@@ -120,8 +130,18 @@ canvas                     { pointer-events: none; }
 	.window-outer.printable, .window-inner.printable {
 		display: initial;
 		border: none !important;
+		left: unset !important;
+		right: unset !important;
+		top: unset !important;
+		bottom: unset !important;
+		width: unset !important;
+		height: unset !important;
 		min-width: unset !important;
 		max-width: unset !important;
+		min-height: unset !important;
+		max-height: unset !important;
+		overflow-x: visible !important;
+		overflow-y: visible !important;
 	}
 	.window-inner.printable > .window-body {
 		position: initial !important;

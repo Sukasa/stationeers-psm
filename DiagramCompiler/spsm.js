@@ -192,14 +192,15 @@ function renderWindow(target, options, content) {
 
 function renderWorkspaceSelector(target) {
 	renderWindow(target, { title: "Load Workspace", className: "center autosize dialog modal" }, [
-		["h1", "=Available"],
+		["h3", "=Recent"],
 		...avail_workspaces.map(w => ["div", [
 			["button", "=Load", {'?click': () => loadWorkspace(w)}],
 			["button", "=Rename", {'?click': () => renameWorkspace(w)}],
 			["button", "=Forget", {'?click': () => forgetWorkspace(w)}],
 			["span", {className: 'label'}, "="+w.name],
 		]]),
-		["button", "=Open New", {'?click': addNewWorkspace, 'style': "margin-top:1em;"}],
+		["h3", "=Open New"],
+		["button", "=Select", {'?click': addNewWorkspace}],
 	]);
 }
 
