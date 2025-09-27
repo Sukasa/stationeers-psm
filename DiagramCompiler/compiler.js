@@ -32,7 +32,7 @@ const functiondef_db = {
 	"XR": {
 		fullname: 'Interrupt Router',
 		rels: [
-			{name: 'SourceDevice', type: 'equipment', subtype: null, },
+			{name: 'Source', type: 'equipment', subtype: null, },
 			{name: 'Destination', type: 'data', allocate: true, },
 		],
 		config: [
@@ -46,7 +46,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				code: [
-					'l %R0% %SourceDevice% Setting',
+					'l %R0% %Source% Setting',
 					'breqz %R0% 2',
 					'putd %Destination.RAM% %Destination.Addr% %Signal%',
 				],
@@ -531,13 +531,78 @@ class ReportReceiver {
 	const rc = new ReportReceiver();
 	funcs.forEach(f => ValidateFunction(rc.report, f, def));
 
-	console.log(rc.reports);
-
+	rc.reports.forEach(e => console.log(`${e.severity}: ${e.message}`));
 })();
+
+function SortByIndex(a, b) {
+	const av = a.index ?? -1, bv = b.index ?? -1;
+	return av - bv;
+}
 
 function ValidateFunction(report, fnObj, layer) {
 	const fdef = functiondef_db[fnObj.kind];
 	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
 
-	
+	// Validate relations
+	const actualRels = layer.FindRelations(fnObj.id);
+	fdef.rels.forEach(reldef => {
+		const applicable = actualRels.filter(r => r.fromNode === fnObj.id && r.fromPin === reldef.name);
+		applicable.sort(SortByIndex);
+		ValidateFunctionRel(reldef, applicable, fnObj, report, layer);
+	});
+}
+
+function ValidateFunctionRel(reldef, rels, fnObj, report, layer)
+{
+	if( rels.length > 1 && !reldef.array ) {
+		report('error', `Non-array pin "${reldef.name}" has more than one connection!`);
+	} else if( rels.length === 0 && !reldef.optional ) {
+		report('error', `Non-optional pin "${reldef.name}" has no connections!`);
+	} else {
+		rels.forEach(re => ValidateFunctionLink(reldef, re, fnObj, report, layer));
+	}
+}
+
+function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
+{
+	const far = layer.FindObject(rel.toNode);
+	switch(reldef.type) {
+		case 'function':
+			if( rel.toPin !== undefined || rel.fromIndex !== undefined )
+				report('error', 'Expected relationship to node, not pin');
+			if( 'function' !== far?.type )
+				report('error', `Bad connection: expected "function" at far node, found "${far?.type ?? 'nothing'}" instead`);
+			if( reldef.functiontype instanceof Array ) {
+				if( -1 === reldef.functiontype.indexOf(far.kind) ) {
+					report('error', `Bad connection: incompatible function "${far.kind}" at far node`)
+					break;
+				}
+			}
+			break;
+
+		case 'data':
+			if( rel.toPin !== undefined )
+				report('error', 'Expected relationship to node, not pin');
+			if( 'data' !== far?.type )
+				report('error', `Bad connection: expected "data" at far node, found "${far?.type ?? 'nothing'}" instead`);
+			break;
+
+		case 'equipment':
+			if( !far ) {
+				report('error', `Bad connection: expected "equipment" at far node, found nothing instead`);
+				break;
+			}
+			if( !reldef.subtype && rel.toPin ) {
+				report('error', `Expected relationship to node, not pin.`);
+			} else if( reldef.subtype && !rel.toPin ) {
+				report('error', `Expected relationship to pin, node node.`);
+			} else if( reldef.subtype ) {
+				//TODO: validate specific destination pin type selected
+			}
+
+			break;
+
+		default:
+			report('error', `Undefined function relationship type "${reldef.type}"`);
+	}
 }
