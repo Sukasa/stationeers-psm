@@ -332,17 +332,22 @@ const test_workspace = [
 
 
 class GraphLayer {
-	constructor(parent) {
+	constructor(parent, ro) {
 		this.parent = parent || null;
+		this.ro = !!ro;
 		this.Objs = {};
 		this.Rels = {};
 	}
 
-	Objects(filter) {
-		const res = Object.keys(this.Objs).map(k => this.Objs[k]);
-		if( 'function' === typeof filter )
-			return res.filter(filter);
-		return res;
+	Objects(filter, intoResult) {
+		intoResult = intoResult ?? [];
+		if( this.parent ) this.parent.Objects(filter, intoResult);
+		if( 'function' === typeof filter ) {
+			Object.values(this.Objs).filter(filter).forEach(o => intoResult.push(o));
+		} else {
+			Object.values(this.Objs).forEach(o => intoResult.push(o));
+		}
+		return intoResult;
 	}
 
 	FindObject(objId) {
@@ -365,7 +370,7 @@ class GraphLayer {
 	}
 
 	Deserialize(str) {
-		if( this.parent )
+		if( this.parent || this.ro )
 			throw new Error("cannot deserialize into non-root graph layer");
 
 		this.Objs = {};
@@ -392,6 +397,8 @@ class GraphLayer {
 	}
 
 	AddObject(def) {
+		if( this.ro )
+			throw new Error("cannot add to read-only graph layer");
 		if( !def || !def.id || !def.type || def.type === 'rel' )
 			throw new Error("incomplete object; requires {id:,type:}");
 		if( this.Objs[def.id] ) {
@@ -406,6 +413,8 @@ class GraphLayer {
 	// Remove an object ONLY if it actually exists in this layer.
 	// Note that relations to this object in CHILD LAYERS will not be properly destroyed by this!
 	RemoveObject(def) {
+		if( this.ro )
+			throw new Error("cannot delete from read-only graph layer");
 		if( def !== this.Objs[def.id] ) return;
 		delete this.Objs[def.id];
 		this.Rels[def.id]?.forEach(rel => {
@@ -417,6 +426,8 @@ class GraphLayer {
 	}
 
 	AddRel(def) {
+		if( this.ro )
+			throw new Error("cannot add to read-only graph layer");
 		if( !def || !def.fromNode || !def.toNode )
 			throw new Error("incomplete relation; requires {fromNode:,toNode:}");
 		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0) )
@@ -432,6 +443,8 @@ class GraphLayer {
 
 	// Remove a relation ONLY if it actually exists in this layer.
 	RemoveRel(def) {
+		if( this.ro )
+			throw new Error("cannot delete from read-only graph layer");
 		if( -1 === this.Rels.indexOf(def) ) return;
 		this._unregister_rel(def, def.fromNode);
 		this._unregister_rel(def, def.toNode);
@@ -492,30 +505,39 @@ class ReportReceiver {
 
 (function() {
 
-	const def = new GraphLayer();
-	def.Deserialize(JSON.stringify(test_workspace));
+	const db = new GraphLayer();
+	db.Deserialize(JSON.stringify(test_workspace));
+
+	// Make a read-only view into the full graph.
+	const def = new GraphLayer(db, true);
 
 	// Gather function-related assets in Zone.
 	const assets = def.FindRelations('ZHab1')
-		.filter(rel => rel.fromNode === 'ZHab1' && (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
+		.filter(rel => rel.fromNode === 'ZHab1'
+			&& (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
 
 	// Gather Functions in Zone
-	const inzone = def.FindRelations('ZHab1')
+	const funcs = def.FindRelations('ZHab1')
 		.filter(rel => rel.fromPin === 'Zone')
 		.map(rel => def.FindObject(rel.fromNode))
 		.filter(o => o.type === 'function');
 
-	//DEBUG: console.log(`Assets`, assets);
-	//DEBUG: console.log(`Functions`, inzone);
+	//DEBUG:
+	console.log(`Assets`, assets);
+	//DEBUG:
+	console.log(`Functions`, funcs);
 
 	// Validate Functions
 	const rc = new ReportReceiver();
-	inzone.forEach(f => ValidateFunction(rc.report, f, def));
+	funcs.forEach(f => ValidateFunction(rc.report, f, def));
 
 	console.log(rc.reports);
 
 })();
 
 function ValidateFunction(report, fnObj, layer) {
-	//TODO:
+	const fdef = functiondef_db[fnObj.kind];
+	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
+
+	
 }
