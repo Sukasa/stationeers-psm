@@ -190,10 +190,10 @@ const functiondef_db = {
 			{name: 'Display', type: 'equipment', },
 		],
 		config: [
-			{name: 'r0', type: 'register', value: 0, hidden: true, },
-			{name: 'r1', type: 'register', value: 1, hidden: true, },
-			{name: 'r2', type: 'register', value: 2, hidden: true, },
-			{name: 'RX', type: 'register', allocate: true, hidden: true, },
+			{name: 'r0', type: 'register', scope: 'processor', value: 0, hidden: true, },
+			{name: 'r1', type: 'register', scope: 'processor', value: 1, hidden: true, },
+			{name: 'r2', type: 'register', scope: 'processor', value: 2, hidden: true, },
+			{name: 'RX', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 		],
 		validate(report, workspace) {
 			// Check the specific type of the input function.
@@ -312,6 +312,8 @@ const test_workspace = [
 	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
 		'Name': 'Foyer Control',
 		'ReferenceId': 4118,
+		'Lines': 128,
+		'Memory': 512,
 	}},
 	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
 		'Name': 'Temp Wall Display',
@@ -522,10 +524,8 @@ class ReportReceiver {
 		.map(rel => def.FindObject(rel.fromNode))
 		.filter(o => o.type === 'function');
 
-	//DEBUG:
-	console.log(`Assets`, assets);
-	//DEBUG:
-	console.log(`Functions`, funcs);
+	//DEBUG: console.log(`Assets`, assets);
+	//DEBUG: console.log(`Functions`, funcs);
 
 	// Validate Functions
 	const rc = new ReportReceiver();
@@ -534,7 +534,37 @@ class ReportReceiver {
 		ValidateFunction(rc.report, f, def);
 	});
 
+	const processors = [], storages = [];
+	if( ! rc.fatal ) {
+		// Gather what spaces we have available for allocating.
+		assets.forEach(ar => {
+			const n = layer.FindObject(ar.toNode);
+			if( ar.fromPin === 'Processor' ) {
+				const free = n?.properties?.Lines ?? 128;
+				const avail = [];
+				for(var i = 0; i < n?.properties?.Registers ?? 16; ++i)
+					avail.push(i);
+				processors.push({node: ar.toNode, blocks: [], registersFree: avail, linesFree: free});
+			} else if( ar.fromPin === 'RAM' ) {
+				const free = n?.properties?.Memory ?? 512;
+				storages.push({node: ar.toNode, buffers: [], slotsFree: free});
+			}
+		});
+
+		//TODO: allocate and mark as permanently used anything that has Zone or Processor scope.
+		//TODO: validate there is still room for allocation of things which are more transient.
+	}
+
+	if( ! rc.fatal ) {
+		// Pull dependency strings to sequence related function code blocks.
+	}
+
+	if( ! rc.fatal ) {
+		// 
+	}
+
 	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
+	console.log(`Done prototype compile`);
 })();
 
 function SortByIndex(a, b) {
@@ -562,7 +592,7 @@ function ValidateFunction(report, fnObj, layer) {
 		} else if( value ?? cfgdef.value ) {
 			ValidateConfigValue(cfgdef, value ?? cfgdef.value, fnObj, report, layer);
 		}
-	})
+	});
 }
 
 function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
