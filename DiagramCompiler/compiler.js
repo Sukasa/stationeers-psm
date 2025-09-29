@@ -512,7 +512,20 @@ class ReportReceiver {
 
 	// Make a read-only view into the full graph.
 	const def = new GraphLayer(db, true);
+	const rc = new ReportReceiver();
+	const cc = {};
+	ZoneCodeCompile(def, rc, cc);
+	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
+	console.log(`Done 1st prototype compile`);
 
+	const rc2 = new ReportReceiver();
+	const cc2 = {};
+	ZoneCodeCompile(def, rc2, cc2);
+	rc2.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
+	console.log(`Done 2nd prototype compile`);
+})();
+
+function ZoneCodeCompile(def, rc, cc) {
 	// Gather function-related assets in Zone.
 	const assets = def.FindRelations('ZHab1')
 		.filter(rel => rel.fromNode === 'ZHab1'
@@ -528,7 +541,6 @@ class ReportReceiver {
 	//DEBUG: console.log(`Functions`, funcs);
 
 	// Validate Functions
-	const rc = new ReportReceiver();
 	funcs.forEach(f => {
 		rc.setCategory(f.id);
 		ValidateFunction(rc.report, f, def);
@@ -536,22 +548,98 @@ class ReportReceiver {
 
 	const processors = [], storages = [];
 	if( ! rc.fatal ) {
+		rc.setCategory('Allocation');
+
 		// Gather what spaces we have available for allocating.
 		assets.forEach(ar => {
-			const n = layer.FindObject(ar.toNode);
+			const n = def.FindObject(ar.toNode);
 			if( ar.fromPin === 'Processor' ) {
-				const free = n?.properties?.Lines ?? 128;
+				const maxLines = n?.properties?.Lines ?? 128;
 				const avail = [];
 				for(var i = 0; i < n?.properties?.Registers ?? 16; ++i)
 					avail.push(i);
-				processors.push({node: ar.toNode, blocks: [], registersFree: avail, linesFree: free});
+				processors.push({node: ar.toNode, blocks: [], registersFree: avail, capacity: maxLines, free: maxLines});
 			} else if( ar.fromPin === 'RAM' ) {
-				const free = n?.properties?.Memory ?? 512;
-				storages.push({node: ar.toNode, buffers: [], slotsFree: free});
+				const maxSlots = n?.properties?.Memory ?? 512;
+				storages.push({node: ar.toNode, buffers: [{id:null, name:'-UNUSED-NULLPTR-BLOCKER-', addr:0, size:1}], capacity: maxSlots, free: maxSlots - 1});
 			}
 		});
 
-		//TODO: allocate and mark as permanently used anything that has Zone or Processor scope.
+		// Allocate and mark as permanently used anything that has Zone or Processor scope.
+		funcs.forEach(f => {
+			const datum = def.FindRelations(f.id)
+				.filter(r => f.id === r.fromNode)
+				.map(r => def.FindObject(r.toNode))
+				.filter(o => o?.type === 'data');
+
+			datum.forEach(d => {
+				if( d.config?.addr === undefined || d.config?.node === undefined ) {
+					// Find and allocate space for this datum in a Zone RAM.
+					const sz = d.config?.size ?? 1;
+					const st = storages.find(st => st.free >= sz);
+					if( ! st ) {
+						rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
+						return;
+					}
+
+					var addr = null;
+					for(var i = 0; i < st.buffers.length; ++i) {
+						if( i < st.buffers.length - 1 ) {
+							// Check between this block and next.
+							if( sz <= st.buffers[i+1].addr - st.buffers[i].addr - st.buffers[i].size ) {
+								// We can insert a new block here!
+								addr = st.buffers[i+1].addr - sz;
+								break;
+							}
+						} else {
+							// Check between last block and end.
+							addr = st.capacity - sz;
+							break;
+						}
+					}
+
+					if( addr === null ) {
+						rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
+						return;
+					}
+
+					// Insert new entry
+					const e = {addr: addr, size: sz, id:d.id, name: d.name};
+					d.config = d.config ?? {};
+					d.config.addr = addr;
+					d.config.node = st.node;
+
+					rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`);
+					st.buffers.push(e);
+					st.buffers.sort((a,b) => a.addr - b.addr);
+
+				} else {
+					// Validate manually-allocated space for this datum in a Zone RAM.
+					const sz = d.config.size ?? 1;
+					const da = d.config.addr;
+					const st = storages.find(st => st.node === d.config.node);
+					if( ! st ) {
+						rc.report('error', `Failed to find RAM device "${d.config.node}" in Zone for datum "${d.id}"`);
+						return;
+					}
+
+					for(var i = 0; i < st.buffers.length; ++i) {
+						const { addr:ba, size:bz } = st.buffers[i];
+						if( st.buffers[i].id === d.id ) {
+							// This is already the allocation we're looking for, found by another path.
+							return;
+						} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
+							rc.report('error', `Datum "${d.id}" allocation overlaps with memory allocated for "${st.buffers[i].id ?? st.buffers[i].name}"`);
+							return;
+						}
+					}
+
+					st.buffers.push({addr: da, size: sz, id: d.id, name: d.name})
+					st.buffers.sort((a,b) => a.addr - b.addr);
+				}
+			});
+		});
+
 		//TODO: validate there is still room for allocation of things which are more transient.
 	}
 
@@ -562,10 +650,7 @@ class ReportReceiver {
 	if( ! rc.fatal ) {
 		// 
 	}
-
-	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
-	console.log(`Done prototype compile`);
-})();
+}
 
 function SortByIndex(a, b) {
 	const av = a.index ?? -1, bv = b.index ?? -1;
