@@ -1,4 +1,90 @@
 
+// Metanode Definitions
+const metanode_db = {
+	'function': {
+		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
+		Pins(obj) {
+		},
+		// Generate list of {name:,type:,hidden:} configuration fields this node exposes to property editor.
+		Fields(obj) {
+		},
+		// Return renderer class for Diagram view of this metanode.
+		Diagram(obj) {
+		},
+	},
+
+	'data': {
+		Pins(obj) {
+
+		},
+		Fields(obj) {
+
+		},
+		Diagram(obj) {
+
+		},
+	},
+
+	'equipment': {
+		Pins(obj) {
+
+		},
+		Fields(obj) {
+
+		},
+		Diagram(obj) {
+
+		},
+	},
+
+
+};
+
+const equipmenttype_db = {
+	'StructureAirlock': {
+		name: 'Airlock',
+		prefab: '-2105052344',
+		logicWrite: ['Open','Mode','Lock','Setting','On',],
+		logicRead: ['Idle',],
+		connections: [{data:1},{power:1},],
+	},
+	'ModularDeviceLight': {
+		name: 'Modular Light Diode',
+		logicWrite: ['On','Color'],
+		connections: [{data:1,power:1}],
+	},
+	'StructureConsoleLED': {
+		name: 'LED Display (various)',
+		logicWrite: ['On','Mode','Setting','Color'],
+		logicRead: ['Error'],
+		connections: [{data:1,power:1}],
+	},
+	'StructureCircuitHousing': {
+		name: 'IC Housing',
+		logicWrite: ['On','Mode','Setting','LineNumber',],
+		logicRead: ['Error','StackSize'],
+		logicSlots: [
+			['LineNumber',],
+		],
+		connections: [{data:1},{power:1}],
+	},
+	'StructureFiltration': {
+		name: 'Filtration Unit',
+		logicWrite: ['On','Mode','Lock','Setting'],
+		logicRead: [
+			'Pressure','Temperature','TotalMoles','Combustion',
+			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioNitrousOxide',
+			'RatioLiquidNitrogen','RatioLiquidOxygen','RatioLiquidVolatiles','RatioSteam','RatioLiquidCarbonDioxide','RatioLiquidPollutant','RatioLiquidNitrousOxide',
+		].flatMap(L=>['Input'+L,'Output'+L,'Output2'+L]),
+		logicSlots: [
+			['FilterType',],
+			['FilterType',],
+			[],
+		],
+		connections: [{data:1},{power:1},{gas:'Input'},{gas:'Filtered'},{gas:'Unfiltered'}],
+	}
+};
+
 // Function Definition
 const functiondef_db = {
 	"IR": {
@@ -341,6 +427,14 @@ class GraphLayer {
 		this.Rels = {};
 	}
 
+	NewId() {
+		var id;
+		do {
+			id = (Math.random() * 9999999).toString(36);
+		} while( this.FindObject(id) );
+		return id;
+	}
+
 	Objects(filter, intoResult) {
 		intoResult = intoResult ?? [];
 		if( this.parent ) this.parent.Objects(filter, intoResult);
@@ -506,23 +600,25 @@ class ReportReceiver {
 }
 
 (function() {
-
+	// Create graph layer from prototype test data.
 	const db = new GraphLayer();
 	db.Deserialize(JSON.stringify(test_workspace));
 
-	// Make a read-only view into the full graph.
-	const def = new GraphLayer(db, true);
+	// Make a sublayer upon the original graph.
+	const def = new GraphLayer(db);
 	const rc = new ReportReceiver();
 	const cc = {};
 	ZoneCodeCompile(def, rc, cc);
 	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
 	console.log(`Done 1st prototype compile`);
 
+	// Run compile on it again, so we can verify the result is stable.
 	const rc2 = new ReportReceiver();
 	const cc2 = {};
 	ZoneCodeCompile(def, rc2, cc2);
 	rc2.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
 	console.log(`Done 2nd prototype compile`);
+	console.log(JSON.parse(def.Serialize()));
 })();
 
 function ZoneCodeCompile(def, rc, cc) {
@@ -544,6 +640,10 @@ function ZoneCodeCompile(def, rc, cc) {
 	funcs.forEach(f => {
 		rc.setCategory(f.id);
 		ValidateFunction(rc.report, f, def);
+
+		Object.values(f.config).filter(c => c.type === 'buffer').forEach(bdef => {
+			// Allocate datum for function-defined buffers.
+		});
 	});
 
 	const processors = [], storages = [];
@@ -639,8 +739,6 @@ function ZoneCodeCompile(def, rc, cc) {
 				}
 			});
 		});
-
-		//TODO: validate there is still room for allocation of things which are more transient.
 	}
 
 	if( ! rc.fatal ) {
@@ -675,32 +773,49 @@ function ValidateFunction(report, fnObj, layer) {
 		if( value === undefined && !(cfgdef.allocate || cfgdef.value !== undefined) ) {
 			report('error', `Configuration value "${cfgdef.name}" missing required value`);
 		} else if( value ?? cfgdef.value ) {
-			ValidateConfigValue(cfgdef, value ?? cfgdef.value, fnObj, report, layer);
+			if( ! ValidateConfigValue(cfgdef, value ?? cfgdef.value, fnObj, report, layer) )
+				return;
+		}
+
+		// For valid values, assert relations into existence for certain config values.
+		if( cfgdef.type === 'buffer' ) {
+			const v = value ?? cfgdef.value;
+			const dat = layer.ReadRelation(fnObj.id, cfgdef.name);
+			if( ! dat ) {
+				const did = layer.NewId();
+				layer.AddObject({id: did, name: `${fnObj.id}:${cfgdef.name}`, type: 'data', transient:true, config: {size: v.length}});
+				layer.AddRel({fromNode: fnObj.id, fromPin: cfgdef.name, toNode: did});
+			}
 		}
 	});
 }
 
 function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
 {
+	const ok = true;
 	switch(cfgdef.type) {
 		case 'constant':
 			if( cfgdef.subtype === 'number' ) {
 				if( typeof val === 'string' ) val = parseFloat(val);
 				if( typeof val !== 'number' || isNaN(val) ) {
 					report('error', `Register value "${cfgdef.name}" is not a number`);
+					ok = false;
 				}
 			
 			} else if( cfgdef.subtype === 'integer' ) {
 				if( typeof val === 'string' ) val = parseInt(val);
 				if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
 					report('error', `Register value "${cfgdef.name}" is not an integer`);
+					ok = false;
 				}
 			
 			} else if( cfgdef.subtype === 'list' ) {
 				if( !(cfgdef.options instanceof Array) ) {
 					report('error', `Illegal configuration definition; subtype "list" implies an array "options" to pick from`);
+					ok = false;
 				} else if( ! cfgdef.options.find(i => i.name === val) ) {
 					report('error', `Value "${val}" not a valid option for configuration value "${cfgdef.name}"`);
+					ok = false;
 				}
 			}
 			break;
@@ -709,8 +824,10 @@ function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
 			if( typeof val === 'string' ) val = parseInt(val);
 			if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
 				report('error', `Register value "${cfgdef.name}" is not an integer`);
+				ok = false;
 			} else if( val < 0 || val > 15 ) {
 				report('error', `Register value "${cfgdef.name}" is out of valid range (0..15 inclusive)`);
+				ok = false;
 			}
 			break;
 
@@ -719,18 +836,24 @@ function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
 				try { val = JSON.parse(val); }
 				catch {
 					report('error', `Buffer value "${cfgdef.name}" must be an array, or a JSON string encoding an array!`);
+					ok = false;
 				}
 			}
 			if( !(val instanceof Array) || val.length < 1 ) {
 				report('error', `Buffer value "${cfgdef.name}" must be a non-empty array`);
-			} else if( val.find(i => typeof i !== 'number') ) {
+				ok = false;
+			} else if( val.find(i => typeof i !== 'number' || isNaN(i)) ) {
 				report('error', `Buffer value "${cfgdef.name}" must have only numeric entries`);
+				ok = false;
 			}
 			break;
 		
 		default:
 			report('error', `Unhandled configuration type "${cfgdef.type}"`);
+			ok = false;
 	}
+
+	return ok;
 }
 
 function ValidateFunctionRel(reldef, rels, fnObj, report, layer)
