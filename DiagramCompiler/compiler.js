@@ -1,45 +1,4 @@
 
-// Metanode Definitions
-const metanode_db = {
-	'function': {
-		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
-		Pins(obj) {
-		},
-		// Generate list of {name:,type:,hidden:} configuration fields this node exposes to property editor.
-		Fields(obj) {
-		},
-		// Return renderer class for Diagram view of this metanode.
-		Diagram(obj) {
-		},
-	},
-
-	'data': {
-		Pins(obj) {
-
-		},
-		Fields(obj) {
-
-		},
-		Diagram(obj) {
-
-		},
-	},
-
-	'equipment': {
-		Pins(obj) {
-
-		},
-		Fields(obj) {
-
-		},
-		Diagram(obj) {
-
-		},
-	},
-
-
-};
-
 const equipmenttype_db = {
 	'StructureAirlock': {
 		name: 'Airlock',
@@ -93,7 +52,7 @@ const functiondef_db = {
 			{name: 'Source', type: 'equipment', subtype: 'logic', },
 			{name: 'Destination', type: 'data', array: true, allocate: true, },
 		],
-		config: [
+		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
 		validate(report, workspace) {
@@ -101,7 +60,7 @@ const functiondef_db = {
 		},
 		blocks: [
 			{
-				scope: 'instance-prologue',
+				scope: 'instance',
 				code: [
 					'l %R0% %Source.ReferenceId% %Source.Logic%',
 				],
@@ -121,7 +80,7 @@ const functiondef_db = {
 			{name: 'Source', type: 'equipment', subtype: null, },
 			{name: 'Destination', type: 'data', allocate: true, },
 		],
-		config: [
+		properties: [
 			{name: 'Signal', type: 'constant', subtype: 'number', },
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
@@ -146,7 +105,7 @@ const functiondef_db = {
 			{name: 'Source', type: 'data' },
 			{name: 'Destination', type: 'equipment', subtype: 'logic', },
 		],
-		config: [
+		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
 		validate(report, workspace) {
@@ -169,7 +128,7 @@ const functiondef_db = {
 			{name: 'Input', type: 'function', functiontype:['IR','SR'], },
 			{name: 'Destination', type: 'data', array: true, allocate: true, },
 		],
-		config: [
+		properties: [
 			{name: 'Threshold', type: 'constant', subtype: 'number'},
 			{name: 'Test', type: 'constant', subtype: 'list', options: [
 				{name: "sgt", label: "Input > Threshold"},
@@ -197,7 +156,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				group: 'load',
-				constraints: [{kind: 'immediately-proceeding', target: 'Input'}],
+				constraints: [{kind: 'immediately-after', target: 'Input'}],
 				code: [
 					'%Test% %R1% %Input.R0% %Threshold%'
 				]
@@ -218,12 +177,12 @@ const functiondef_db = {
 			{name: 'State', type: 'data', allocate: true, },
 			{name: 'AckSignal', type: 'data', allocate: true, },
 		],
-		config: [
+		properties: [
 			{name: 'RAck', type: 'register', allocate: true, hidden: true, scope: 'processor', },
 			{name: 'R2', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 			{name: 'R3', type: 'register', allocate: true, hidden: true, scope: 'instance', },
-			{name: 'AckOn', type: 'buffer', value: [0,0,0,1,2,2]},
-			{name: 'AckNo', type: 'buffer', value: [0,1,0,1,1,2]},
+			{name: 'AckOn', type: 'buffer', value: [0,0,0,1,2,2], scope: 'zone'},
+			{name: 'AckNo', type: 'buffer', value: [0,1,0,1,1,2], scope: 'zone'},
 		],
 		validate(report, workspace) {
 			// Check the specific type of the input function.
@@ -232,7 +191,7 @@ const functiondef_db = {
 		},
 		blocks: [
 			{
-				scope: 'prologue',
+				scope: 'cycle-init',
 				code: [
 					'getd %RAck% %AckSignal.RAM% %AckSignal.Addr%',
 					'select %RAck% %RAck% %B.AckOn% %B.AckNo%',
@@ -242,7 +201,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				group: 'load',
-				constraints: [{kind: 'immediately-proceeding', target: 'Input'}],
+				constraints: [{kind: 'immediately-after', target: 'Input'}],
 				code: [
 					'select %R3% %Input.R1% 3 0',
 				]
@@ -275,7 +234,7 @@ const functiondef_db = {
 			{name: 'Input', type: 'function', },
 			{name: 'Display', type: 'equipment', },
 		],
-		config: [
+		properties: [
 			{name: 'r0', type: 'register', scope: 'processor', value: 0, hidden: true, },
 			{name: 'r1', type: 'register', scope: 'processor', value: 1, hidden: true, },
 			{name: 'r2', type: 'register', scope: 'processor', value: 2, hidden: true, },
@@ -299,7 +258,7 @@ const functiondef_db = {
 				],
 			},
 			{
-				scope: 'prologue',
+				scope: 'cycle-init',
 				code: [
 					'select r1 0 1',
 				]
@@ -316,7 +275,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				group: 'output',
-				constraints: [{kind: 'immediately-proceeding', target: 'Input'}],
+				constraints: [{kind: 'immediately-after', target: 'Input'}],
 				code: [
 					's %Display% On r%Input.R2%',
 				]
@@ -325,42 +284,123 @@ const functiondef_db = {
 	}
 }
 
+const StdLogic = ['Power','RequiredPower','ReferenceId','PrefabHash','NameHash'];
+const StdSlotLogic = ['Occupied','OccupantHash','Quantity','MaxQuantity','Damage','ReferenceId','PrefabHash','NameHash'];
+
+// Metanode Definitions
+const metanode_db = {
+	'function': {
+		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
+		Pins(obj) {
+		},
+		// Generate list of {name:,type:,hidden:} property definitions this node exposes to property editor.
+		Fields(obj) {
+		},
+		// Return renderer class for Diagram view of this metanode.
+		Diagram(obj) {
+		},
+	},
+
+	'data': {
+		Pins(obj) {
+			return [{name:'Zone', type:'zone'}];
+		},
+		Fields(obj) {
+
+		},
+		Diagram(obj) {
+
+		},
+	},
+
+	'equipment': {
+		Pins(obj) {
+			const def = equipmenttype_db[obj.kind];
+			if( ! def ) return [];
+			if( def.pins === undefined ) {
+				const res = [{name:'Zone', type:'zone'}];
+	
+				if( def.logicRead ) {
+					const AddRO = L => res.push({name:L, type:'logic', writable:false,});
+					def.logicRead.forEach(AddRO);
+					StdLogic.forEach(AddRO);
+					
+					def.logicWrite?.forEach(L => res.push({name:L, type:'logic', writable:true,}));
+				}
+	
+				def.logicSlots?.forEach((S,si) => {
+					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, type:'logic', writable:false});
+					S.forEach(addSlot);
+					StdSlotLogic.forEach(addSlot);
+				});
+	
+				def.pins = res;
+			}
+			return def.pins;
+		},
+		Fields(obj) {
+			return [{name:'ReferenceId', type:'number',}];
+		},
+		Diagram(obj) {
+
+		},
+	},
+};
+
 
 const test_workspace = [
-	{type: 'function', kind: 'IR', id: 'UK381091', config: {}},
+	{type: 'function', kind: 'IR', id: 'UK381091', properties: {}},
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Source', toNode: 'EK419931', toPin: 'Temperature'},
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Destination', toNode: 'HL13014'},
 
-	{type: 'function', kind: 'XR', id: 'UV8201', config: {
+	{type: 'function', kind: 'XR', id: 'UV8201', properties: {
 		'Signal': 1,
 	}},
 	{type: 'rel', fromNode: 'UV8201', fromPin: 'Source', toNode: 'RI39151'},
 	{type: 'rel', fromNode: 'UV8201', fromPin: 'Destination', toNode: 'HL94912'},
 
-	{type: 'function', kind: 'OR', id: 'EQ818293', config: {}},
+	{type: 'function', kind: 'OR', id: 'EQ818293', properties: {}},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', toNode: 'HL13014', viaNode: 'UK381091', viaPin: 'Destination'},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', toNode: 'TW818194', toPin: 'Setting'},
 
-	{type: 'function', kind: 'AT', id: 'UG82030', config: {
+	{type: 'function', kind: 'AT', id: 'UG82030', properties: {
 		'Test': 'slt',
 		'Threshold': 283,
 	}},
 	{type: 'rel', fromNode: 'UG82030', fromPin: 'Input', toNode: 'UK381091'},
 	{type: 'rel', fromNode: 'UG82030', fromPin: 'Destination', toNode: 'HL83018'},
 
-	{type: 'function', kind: 'AS', id: 'UG7364', config: {}},
+	{type: 'function', kind: 'AS', id: 'UG7364', properties: {}},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'Input', toNode: 'UG82030'},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'State', toNode: 'HL92103'},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
 
-	{type: 'function', kind: 'AA', id: 'UG175689', config: {}},
+	{type: 'function', kind: 'AA', id: 'UG175689', properties: {}},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Input', toNode: 'UG7364'},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Display', toNode: 'TW3716'},
 
-	{type: 'data', id: 'HL13014', transient:true, config: {}},
-	{type: 'data', id: 'HL94912', transient:true, config: {}},
-	{type: 'data', id: 'HL83018', transient:true, config: {}},
-	{type: 'data', id: 'HL92103', transient:true, config: {}},
+	{type: 'function', kind: 'AT', id: 'ZG7188', properties: {
+		'Test': 'sgt',
+		'Threshold': 302,
+	}},
+	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Input', toNode: 'UK381091'},
+	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Destination', toNode: 'HH42018'},
+
+	{type: 'function', kind: 'AS', id: 'UG2022', properties: {}},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'Input', toNode: 'ZG7188'},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'State', toNode: 'HL19371'},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
+
+	{type: 'function', kind: 'AA', id: 'UG497710', properties: {}},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Input', toNode: 'UG2022'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Display', toNode: 'TW3716'},
+
+	{type: 'data', id: 'HL13014', name:'TI-401 PV', transient:true, properties: {}},
+	{type: 'data', id: 'HL94912', name:'ACK GROUP 1 TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL83018', name:'TI-401 LO ALARM TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL92103', name:'TI-401 LO ALARM STATE', transient:true, properties: {}},
+	{type: 'data', id: 'HH42018', name:'TI-401 HI ALARM TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL19371', name:'TI-401 HI ALARM STATE', transient:true, properties: {}},
 
 	{type: 'zone', id: 'ZHab1', properties: {
 		'Name': 'Habitat 1',
@@ -377,15 +417,18 @@ const test_workspace = [
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:23, y:-0, as:'icon'}},
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:23, y:1, as:'icon'}},
 
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'RG3123'},
+
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'UV8201', fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'UG82030', fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
-
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
 
 	{type: 'equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
 		'Name': 'Foyer Gas Sensor',
@@ -462,7 +505,7 @@ class GraphLayer {
 	ReadRelation(objId, pinName) {
 		if( !objId || !pinName || !this.FindObject(objId) ) return undefined;
 		const rel = this.FindRelations(objId).find(r => r.fromPin === pinName && r.index === undefined);
-		return (rel && this.Objs[rel.toNode]) || undefined;
+		return rel && this.FindObject(rel.toNode);
 	}
 
 	Deserialize(str) {
@@ -640,10 +683,6 @@ function ZoneCodeCompile(def, rc, cc) {
 	funcs.forEach(f => {
 		rc.setCategory(f.id);
 		ValidateFunction(rc.report, f, def);
-
-		Object.values(f.config).filter(c => c.type === 'buffer').forEach(bdef => {
-			// Allocate datum for function-defined buffers.
-		});
 	});
 
 	const processors = [], storages = [];
@@ -661,92 +700,108 @@ function ZoneCodeCompile(def, rc, cc) {
 				processors.push({node: ar.toNode, blocks: [], registersFree: avail, capacity: maxLines, free: maxLines});
 			} else if( ar.fromPin === 'RAM' ) {
 				const maxSlots = n?.properties?.Memory ?? 512;
-				storages.push({node: ar.toNode, buffers: [{id:null, name:'-UNUSED-NULLPTR-BLOCKER-', addr:0, size:1}], capacity: maxSlots, free: maxSlots - 1});
+				storages.push({node: ar.toNode, buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', addr:0, size:1}], capacity: maxSlots, free: maxSlots - 1});
 			}
 		});
 
 		// Allocate and mark as permanently used anything that has Zone or Processor scope.
 		funcs.forEach(f => {
+			const fproc = def.ReadRelation(f.id, 'Processor');
+			if( fproc && !processors.find(p => fproc.id === p.node) ) {
+				rc.report('error', `Processor "${fproc.id}" assigned to function "${f.id}" is not assigned to the same Zone!`);
+				return;
+			} else if( !fproc && processors[0] ) {
+				rc.report('info', `Assigning Zone processor "${processors[0].node}" to function "${f.id}"`);
+				def.AddRel({fromNode:f.id, fromPin:'Processor', toNode:processors[0].node});
+			}
+
 			const datum = def.FindRelations(f.id)
 				.filter(r => f.id === r.fromNode)
 				.map(r => def.FindObject(r.toNode))
 				.filter(o => o?.type === 'data');
 
-			datum.forEach(d => {
-				if( d.config?.addr === undefined || d.config?.node === undefined ) {
-					// Find and allocate space for this datum in a Zone RAM.
-					const sz = d.config?.size ?? 1;
-					const st = storages.find(st => st.free >= sz);
-					if( ! st ) {
-						rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
-						return;
-					}
-
-					var addr = null;
-					for(var i = 0; i < st.buffers.length; ++i) {
-						if( i < st.buffers.length - 1 ) {
-							// Check between this block and next.
-							if( sz <= st.buffers[i+1].addr - st.buffers[i].addr - st.buffers[i].size ) {
-								// We can insert a new block here!
-								addr = st.buffers[i+1].addr - sz;
-								break;
-							}
-						} else {
-							// Check between last block and end.
-							addr = st.capacity - sz;
-							break;
-						}
-					}
-
-					if( addr === null ) {
-						rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
-						return;
-					}
-
-					// Insert new entry
-					const e = {addr: addr, size: sz, id:d.id, name: d.name};
-					d.config = d.config ?? {};
-					d.config.addr = addr;
-					d.config.node = st.node;
-
-					rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`);
-					st.buffers.push(e);
-					st.buffers.sort((a,b) => a.addr - b.addr);
-
-				} else {
-					// Validate manually-allocated space for this datum in a Zone RAM.
-					const sz = d.config.size ?? 1;
-					const da = d.config.addr;
-					const st = storages.find(st => st.node === d.config.node);
-					if( ! st ) {
-						rc.report('error', `Failed to find RAM device "${d.config.node}" in Zone for datum "${d.id}"`);
-						return;
-					}
-
-					for(var i = 0; i < st.buffers.length; ++i) {
-						const { addr:ba, size:bz } = st.buffers[i];
-						if( st.buffers[i].id === d.id ) {
-							// This is already the allocation we're looking for, found by another path.
-							return;
-						} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
-							rc.report('error', `Datum "${d.id}" allocation overlaps with memory allocated for "${st.buffers[i].id ?? st.buffers[i].name}"`);
-							return;
-						}
-					}
-
-					st.buffers.push({addr: da, size: sz, id: d.id, name: d.name})
-					st.buffers.sort((a,b) => a.addr - b.addr);
-				}
-			});
+			datum.forEach(d => CheckAndValidateDatum(d, rc, storages));
 		});
 	}
 
 	if( ! rc.fatal ) {
 		// Pull dependency strings to sequence related function code blocks.
+		//TODO: sort functions such that relations are under minimal tension
+		//TODO: build list of function code blocks, grouped by processor and scope, with same-processor and different-processor constraints applied.
 	}
 
 	if( ! rc.fatal ) {
-		// 
+		// Generate code
+		//TODO: for each processor which has a 
+		//TODO: again respecting function sort, generate substitution values and allocate instance-level reservations (mostly registers).
+		//TODO: generate body of function code blocks
+	}
+}
+
+function CheckAndValidateDatum(d, rc, storages) {
+	if( d.properties?.addr === undefined || d.properties?.node === undefined ) {
+		// Find and allocate space for this datum in a Zone RAM.
+		const sz = d.properties?.size ?? 1;
+		const st = storages.find(st => st.free >= sz);
+		if( ! st ) {
+			rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
+			return;
+		}
+
+		var addr = null;
+		for(var i = 0; i < st.buffers.length; ++i) {
+			if( i < st.buffers.length - 1 ) {
+				// Check between this block and next.
+				if( sz <= st.buffers[i+1].addr - st.buffers[i].addr - st.buffers[i].size ) {
+					// We can insert a new block here!
+					addr = st.buffers[i+1].addr - sz;
+					break;
+				}
+			} else {
+				// Check between last block and end.
+				addr = st.capacity - sz;
+				break;
+			}
+		}
+
+		if( addr === null ) {
+			rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
+			return;
+		}
+
+		// Insert new entry
+		const e = {addr: addr, size: sz, id:d.id, name: d.name};
+		d.properties = d.properties ?? {};
+		d.properties.addr = addr;
+		d.properties.node = st.node;
+
+		rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`);
+		st.buffers.push(e);
+		st.buffers.sort((a,b) => a.addr - b.addr);
+
+	} else {
+		// Validate manually-allocated space for this datum in a Zone RAM.
+		const sz = d.properties.size ?? 1;
+		const da = d.properties.addr;
+		const st = storages.find(st => st.node === d.properties.node);
+		if( ! st ) {
+			rc.report('error', `Failed to find RAM device "${d.properties.node}" in Zone for datum "${d.id}"`);
+			return;
+		}
+
+		for(var i = 0; i < st.buffers.length; ++i) {
+			const { addr:ba, size:bz } = st.buffers[i];
+			if( st.buffers[i].id === d.id ) {
+				// This is already the allocation we're looking for, found by another path.
+				return;
+			} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
+				rc.report('error', `Datum "${d.id}" allocation overlaps with memory allocated for "${st.buffers[i].id ?? st.buffers[i].name}"`);
+				return;
+			}
+		}
+
+		st.buffers.push({addr: da, size: sz, id: d.id, name: d.name})
+		st.buffers.sort((a,b) => a.addr - b.addr);
 	}
 }
 
@@ -767,54 +822,84 @@ function ValidateFunction(report, fnObj, layer) {
 		ValidateFunctionRel(reldef, applicable, fnObj, report, layer);
 	});
 
-	// Validate configurations
-	fdef.config.forEach(cfgdef => {
-		const value = fnObj.config[cfgdef.name];
-		if( value === undefined && !(cfgdef.allocate || cfgdef.value !== undefined) ) {
-			report('error', `Configuration value "${cfgdef.name}" missing required value`);
-		} else if( value ?? cfgdef.value ) {
-			if( ! ValidateConfigValue(cfgdef, value ?? cfgdef.value, fnObj, report, layer) )
+	// Validate configuration
+	fdef.properties.forEach(propDef => {
+		const value = fnObj.properties[propDef.name];
+		if( value === undefined && !(propDef.allocate || propDef.value !== undefined) ) {
+			report('error', `Configuration value "${propDef.name}" missing required value`);
+		} else if( value ?? propDef.value ) {
+			if( ! ValidatePropertyValue(propDef, value ?? propDef.value, fnObj, report, layer) )
 				return;
 		}
 
-		// For valid values, assert relations into existence for certain config values.
-		if( cfgdef.type === 'buffer' ) {
-			const v = value ?? cfgdef.value;
-			const dat = layer.ReadRelation(fnObj.id, cfgdef.name);
-			if( ! dat ) {
-				const did = layer.NewId();
-				layer.AddObject({id: did, name: `${fnObj.id}:${cfgdef.name}`, type: 'data', transient:true, config: {size: v.length}});
-				layer.AddRel({fromNode: fnObj.id, fromPin: cfgdef.name, toNode: did});
+		// For valid values, assert relations into existence for certain properties.
+		if( propDef.type === 'buffer' ) {
+			const v = value ?? propDef.value;
+			const scope = propDef.scope ?? 'processor';
+			var scopeTarget = undefined;
+			if( scope === 'zone' ) {
+				scopeTarget = layer.ReadRelation(fnObj.id, 'Zone')?.id;
+			} else if( scope === 'processor' ) {
+				scopeTarget = layer.ReadRelation(fnObj.id, 'Processor')?.id;
+			} else if( scope === 'instance' ) {
+				scopeTarget = fnObj.id;
+			}
+
+			if( ! scopeTarget ) {
+				report('error', `Failed to infer scope level "${scope}" target for function "${fnObj.id}" (you may have to manually assign one)`);
+				return;
+			}
+
+			const dname = `${fnObj.kind}:${scope}=${scopeTarget}:${propDef.name}`;
+			const dat = layer
+				.FindRelations(scopeTarget)
+				.filter(r => r.toNode === scopeTarget && r.fromPin === 'Scope')
+				.map(r => layer.FindObject(r.fromNode))
+				.filter(o => o.type === 'data' && o.name === dname);
+
+			var buffer;
+			if( dat.length === 0 ) {
+				const did = buffer = layer.NewId();
+				layer.AddObject({id: did, name: dname, type: 'data', transient:true, properties: {size: v.length}});
+				layer.AddRel({fromNode: did, fromPin: 'Scope', toNode: scopeTarget});
+				report('info', `Allocating new buffer "${buffer}" for scope ${scope}="${scopeTarget}"`);
+			} else {
+				buffer = dat[0].id;
+			}
+
+			if( buffer !== layer.ReadRelation(fnObj.id, propDef.name)?.id ) {
+				layer.AddRel({fromNode: fnObj.id, fromPin: propDef.name, toNode: buffer});
+				report('info', `Binding "${fnObj.id}:${propDef.name}" to buffer "${buffer}"`);
 			}
 		}
 	});
 }
 
-function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
+function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 {
 	const ok = true;
-	switch(cfgdef.type) {
+	switch(propDef.type) {
 		case 'constant':
-			if( cfgdef.subtype === 'number' ) {
+			if( propDef.subtype === 'number' ) {
 				if( typeof val === 'string' ) val = parseFloat(val);
 				if( typeof val !== 'number' || isNaN(val) ) {
-					report('error', `Register value "${cfgdef.name}" is not a number`);
+					report('error', `Register value "${propDef.name}" is not a number`);
 					ok = false;
 				}
 			
-			} else if( cfgdef.subtype === 'integer' ) {
+			} else if( propDef.subtype === 'integer' ) {
 				if( typeof val === 'string' ) val = parseInt(val);
 				if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
-					report('error', `Register value "${cfgdef.name}" is not an integer`);
+					report('error', `Register value "${propDef.name}" is not an integer`);
 					ok = false;
 				}
 			
-			} else if( cfgdef.subtype === 'list' ) {
-				if( !(cfgdef.options instanceof Array) ) {
-					report('error', `Illegal configuration definition; subtype "list" implies an array "options" to pick from`);
+			} else if( propDef.subtype === 'list' ) {
+				if( !(propDef.options instanceof Array) ) {
+					report('error', `Illegal property definition; subtype "list" implies an array "options" to pick from`);
 					ok = false;
-				} else if( ! cfgdef.options.find(i => i.name === val) ) {
-					report('error', `Value "${val}" not a valid option for configuration value "${cfgdef.name}"`);
+				} else if( ! propDef.options.find(i => i.name === val) ) {
+					report('error', `Value "${val}" not a valid option for property value "${propDef.name}"`);
 					ok = false;
 				}
 			}
@@ -823,10 +908,10 @@ function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
 		case 'register':
 			if( typeof val === 'string' ) val = parseInt(val);
 			if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
-				report('error', `Register value "${cfgdef.name}" is not an integer`);
+				report('error', `Register value "${propDef.name}" is not an integer`);
 				ok = false;
 			} else if( val < 0 || val > 15 ) {
-				report('error', `Register value "${cfgdef.name}" is out of valid range (0..15 inclusive)`);
+				report('error', `Register value "${propDef.name}" is out of valid range (0..15 inclusive)`);
 				ok = false;
 			}
 			break;
@@ -835,21 +920,21 @@ function ValidateConfigValue(cfgdef, val, fnObj, report, layer)
 			if( typeof val === 'string' ) {
 				try { val = JSON.parse(val); }
 				catch {
-					report('error', `Buffer value "${cfgdef.name}" must be an array, or a JSON string encoding an array!`);
+					report('error', `Buffer value "${propDef.name}" must be an array, or a JSON string encoding an array!`);
 					ok = false;
 				}
 			}
 			if( !(val instanceof Array) || val.length < 1 ) {
-				report('error', `Buffer value "${cfgdef.name}" must be a non-empty array`);
+				report('error', `Buffer value "${propDef.name}" must be a non-empty array`);
 				ok = false;
 			} else if( val.find(i => typeof i !== 'number' || isNaN(i)) ) {
-				report('error', `Buffer value "${cfgdef.name}" must have only numeric entries`);
+				report('error', `Buffer value "${propDef.name}" must have only numeric entries`);
 				ok = false;
 			}
 			break;
 		
 		default:
-			report('error', `Unhandled configuration type "${cfgdef.type}"`);
+			report('error', `Unhandled property type "${propDef.type}"`);
 			ok = false;
 	}
 
@@ -902,6 +987,9 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 				report('error', `Expected relationship to pin, node node.`);
 			} else if( reldef.subtype ) {
 				//TODO: validate specific destination pin type selected
+			}
+			if( !far.properties?.ReferenceId ) {
+				report('error', `Missing ReferenceId for equipment "${far.id}"`);
 			}
 
 			break;

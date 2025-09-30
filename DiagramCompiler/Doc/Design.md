@@ -93,18 +93,18 @@ We want to be able to override the configuration of the virtually generated func
 Functions have code blocks in a few types, and configuration variables which can be manually set or automatically filled.
 
 Each Code Block can run at...
-- Zone Init: once when powering up, once per zone.
-- Processor Init: once when powering up, once per chip on which this function type appears.
-- Prologue: once per processor cycle, before all instances.
-- Instance Intro: once per function instance.
+- Zone Init: once when powering up, per instance.
+- Processor Init: once when powering up, per chip on which this function type appears.
+- Cycle Init: once per processor cycle per function type, before all instances.
+- Instance (aka Instance-Init): once per function instance, before Array(s).
 - Array: once per value of a named Configuration Variable, contiguous between instance intro and instance outro.
-- Instance Outro: once per function instance.
-- Epilogue: once per processor cycle, after all instances.
+- Instance Outro: once per function instance, after Array(s).
+- Cycle Outro: once per processor cycle, after all instances.
 
 Each Code Block can have optional constraints...
-- Immediately After Function in Configuration Variable X
-- Same Processor as Function in Configuration Variable X
-- Different Processor as Function in Configuration Variable X
+- Immediately After Related Function (by relation name)
+- Same Processor as Related Function (by relation name)
+- Different Processor as Related Function (by relation name)
 
 Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as exactly one block passes its constraints. This is how you can have a function which depends on another function, and have it generate different code varying by whether it ends up in the same Processor as that other function or not.
 
