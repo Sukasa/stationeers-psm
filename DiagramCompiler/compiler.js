@@ -695,44 +695,147 @@ function ZoneCodeCompile(def, rc, cc) {
 			if( ar.fromPin === 'Processor' ) {
 				const maxLines = n?.properties?.Lines ?? 128;
 				const avail = [];
-				for(var i = 0; i < n?.properties?.Registers ?? 16; ++i)
+				for(var i = 0, m = n?.properties?.Registers ?? 16; i < m; ++i)
 					avail.push(i);
-				processors.push({node: ar.toNode, blocks: [], registersFree: avail, capacity: maxLines, free: maxLines});
+				processors.push({
+					node: ar.toNode,
+					blocks: [],
+					registersFree: avail,
+					capacity: maxLines, free: maxLines,
+				});
 			} else if( ar.fromPin === 'RAM' ) {
 				const maxSlots = n?.properties?.Memory ?? 512;
 				storages.push({node: ar.toNode, buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', addr:0, size:1}], capacity: maxSlots, free: maxSlots - 1});
 			}
 		});
+	}
 
+	const funcsByDep = [];
+	if( ! rc.fatal ) {
+		// Pull dependency strings to sequence related function code blocks.
+		const fQueue = funcs.map(f => ({
+			func: f,
+			refs: def.FindRelations(f.id)
+				.filter(r => r.fromNode === f.id)
+				.map(r => def.FindObject(r.toNode))
+				.filter(f2 => f2.type === 'function')
+		}));
+
+		while( fQueue.length > 0 ) {
+			fQueue.sort((a,b) => a.refs.length - b.refs.length);
+			if( fQueue[0].refs.length > 0 ) {
+				rc.report('error', `Failed to resolve depenencies of function "${fQueue[0].func.id}" (depends on at least "${fQueue[0].refs[0].id}")`);
+				break;
+			}
+
+			const innerQueue = [fQueue.shift().func];
+			while( innerQueue.length > 0 ) {
+				const next = innerQueue.shift();
+				funcsByDep.push(next);
+				for(var i = 0; i < fQueue.length; ++i) {
+					const idx = fQueue[i].refs.indexOf(next);
+					if( idx > -1 ) {
+						fQueue[i].refs.splice(idx, 1);
+						rc.report('info', `Resolved "${next.id}" from dependencies of "${fQueue[i].func.id}"`);
+
+						if( fQueue[i].refs.length === 0 ) {
+							// This node's last dependency was the one we just resolved.
+							// Enqueue it for fast-track resolution.
+							innerQueue.push(fQueue[i].func);
+						}
+					}
+				}
+			}
+		}
+
+		rc.report('info', `${rc.fatal ? 'Incompletely sequenced':'Sequenced'} functions as (${funcsByDep.map(f => f.id).join("; ")})`);
+	}
+
+	if( ! rc.fatal ) {
+		const typesOnce = {};
 		// Allocate and mark as permanently used anything that has Zone or Processor scope.
-		funcs.forEach(f => {
-			const fproc = def.ReadRelation(f.id, 'Processor');
+		funcsByDep.forEach(f => {
+			var fproc = def.ReadRelation(f.id, 'Processor');
 			if( fproc && !processors.find(p => fproc.id === p.node) ) {
 				rc.report('error', `Processor "${fproc.id}" assigned to function "${f.id}" is not assigned to the same Zone!`);
 				return;
+
 			} else if( !fproc && processors[0] ) {
 				rc.report('info', `Assigning Zone processor "${processors[0].node}" to function "${f.id}"`);
 				def.AddRel({fromNode:f.id, fromPin:'Processor', toNode:processors[0].node});
+				fproc = def.FindObject(processors[0].node);
 			}
 
+			const proc = processors.find(p => p.node === fproc.id);
 			const datum = def.FindRelations(f.id)
 				.filter(r => f.id === r.fromNode)
 				.map(r => def.FindObject(r.toNode))
 				.filter(o => o?.type === 'data');
-
 			datum.forEach(d => CheckAndValidateDatum(d, rc, storages));
+
+			if( !typesOnce[f.kind] ) {
+				// Process processor-wide register allocations
+				typesOnce[f.kind] = true;
+				functiondef_db[f.kind].properties?.forEach(pdef => {
+					if( pdef.type !== 'register' || pdef.scope !== 'processor' ) return;
+					const pval = f.properties?.[pdef.name] ?? pdef.value ?? undefined;
+
+					var nval;
+					if( pval === undefined ) {
+						if( pdef.allocate ) {
+							if( proc.registersFree.length > 0 ) {
+								nval = proc.registersFree[proc.registersFree.length - 1];
+							} else {
+								rc.report('error', `No registers available in processor "${proc.node}" for use by function type "${f.kind}"`);
+								return;
+							}
+						} else {
+							rc.report('error', `Function "${f.id}" of kind "${f.kind}" requires manual register allocation for property "${pdef.name}"`);
+							return;
+						}
+					} else {
+						nval = pval;
+					}
+
+					const idx = proc.registersFree.indexOf(nval);
+					if( -1 === idx ) {
+						rc.report('error', `Register r${nval} is already in use in processor "${proc.node}"; cannot assign it to function type "${f.kind}"`);
+					} else {
+						rc.report('info', `Assigning Register r${nval} to function type "${f.kind}" in processor "${proc.node}"`);
+						proc.registersFree.splice(idx, 1);
+					}
+				});
+			}
 		});
 	}
 
 	if( ! rc.fatal ) {
-		// Pull dependency strings to sequence related function code blocks.
-		//TODO: sort functions such that relations are under minimal tension
+		const procTables = {}, typesOnce = {};
+		funcsByDep.forEach(fnObj => {
+			const fproc = def.ReadRelation(fnObj.id, 'Processor');
+			const fnDef = functiondef_db[fnObj.kind];
+
+			const proc = procTables[fproc.id] = procTables[fproc.id] ?? {
+				processor: processors.find(p => p.node === fproc.id),
+				'zone-init': [], 'processor-init': [], 'cycle-init': [], 'instance': [], 'cycle-outro': [],
+			};
+
+			rc.report('info', `Processor "${fproc.id}" has ${proc.processor.free} lines and ${proc.processor.registersFree.length} registers for use by function "${fnObj.id}"`);
+			if( !typesOnce[fnObj.kind] ) {
+				typesOnce[fnObj.kind] = true;
+				//TODO: insert once-per-processor code blocks
+			}
+
+			//TODO: insert once-per-instance code blocks
+		});
+
 		//TODO: build list of function code blocks, grouped by processor and scope, with same-processor and different-processor constraints applied.
+		//TODO: add label&yield to top (after zone-init and processor-init code), and jump to bottom, of every processor.
+		
 	}
 
 	if( ! rc.fatal ) {
 		// Generate code
-		//TODO: for each processor which has a 
 		//TODO: again respecting function sort, generate substitution values and allocate instance-level reservations (mostly registers).
 		//TODO: generate body of function code blocks
 	}
@@ -912,6 +1015,10 @@ function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 				ok = false;
 			} else if( val < 0 || val > 15 ) {
 				report('error', `Register value "${propDef.name}" is out of valid range (0..15 inclusive)`);
+				ok = false;
+			}
+			if( propDef.scope !== 'processor' && propDef.scope !== 'instance' ) {
+				report('error', `Property Definition "${propDef.name}" is invalid: supported scopes are "processor" or "instance"!`);
 				ok = false;
 			}
 			break;

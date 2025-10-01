@@ -95,7 +95,7 @@ Functions have code blocks in a few types, and configuration variables which can
 Each Code Block can run at...
 - Zone Init: once when powering up, per instance.
 - Processor Init: once when powering up, per chip on which this function type appears.
-- Cycle Init: once per processor cycle per function type, before all instances.
+- Cycle Init: once per processor per function type, each cycle before all instances.
 - Instance (aka Instance-Init): once per function instance, before Array(s).
 - Array: once per value of a named Configuration Variable, contiguous between instance intro and instance outro.
 - Instance Outro: once per function instance, after Array(s).
