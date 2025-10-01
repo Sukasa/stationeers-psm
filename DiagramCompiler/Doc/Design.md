@@ -92,13 +92,12 @@ We want to be able to override the configuration of the virtually generated func
 
 Functions have code blocks in a few types, and configuration variables which can be manually set or automatically filled.
 
-Each Code Block can run at...
+Each Code Block can be placed at these scopes...
 - Zone Init: once when powering up, per instance.
 - Processor Init: once when powering up, per chip on which this function type appears.
 - Cycle Init: once per processor per function type, each cycle before all instances.
-- Instance (aka Instance-Init): once per function instance, before Array(s).
-- Array: once per value of a named Configuration Variable, contiguous between instance intro and instance outro.
-- Instance Outro: once per function instance, after Array(s).
+- Instance: once per function instance.
+- Array: once per value of a named Configuration Variable, otherwise placed in definition order amongst other 'Instance' scopes.
 - Cycle Outro: once per processor cycle, after all instances.
 
 Each Code Block can have optional constraints...
@@ -106,7 +105,7 @@ Each Code Block can have optional constraints...
 - Same Processor as Related Function (by relation name)
 - Different Processor as Related Function (by relation name)
 
-Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as exactly one block passes its constraints. This is how you can have a function which depends on another function, and have it generate different code varying by whether it ends up in the same Processor as that other function or not.
+Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as at least one block passes its constraints. When multiple pass, only one will be compiled, and it will be a member of the group with a maximal number of constraints. This is how you can have a function which depends on another function, and have it generate different code varying by e.g. whether it is placed in the same Processor as that other function or not.
 
 Each Configuration Variable comes in a variety of types:
 - Constant: some user-filled constant, with optional default and with constraints including 'numeric', 'text', 'logic'
@@ -167,7 +166,8 @@ Each Configuration Variable exposes some Configuration Values to the code compil
 
 # [OR] INLINE
 	getd %R0% %RAM% %MVAddr%
-	s %DRef% %DLogic% %R0%
+# [OR] ARRAY (DEST)
+	s %DestRef% %DestLogic% %R0%
 
 # [AA] Init (once at powerup for each chip that includes 1+ [AA] INLINE)
 	move   r0 0

@@ -103,7 +103,7 @@ const functiondef_db = {
 		fullname: 'Output Router',
 		rels: [
 			{name: 'Source', type: 'data' },
-			{name: 'Destination', type: 'equipment', subtype: 'logic', },
+			{name: 'Destination', array:true, type: 'equipment', subtype: 'logic', },
 		],
 		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
@@ -116,8 +116,13 @@ const functiondef_db = {
 				scope: 'instance',
 				code: [
 					'getd %R0% %Source.RAM% %Source.Addr%',
-					's %DestinationDevice% %DestinationLogic% %R0%',
 				],
+			},
+			{
+				scope: 'array', target: 'Destination',
+				code: [
+					's %Destination.ReferenceId% %Destination.Logic% %R0%',
+				]
 			}
 		]
 	},
@@ -234,6 +239,7 @@ const functiondef_db = {
 			{name: 'Input', type: 'function', },
 			{name: 'Display', type: 'equipment', },
 		],
+		requiredPriority: 1,
 		properties: [
 			{name: 'r0', type: 'register', scope: 'processor', value: 0, hidden: true, },
 			{name: 'r1', type: 'register', scope: 'processor', value: 1, hidden: true, },
@@ -318,6 +324,7 @@ const metanode_db = {
 			const def = equipmenttype_db[obj.kind];
 			if( ! def ) return [];
 			if( def.pins === undefined ) {
+				// Generate and cache pins by equipment type.
 				const res = [{name:'Zone', type:'zone'}];
 	
 				if( def.logicRead ) {
@@ -361,7 +368,8 @@ const test_workspace = [
 
 	{type: 'function', kind: 'OR', id: 'EQ818293', properties: {}},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', toNode: 'HL13014', viaNode: 'UK381091', viaPin: 'Destination'},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', toNode: 'TW818194', toPin: 'Setting'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 0, toNode: 'TW818194', toPin: 'Setting'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 1, toNode: 'TW37182', toPin: 'Setting'},
 
 	{type: 'function', kind: 'AT', id: 'UG82030', properties: {
 		'Test': 'slt',
@@ -445,9 +453,14 @@ const test_workspace = [
 		'Memory': 512,
 	}},
 	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
-		'Name': 'Temp Wall Display',
+		'Name': 'Temp Wall Display (North)',
 		'Initialize': {Color:2, On:1, Mode:4},
 		'ReferenceId': 4102,
+	}},
+	{type: 'equipment', kind: 'LED Display', id: 'TW37182', properties: {
+		'Name': 'Temp Wall Display (South)',
+		'Initialize': {Color:2, On:1, Mode:4},
+		'ReferenceId': 4261,
 	}},
 	{type: 'equipment', kind: 'Button', id: 'RI39151', properties: {
 		'Name': 'ACK button',
@@ -661,7 +674,7 @@ class ReportReceiver {
 	ZoneCodeCompile(def, rc2, cc2);
 	rc2.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
 	console.log(`Done 2nd prototype compile`);
-	console.log(JSON.parse(def.Serialize()));
+	console.log(`Created New Graph Elements:`, JSON.parse(def.Serialize()));
 })();
 
 function ZoneCodeCompile(def, rc, cc) {
@@ -693,6 +706,7 @@ function ZoneCodeCompile(def, rc, cc) {
 		assets.forEach(ar => {
 			const n = def.FindObject(ar.toNode);
 			if( ar.fromPin === 'Processor' ) {
+				const LoCPerTick = n?.properties?.LoCPerTick ?? 128;
 				const maxLines = n?.properties?.Lines ?? 128;
 				const avail = [];
 				for(var i = 0, m = n?.properties?.Registers ?? 16; i < m; ++i)
@@ -702,6 +716,7 @@ function ZoneCodeCompile(def, rc, cc) {
 					blocks: [],
 					registersFree: avail,
 					capacity: maxLines, free: maxLines,
+					LoCPerTick: LoCPerTick,
 				});
 			} else if( ar.fromPin === 'RAM' ) {
 				const maxSlots = n?.properties?.Memory ?? 512;
@@ -809,35 +824,189 @@ function ZoneCodeCompile(def, rc, cc) {
 		});
 	}
 
+	// Table of processor compilation data {processor:, (each code block scope):[],}
+	// Code blocks are wrapped with {func:, block:}, so substitution and arrays can be processed in scope.
+	const procTables = {};
+
 	if( ! rc.fatal ) {
-		const procTables = {}, typesOnce = {};
 		funcsByDep.forEach(fnObj => {
 			const fproc = def.ReadRelation(fnObj.id, 'Processor');
 			const fnDef = functiondef_db[fnObj.kind];
 
 			const proc = procTables[fproc.id] = procTables[fproc.id] ?? {
 				processor: processors.find(p => p.node === fproc.id),
-				'zone-init': [], 'processor-init': [], 'cycle-init': [], 'instance': [], 'cycle-outro': [],
+				instances: {}, typesSeen: {},
+				'zone-init': [], 'processor-init': [],
+				'cycle-init': [], 'instance': [], 'cycle-outro': [],
 			};
 
-			rc.report('info', `Processor "${fproc.id}" has ${proc.processor.free} lines and ${proc.processor.registersFree.length} registers for use by function "${fnObj.id}"`);
-			if( !typesOnce[fnObj.kind] ) {
-				typesOnce[fnObj.kind] = true;
-				//TODO: insert once-per-processor code blocks
+			proc.instances[fnObj.id] = fnObj;
+
+			const CheckConstraint = c => {
+				if( c.kind === 'different-processor' ) {
+					const otherFn = def.ReadRelation(fnObj.id, c.target);
+					if( !otherFn || fproc === def.ReadRelation(otherFn, 'Processor') ) {
+						rc.report('warn', `Function "${fnObj.id}" is on same processor as "${c.target}"`);
+						return false;
+					}
+
+				} else if( c.kind === 'same-processor' ) {
+					const otherFn = def.ReadRelation(fnObj.id, c.target);
+					if( !otherFn || fproc !== def.ReadRelation(otherFn, 'Processor') ) {
+						rc.report('warn', `Function "${fnObj.id}" is on a different processor from "${c.target}"`);
+						return false;
+					}
+
+				} else if( c.kind === 'immediately-after' ) {
+					// Would be solved (if possible) by the function ordering phase.
+					return true;
+
+				} else {
+					rc.report('error', `Unsupported function code block constraint type "${c.kind}"`);
+				}
+				return true;
+			};
+
+			const DistributeBlocks = blocks => {
+				const groups = blocks.reduce((gs,b) => {
+					const g = gs[b.group ?? ''] = gs[b.group ?? ''] ?? [];
+					g.push(b);
+					return gs;
+				}, {});
+
+				for(var gName in groups) {
+					// Sanity-check, in case of refactoring above.
+					if( groups[gName].length === 0 ) continue;
+
+					// Evaluate constraints of blocks in this group. When a constraint fails,
+					// remove that block from the `blocks` array.
+					const goodBlocks = groups[gName].filter(f => {
+						if( !f.constraints || f.constraints.length === 0 )
+							return true;
+						if( f.constraints.find(c => !CheckConstraint(c))) {
+							blocks.splice(blocks.indexOf(f), 1);
+							return false;
+						} else {
+							return true;
+						}
+					});
+
+					if( gName === '' && goodBlocks.length < groups[gName].length ) {
+						// If the group name is '' and any blocks failed constraints, report error.
+						rc.report('error', `Function "${fnObj.id}" of type "${fnObj.kind}" failed some ungrouped code block constraints; see documentation.`);
+
+					} else if( gName !== '' && goodBlocks.length === 0 ) {
+						// If the gorup name is not '' and all blocks failed constraints, report error.
+						rc.report('error', `Function "${fnObj.id}" of type "${fnObj.kind}" failed all code blocks in group "${gName}"; see documentation.`);
+
+					} else if( gName !== '' ) {
+						// If the group name is not '' and at least one block passed constraints, pick one
+						// of those with the highest number of constraints, and remove all others from `blocks`.
+
+						// Sort by constraint count ascending.
+						goodBlocks.sort((a,b) => (a.constraints?.length ?? 0) - (b.constraints?.length ?? 0));
+						// Keep one with a highest constraint count.
+						goodBlocks.pop();
+						// Remove all others.
+						goodBlocks.forEach(gb => blocks.splice(blocks.indexOf(gb), 1));
+					}
+				}
+
+				// Add all remaining `blocks` to processor code segments.
+				blocks.forEach(b => {
+					// Interpret 'array' scopes as though they were 'instance'; otherwise, use scopes as-is.
+					const list = proc[b.scope === 'array' ? 'instance' : b.scope];
+					if( !(list instanceof Array) ) {
+						rc.report('error', `Unknown code block scope "${b.scope}" in function type "${fnObj.kind}"`);
+						return;
+					}
+
+					var cnt = 1;
+					if( b.scope === 'array' ) {
+						const arel = def.FindRelations(fnObj.id).filter(r => fnObj.id === r.fromNode && b.target === r.fromPin);
+						const acfg = fnObj.properties?.[b.target];
+						if( acfg instanceof Array && arel.length === 0 ) {
+							cnt = acfg.length;
+						} else if( arel.length > 0 && !(acfg instanceof Array) ) {
+							cnt = arel.length;
+						} else {
+							rc.report('error', `Failed to infer arity source for Array scope block on function "${fnObj.id}", target "${b.target}"`);
+							cnt = 0;
+						}
+					}
+					list.push({func: fnObj, block:b, count:cnt});
+				});
+			};
+			
+			// Once-per-processor blocks.
+			const IsProcScope = b => b.scope === 'processor-init' || b.scope === 'cycle-init' || b.scope === 'cycle-outro';
+			if( !proc.typesSeen[fnObj.kind] ) {
+				proc.typesSeen[fnObj.kind] = true;
+				DistributeBlocks(fnDef.blocks.filter(b => IsProcScope(b)));
+				//TODO: for custom-code functions, insert processing here for the custom list in fnObj
 			}
 
-			//TODO: insert once-per-instance code blocks
+			// Once-per-instance blocks
+			DistributeBlocks(fnDef.blocks.filter(b => !IsProcScope(b)));
+			//TODO: for custom-code functions, insert processing here for the custom list in fnObj
 		});
 
-		//TODO: build list of function code blocks, grouped by processor and scope, with same-processor and different-processor constraints applied.
-		//TODO: add label&yield to top (after zone-init and processor-init code), and jump to bottom, of every processor.
-		
+		for(var procid in procTables) {
+			const proc = procTables[procid];
+			const CodeLen = L => L.reduce((t,b) => t + (b.count ?? 1) * b.block.code.length, 0);
+
+			// Zone-init; once per function instance, once per processor power-up.
+			const ziLen = CodeLen(proc['zone-init']);
+
+			// Processor-init; once per function type, once per processor power-up.
+			const piLen = CodeLen(proc['processor-init']);
+			if( ziLen+piLen > 0) {
+				rc.report('info', `Processor "${procid}" has ${ziLen+piLen} LoC of on-powerup init code`);
+			}
+
+			// Add yield to start of cycle-init.
+			proc['cycle-init'].unshift({func:null, block:{scope:'cycle-init',code:[`yield`]}});
+
+			// Add a jump (to that yield) to the end of cycle-outro.
+			proc['cycle-outro'].push({func:null, block:{scope:'cycle-outro',code:[`j ${ziLen+piLen}`]}});
+
+			// Total up all other code.
+			const remLen = ['cycle-init','instance','cycle-outro'].reduce((t,L) => t + CodeLen(proc[L]), 0);
+
+			if( ziLen+piLen+remLen > proc.processor.capacity ) {
+				rc.report('error', `Processor "${proc.processor.node}" is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${remLen} cycle LoC: but this puts it ${ziLen+piLen+remLen - proc.processor.capacity} over its LoC budget!`);
+				continue;
+			}
+
+			// Calculate the best servable priority (how many ticks it takes to execute all code). Is always 1
+			// in vanilla Stationeers, but we are aware of mods that e.g. increase the LoC limit to 512 without
+			// changing the execution speed; such chips could run down to priority 4.
+			proc.bestPriority = Math.ceil(remLen / proc.processor.LoCPerTick);
+			rc.report('info', `Processor "${procid}" capable of serving Priority "${proc.bestPriority}" or worse, at ${remLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`);
+
+			for(var fnId in proc.instances) {
+				const fnObj = proc.instances[fnId];
+				const fnDef = functiondef_db[fnObj.kind];
+				const pval = (fnDef.requiredPriority ?? fnObj.properties?.Priority) || 0;
+				if( pval > 0 && pval < proc.bestPriority ) {
+					rc.report('error', `Function "${fnId}" demands priority "${pval}" or better, but is assigned to Processor "${procid}" which can serve at best priority "${proc.bestPriority}"`);
+				}
+			}
+		}
 	}
 
 	if( ! rc.fatal ) {
+		const varsByFunc = {};
 		// Generate code
-		//TODO: again respecting function sort, generate substitution values and allocate instance-level reservations (mostly registers).
-		//TODO: generate body of function code blocks
+		funcsByDep.forEach(fnObj => {
+			//TODO: generate substitution values and allocate instance-level reservations (mostly registers).
+
+		});
+		
+		for(var procid in procTables) {
+			const proc = procTables[procid];
+			//TODO: generate body of function code blocks
+		}
 	}
 }
 
