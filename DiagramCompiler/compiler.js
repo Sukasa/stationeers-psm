@@ -407,7 +407,7 @@ const test_workspace = [
 	{type: 'equipment', kind: 'LED Panel', id: 'TW7191', properties: {
 		'Name': 'High Temp Alarm Lamp',
 		'Initialize': {Color:4, On:1},
-		'ReferenceId': 4127,
+		'ReferenceId': 4243,
 	}},
 
 	// Zone
@@ -683,13 +683,16 @@ class ReportReceiver {
 	const db = new GraphLayer();
 	db.Deserialize(JSON.stringify(test_workspace));
 
+	const timeStart = performance.now();
 	// Make a sublayer upon the original graph.
 	const def = new GraphLayer(db);
 	const rc = new ReportReceiver();
 	const cc = {};
 	ZoneCodeCompile(def, rc, cc);
+	const timeEnd = performance.now();
+
 	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
-	console.log(`Done 1st prototype compile`);
+	console.log(`Done 1st prototype compile (${timeEnd - timeStart}ms)`);
 	for(var proc in cc) {
 		console.log(`Processor "${proc}" Code:`);
 		console.log(cc[proc]);
@@ -806,7 +809,7 @@ function ZoneCodeCompile(def, rc, cc) {
 						if( fQueue[i].refs.length === 0 ) {
 							// This node's last dependency was the one we just resolved.
 							// Enqueue it for fast-track resolution.
-							innerQueue.push(fQueue[i].func);
+							innerQueue.unshift(fQueue[i].func);
 						}
 					}
 				}
