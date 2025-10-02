@@ -690,14 +690,20 @@ class ReportReceiver {
 	ZoneCodeCompile(def, rc, cc);
 	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
 	console.log(`Done 1st prototype compile`);
-
+	for(var proc in cc) {
+		console.log(`Processor "${proc}" Code:`);
+		console.log(cc[proc]);
+	}
+	
 	// Run compile on it again, so we can verify the result is stable.
+	/*
 	const rc2 = new ReportReceiver();
 	const cc2 = {};
 	ZoneCodeCompile(def, rc2, cc2);
 	rc2.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
 	console.log(`Done 2nd prototype compile`);
 	console.log(`Created New Graph Elements:`, JSON.parse(def.Serialize()));
+	*/
 })();
 
 function ZoneCodeCompile(def, rc, cc) {
@@ -724,7 +730,7 @@ function ZoneCodeCompile(def, rc, cc) {
 				id: def.NewId(),
 				type: 'function',
 				kind: 'CIEL',
-				properties:{Value: eq.properties.Initialize[initKey]},
+				properties:{Name: `Init ${eq.id} ${initKey}`, Value: eq.properties.Initialize[initKey]},
 				transient: true,
 			};
 
@@ -1054,7 +1060,9 @@ function ZoneCodeCompile(def, rc, cc) {
 		const varsByFunc = {};
 
 		const setter = (tgt, fnObj) => (k,v) => {
-			if( tgt[k] !== undefined ) {
+			if( tgt[k] === v ) {
+				return;
+			} else if( tgt[k] !== undefined ) {
 				rc.report('warn', `Function "${fnObj.id}" Variable "${k}" was assigned multiple times!`);
 			}
 			
@@ -1186,9 +1194,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			for(var pd of fnDef.properties)
 				SetPropVariables(rc, proc, fnObj, vars, pd, fnObj.properties?.[pd.name]);
 
-			for(var k in vars) {
-				rc.report('debug', `Fn "${fnObj.id}" Variable "${k}" = "${vars[k]}"`);
-			}
+			//DEBUG: for(var k in vars) rc.report('debug', `Fn "${fnObj.id}" Variable "${k}" = "${vars[k]}"`);
 		});
 
 		const lpad = (n,s,r) => (r??' ').repeat(Math.max(0, n-String(s).length)) + s;
@@ -1235,7 +1241,8 @@ function ZoneCodeCompile(def, rc, cc) {
 				})
 			});
 
-			if( /*DEBUG*/ true ) {
+			cc[procid] = all_lines.join('\n');
+			if( /*DEBUG*/ false ) {
 				console.log(`Processor "${procid}" Code:\n`,
 					all_lines.reduce(([lst,acc],ln) => {
 						if( ln[0] === '#' ) {
