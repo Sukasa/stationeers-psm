@@ -29,6 +29,7 @@ To manage the devices in a given operation zone. Each ZONE has a RAM chip which 
 - [AS] ALARM STATE (a specialization of PL) updates ALARM STATE values based on ALARM TRIGGER values and an ACKNOWLEDGE signal.
 
 - [OR] OUTPUT ROUTER (the inverse of INPUT ROUTER) transfer information from ZONE RAM to DISPLAY UNITS and OPERATION UNITS.
+- [EI] EQUIPMENT INITIALIZATION (a specialization of OR) to transfer constant values to DISPLAY UNITS and OPERATION UNITS, once at system startup.
 - [AA] ALARM ANNUNCIATOR (a specialization of OR) read ALARM STATE values effect them on displays to visualize inactive/active/acknowledged alarms.
 
 - [SD] STACK DATA (splitting the difference between OR and PL) are block transfers of data between STACK UNITS, e.g. transferring data between ZONE RAM blocks, or interfacing with advanced network devices

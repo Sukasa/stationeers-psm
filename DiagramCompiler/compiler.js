@@ -122,8 +122,8 @@ const functiondef_db = {
 		]
 	},
 
-	"CIEL": {
-		fullname: 'Constant Initialization of Equipment Logic',
+	"EI": {
+		fullname: 'Equipment Initialization',
 		rels: [
 			{name: 'Destination', type: 'equipment', subtype: 'logic'},
 		],
@@ -211,9 +211,10 @@ const functiondef_db = {
 			{
 				scope: 'cycle-init',
 				code: [
+					// Read the ack signal, clear it if seen, and select appropriate transition table.
 					'get %RAck% %AckSignal.RAM% %AckSignal.Addr%',
-					'select %RAck% %RAck% %B.AckOn% %B.AckNo%',
 					'put %AckSignal.RAM% %AckSignal.Addr% 0',
+					'select %RAck% %RAck% %B.AckOn% %B.AckNo%',
 				],
 			},
 			{
@@ -221,6 +222,7 @@ const functiondef_db = {
 				group: 'load',
 				constraints: [{kind: 'immediately-after', target: 'Input'}],
 				code: [
+					// Select subtable based on alarm test value
 					'select %R3% %Input.R1% 3 0',
 				]
 			},
@@ -229,6 +231,7 @@ const functiondef_db = {
 				group: 'load',
 				constraints: [{kind: 'different-processor', target: 'Input'}],
 				code: [
+					// Select subtable based on alarm test value
 					'get %R3% %Input.Destination.RAM% %Input.Destination.Addr%',
 					'select %R3% %R3% 3 0',
 				]
@@ -236,6 +239,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				code: [
+					// Compute final transition table offset based on state, read it, and update state.
 					'get %R2% %State.RAM% %State.Addr%',
 					'add %R2% %R2% %R3%',
 					'add %R2% %R2% %RAck%',
@@ -429,50 +433,65 @@ const test_workspace = [
 	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
 
 	// Functions
-	{type: 'function', kind: 'IR', id: 'UK381091', properties: {}},
+	{type: 'function', kind: 'IR', id: 'UK381091', properties: {
+		Name: 'TI-401 PV',
+	}},
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Source', toNode: 'EK419931', toPin: 'Temperature'},
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Destination', toNode: 'HL13014'},
 
 	{type: 'function', kind: 'XR', id: 'UV8201', properties: {
+		Name: 'ACK input',
 		'Signal': 1,
 	}},
 	{type: 'rel', fromNode: 'UV8201', fromPin: 'Source', toNode: 'RI39151'},
 	{type: 'rel', fromNode: 'UV8201', fromPin: 'Destination', toNode: 'HL94912'},
 
-	{type: 'function', kind: 'OR', id: 'EQ818293', properties: {}},
+	{type: 'function', kind: 'OR', id: 'EQ818293', properties: {
+		Name: 'TI-401 PV (to HID)',
+	}},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', toNode: 'HL13014', viaNode: 'UK381091', viaPin: 'Destination'},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 0, toNode: 'TW818194', toPin: 'Setting'},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 1, toNode: 'TW37182', toPin: 'Setting'},
 
 	{type: 'function', kind: 'AT', id: 'UG82030', properties: {
+		Name: 'TI-401 low level alarm',
 		'Test': 'slt',
 		'Threshold': 283,
 	}},
 	{type: 'rel', fromNode: 'UG82030', fromPin: 'Input', toNode: 'UK381091'},
 	{type: 'rel', fromNode: 'UG82030', fromPin: 'Destination', toNode: 'HL83018'},
 
-	{type: 'function', kind: 'AS', id: 'UG7364', properties: {}},
+	{type: 'function', kind: 'AS', id: 'UG7364', properties: {
+		Name: 'TI-401 low level alarm',
+	}},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'Input', toNode: 'UG82030'},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'State', toNode: 'HL92103'},
 	{type: 'rel', fromNode: 'UG7364', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
 
-	{type: 'function', kind: 'AA', id: 'UG175689', properties: {}},
+	{type: 'function', kind: 'AA', id: 'UG175689', properties: {
+		Name: 'TI-401 low level alarm',
+	}},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Input', toNode: 'UG7364'},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Display', toNode: 'TW3716'},
 
 	{type: 'function', kind: 'AT', id: 'ZG7188', properties: {
+		Name: 'TI-401 high level alarm',
 		'Test': 'sgt',
 		'Threshold': 302,
 	}},
 	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Input', toNode: 'UK381091'},
 	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Destination', toNode: 'HH42018'},
 
-	{type: 'function', kind: 'AS', id: 'UG2022', properties: {}},
+	{type: 'function', kind: 'AS', id: 'UG2022', properties: {
+		Name: 'TI-401 high level alarm',
+	}},
 	{type: 'rel', fromNode: 'UG2022', fromPin: 'Input', toNode: 'ZG7188'},
 	{type: 'rel', fromNode: 'UG2022', fromPin: 'State', toNode: 'HL19371'},
 	{type: 'rel', fromNode: 'UG2022', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
 
-	{type: 'function', kind: 'AA', id: 'UG497710', properties: {}},
+	{type: 'function', kind: 'AA', id: 'UG497710', properties: {
+		Name: 'TI-401 high level alarm',
+	}},
 	{type: 'rel', fromNode: 'UG497710', fromPin: 'Input', toNode: 'UG2022'},
 	{type: 'rel', fromNode: 'UG497710', fromPin: 'Display', toNode: 'TW7191'},
 
@@ -727,12 +746,12 @@ function ZoneCodeCompile(def, rc, cc) {
 		.filter(o => o.type === 'equipment' && o.properties?.Initialize);
 	
 	initEquip.forEach(eq => {
-		// Add CIEL functions for each 
+		// Add Equipment Initialization functions for each 
 		for(var initKey in eq.properties.Initialize) {
 			const f = {
 				id: def.NewId(),
 				type: 'function',
-				kind: 'CIEL',
+				kind: 'EI',
 				properties:{Name: `Init ${eq.id} ${initKey}`, Value: eq.properties.Initialize[initKey]},
 				transient: true,
 			};
@@ -1215,8 +1234,10 @@ function ZoneCodeCompile(def, rc, cc) {
 					if( comments ) {
 						if( !func ) {
 							next_comment = `# (cycle control)`;
+						} else if( block.scope === 'processor-init' || block.scope === 'cycle-init' ) {
+							next_comment = `# [${func.kind}] (per-processor) CB#${block.index}${block.scope !== 'array'?'':` array:${block.target}`}`;
 						} else {
-							next_comment = `# ${func.kind} ${func.properties?.Name ?? func.id} CB#${block.index}${block.scope !== 'array'?'':` array:${block.target}`}`;
+							next_comment = `# [${func.kind}] "${func.properties?.Name ?? func.id}" CB#${block.index}${block.scope !== 'array'?'':` array:${block.target}`}`;
 						}
 					}
 					
