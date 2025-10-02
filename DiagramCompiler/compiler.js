@@ -50,7 +50,7 @@ const functiondef_db = {
 		fullname: 'Input Router',
 		rels: [
 			{name: 'Source', type: 'equipment', subtype: 'logic', },
-			{name: 'Destination', type: 'data', array: true, allocate: true, },
+			{name: 'Destination', type: 'data', allocate: true, },
 		],
 		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
@@ -63,14 +63,9 @@ const functiondef_db = {
 				scope: 'instance',
 				code: [
 					'l %R0% %Source.ReferenceId% %Source.Logic%',
+					'put %Destination.RAM% %Destination.Addr% %R0%',
 				],
 			},
-			{
-				scope: 'array', target: 'Destination',
-				code: [
-					'putd %Destination.RAM% %Destination.Addr% %R0%',
-				],
-			}
 		],
 	},
 
@@ -93,7 +88,7 @@ const functiondef_db = {
 				code: [
 					'l %R0% %Source% Setting',
 					'breqz %R0% 2',
-					'putd %Destination.RAM% %Destination.Addr% %Signal%',
+					'put %Destination.RAM% %Destination.Addr% %Signal%',
 				],
 			},
 		],
@@ -115,7 +110,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				code: [
-					'getd %R0% %Source.RAM% %Source.Addr%',
+					'get %R0% %Source.RAM% %Source.Addr%',
 				],
 			},
 			{
@@ -127,11 +122,29 @@ const functiondef_db = {
 		]
 	},
 
+	"CIEL": {
+		fullname: 'Constant Initialization of Equipment Logic',
+		rels: [
+			{name: 'Destination', type: 'equipment', subtype: 'logic'},
+		],
+		properties: [
+			{name: 'Value', type: 'constant', subtype: 'number',},
+		],
+		blocks: [
+			{
+				scope: 'zone-init',
+				code: [
+					's %Destination.ReferenceId% %Destination.Logic% %Value%'
+				],
+			}
+		]
+	},
+
 	"AT": {
 		fullname: 'Alarm Test',
 		rels: [
 			{name: 'Input', type: 'function', functiontype:['IR','SR'], },
-			{name: 'Destination', type: 'data', array: true, allocate: true, },
+			{name: 'Destination', type: 'data', allocate: true, },
 		],
 		properties: [
 			{name: 'Threshold', type: 'constant', subtype: 'number'},
@@ -154,7 +167,7 @@ const functiondef_db = {
 				group: 'load',
 				constraints: [{kind: 'different-processor', target: 'Input'}],
 				code: [
-					'getd %R1% %Input.Destination.RAM% %Input.Destination.Addr%',
+					'get %R1% %Input.Destination.RAM% %Input.Destination.Addr%',
 					'%Test% %R1% %R1% %Threshold%'
 				]
 			},
@@ -169,7 +182,7 @@ const functiondef_db = {
 			{
 				scope: 'instance',
 				code: [
-					'putd %Destination.RAM% %Destination.Addr% %R1%',
+					'put %Destination.RAM% %Destination.Addr% %R1%',
 				]
 			}
 		]
@@ -198,9 +211,9 @@ const functiondef_db = {
 			{
 				scope: 'cycle-init',
 				code: [
-					'getd %RAck% %AckSignal.RAM% %AckSignal.Addr%',
+					'get %RAck% %AckSignal.RAM% %AckSignal.Addr%',
 					'select %RAck% %RAck% %B.AckOn% %B.AckNo%',
-					'putd %AckSignal.RAM% %AckSignal.Addr% 0',
+					'put %AckSignal.RAM% %AckSignal.Addr% 0',
 				],
 			},
 			{
@@ -216,18 +229,18 @@ const functiondef_db = {
 				group: 'load',
 				constraints: [{kind: 'different-processor', target: 'Input'}],
 				code: [
-					'getd %R3% %Input.Destination.RAM% %Input.Destination.Addr%',
+					'get %R3% %Input.Destination.RAM% %Input.Destination.Addr%',
 					'select %R3% %R3% 3 0',
 				]
 			},
 			{
 				scope: 'instance',
 				code: [
-					'getd %R2% %State.RAM% %State.Addr%',
+					'get %R2% %State.RAM% %State.Addr%',
 					'add %R2% %R2% %R3%',
 					'add %R2% %R2% %RAck%',
-					'getd %R2% %B.RAM% %R2%',
-					'putd %State.RAM% %State.Addr% %R2%',
+					'get %R2% %B.RAM% %R2%',
+					'put %State.RAM% %State.Addr% %R2%',
 				]
 			}
 		]
@@ -274,7 +287,7 @@ const functiondef_db = {
 				group: 'output',
 				constraints: [{kind: 'different-processor', target: 'Input'}],
 				code: [
-					'getd %RX% %Input.State.RAM% %Input.State.Addr%',
+					'get %RX% %Input.State.RAM% %Input.State.Addr%',
 					's %Display% On r%RX%',
 				]
 			},
@@ -356,6 +369,66 @@ const metanode_db = {
 
 
 const test_workspace = [
+	// Equipment
+	{type: 'equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
+		'Name': 'Foyer Gas Sensor',
+		'ReferenceId': 4108,
+	}},
+	{type: 'equipment', kind: 'Wall Heater', id: 'LC183102', properties: {
+		'Name': 'Foyer Wall Heater',
+		'ReferenceId': 1320,
+	}},
+	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
+		'Name': 'Foyer Control',
+		'ReferenceId': 4118,
+		'Lines': 128,
+		'Memory': 512,
+	}},
+	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
+		'Name': 'Temp Wall Display (North)',
+		'Initialize': {Color:2, On:1, Mode:4},
+		'ReferenceId': 4102,
+	}},
+	{type: 'equipment', kind: 'LED Display', id: 'TW37182', properties: {
+		'Name': 'Temp Wall Display (South)',
+		'Initialize': {Color:2, On:1, Mode:4},
+		'ReferenceId': 4261,
+	}},
+	{type: 'equipment', kind: 'Button', id: 'RI39151', properties: {
+		'Name': 'ACK button',
+		'Initialize': {Color:5},
+		'ReferenceId': 4120,
+	}},
+	{type: 'equipment', kind: 'LED Panel', id: 'TW3716', properties: {
+		'Name': 'Low Temp Alarm Lamp',
+		'Initialize': {Color:5, On:1},
+		'ReferenceId': 4127,
+	}},
+	{type: 'equipment', kind: 'LED Panel', id: 'TW7191', properties: {
+		'Name': 'High Temp Alarm Lamp',
+		'Initialize': {Color:4, On:1},
+		'ReferenceId': 4127,
+	}},
+
+	// Zone
+	{type: 'zone', id: 'ZHab1', properties: {
+		'Name': 'Habitat 1',
+	}},
+
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'RG3123'},
+
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UV8201', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG82030', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG7364', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
+
+	// Functions
 	{type: 'function', kind: 'IR', id: 'UK381091', properties: {}},
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Source', toNode: 'EK419931', toPin: 'Temperature'},
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Destination', toNode: 'HL13014'},
@@ -401,19 +474,17 @@ const test_workspace = [
 
 	{type: 'function', kind: 'AA', id: 'UG497710', properties: {}},
 	{type: 'rel', fromNode: 'UG497710', fromPin: 'Input', toNode: 'UG2022'},
-	{type: 'rel', fromNode: 'UG497710', fromPin: 'Display', toNode: 'TW3716'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Display', toNode: 'TW7191'},
 
-	{type: 'data', id: 'HL13014', name:'TI-401 PV', transient:true, properties: {}},
 	{type: 'data', id: 'HL94912', name:'ACK GROUP 1 TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL13014', name:'TI-401 PV', transient:true, properties: {}},
 	{type: 'data', id: 'HL83018', name:'TI-401 LO ALARM TRIGGER', transient:true, properties: {}},
 	{type: 'data', id: 'HL92103', name:'TI-401 LO ALARM STATE', transient:true, properties: {}},
 	{type: 'data', id: 'HH42018', name:'TI-401 HI ALARM TRIGGER', transient:true, properties: {}},
 	{type: 'data', id: 'HL19371', name:'TI-401 HI ALARM STATE', transient:true, properties: {}},
+];
 
-	{type: 'zone', id: 'ZHab1', properties: {
-		'Name': 'Habitat 1',
-	}},
-
+/* DRAWING TEST DATA
 	{type: 'drawing', id: 'DW927741', properties: {
 		'Name': 'Habitat 1 Air Temperature Management',
 	}},
@@ -424,55 +495,7 @@ const test_workspace = [
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 3, toNode: 'TW818194', properties: {x:23, y:-1, as:'icon'}},
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:23, y:-0, as:'icon'}},
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:23, y:1, as:'icon'}},
-
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'RG3123'},
-
-	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UV8201', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG82030', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG7364', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG2022', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
-
-	{type: 'equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
-		'Name': 'Foyer Gas Sensor',
-		'ReferenceId': 4108,
-	}},
-	{type: 'equipment', kind: 'Wall Heater', id: 'LC183102', properties: {
-		'Name': 'Foyer Wall Heater',
-		'ReferenceId': 1320,
-	}},
-	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
-		'Name': 'Foyer Control',
-		'ReferenceId': 4118,
-		'Lines': 128,
-		'Memory': 512,
-	}},
-	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
-		'Name': 'Temp Wall Display (North)',
-		'Initialize': {Color:2, On:1, Mode:4},
-		'ReferenceId': 4102,
-	}},
-	{type: 'equipment', kind: 'LED Display', id: 'TW37182', properties: {
-		'Name': 'Temp Wall Display (South)',
-		'Initialize': {Color:2, On:1, Mode:4},
-		'ReferenceId': 4261,
-	}},
-	{type: 'equipment', kind: 'Button', id: 'RI39151', properties: {
-		'Name': 'ACK button',
-		'Initialize': {Color:5},
-		'ReferenceId': 4120,
-	}},
-	{type: 'equipment', kind: 'LED Panel', id: 'TW3716', properties: {
-		'Name': 'Low Temp Alarm Lamp',
-		'Initialize': {Color:5, On:1},
-		'ReferenceId': 4127,
-	}},
-];
+*/
 
 
 class GraphLayer {
@@ -689,8 +712,27 @@ function ZoneCodeCompile(def, rc, cc) {
 		.map(rel => def.FindObject(rel.fromNode))
 		.filter(o => o.type === 'function');
 
-	//DEBUG: console.log(`Assets`, assets);
-	//DEBUG: console.log(`Functions`, funcs);
+	// Gather Equipment in Zone which need Initialization code.
+	const initEquip = funcs.flatMap(f => def.FindRelations(f.id).filter(r => r.fromNode === f.id))
+		.map(rel => def.FindObject(rel.toNode))
+		.filter(o => o.type === 'equipment' && o.properties?.Initialize);
+	
+	initEquip.forEach(eq => {
+		// Add CIEL functions for each 
+		for(var initKey in eq.properties.Initialize) {
+			const f = {
+				id: def.NewId(),
+				type: 'function',
+				kind: 'CIEL',
+				properties:{Value: eq.properties.Initialize[initKey]},
+				transient: true,
+			};
+
+			def.AddObject(f);
+			def.AddRel({fromNode:f.id, fromPin:'Destination', toNode:eq.id, toPin:initKey});
+			funcs.push(f);
+		}
+	});
 
 	// Validate Functions
 	funcs.forEach(f => {
@@ -714,6 +756,7 @@ function ZoneCodeCompile(def, rc, cc) {
 				processors.push({
 					node: ar.toNode,
 					blocks: [],
+					varsByFType: {},
 					registersFree: avail,
 					capacity: maxLines, free: maxLines,
 					LoCPerTick: LoCPerTick,
@@ -727,6 +770,7 @@ function ZoneCodeCompile(def, rc, cc) {
 
 	const funcsByDep = [];
 	if( ! rc.fatal ) {
+		rc.setCategory('Dependency Graph');
 		// Pull dependency strings to sequence related function code blocks.
 		const fQueue = funcs.map(f => ({
 			func: f,
@@ -767,6 +811,8 @@ function ZoneCodeCompile(def, rc, cc) {
 	}
 
 	if( ! rc.fatal ) {
+		rc.setCategory('Allocation');
+
 		const typesOnce = {};
 		// Allocate and mark as permanently used anything that has Zone or Processor scope.
 		funcsByDep.forEach(f => {
@@ -792,7 +838,7 @@ function ZoneCodeCompile(def, rc, cc) {
 				// Process processor-wide register allocations
 				typesOnce[f.kind] = true;
 				functiondef_db[f.kind].properties?.forEach(pdef => {
-					if( pdef.type !== 'register' || pdef.scope !== 'processor' ) return;
+					if( pdef.type !== 'register' ) return;
 					const pval = f.properties?.[pdef.name] ?? pdef.value ?? undefined;
 
 					var nval;
@@ -816,8 +862,11 @@ function ZoneCodeCompile(def, rc, cc) {
 					if( -1 === idx ) {
 						rc.report('error', `Register r${nval} is already in use in processor "${proc.node}"; cannot assign it to function type "${f.kind}"`);
 					} else {
-						rc.report('info', `Assigning Register r${nval} to function type "${f.kind}" in processor "${proc.node}"`);
+						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor "${proc.node}"`);
+						const reg = proc.registersFree[idx];
 						proc.registersFree.splice(idx, 1);
+						const vlist = proc.varsByFType[f.kind] ?? (proc.varsByFType[f.kind] = {});
+						vlist[pdef.name] = `r${reg}`;
 					}
 				});
 			}
@@ -829,6 +878,8 @@ function ZoneCodeCompile(def, rc, cc) {
 	const procTables = {};
 
 	if( ! rc.fatal ) {
+		rc.setCategory('Code Sequencing');
+
 		funcsByDep.forEach(fnObj => {
 			const fproc = def.ReadRelation(fnObj.id, 'Processor');
 			const fnDef = functiondef_db[fnObj.kind];
@@ -937,17 +988,20 @@ function ZoneCodeCompile(def, rc, cc) {
 					list.push({func: fnObj, block:b, count:cnt});
 				});
 			};
+
+			// Add 'code block index' to each block for debug purposes.
+			const fblk = fnDef.blocks.map((b,i) => ({...b, index:i}));
 			
 			// Once-per-processor blocks.
 			const IsProcScope = b => b.scope === 'processor-init' || b.scope === 'cycle-init' || b.scope === 'cycle-outro';
 			if( !proc.typesSeen[fnObj.kind] ) {
 				proc.typesSeen[fnObj.kind] = true;
-				DistributeBlocks(fnDef.blocks.filter(b => IsProcScope(b)));
+				DistributeBlocks(fblk.filter(b => IsProcScope(b)));
 				//TODO: for custom-code functions, insert processing here for the custom list in fnObj
 			}
 
 			// Once-per-instance blocks
-			DistributeBlocks(fnDef.blocks.filter(b => !IsProcScope(b)));
+			DistributeBlocks(fblk.filter(b => !IsProcScope(b)));
 			//TODO: for custom-code functions, insert processing here for the custom list in fnObj
 		});
 
@@ -996,16 +1050,204 @@ function ZoneCodeCompile(def, rc, cc) {
 	}
 
 	if( ! rc.fatal ) {
+		rc.setCategory('Code Generation');
 		const varsByFunc = {};
+
+		const setter = (tgt, fnObj) => (k,v) => {
+			if( tgt[k] !== undefined ) {
+				rc.report('warn', `Function "${fnObj.id}" Variable "${k}" was assigned multiple times!`);
+			}
+			
+			if( typeof v === 'string' || typeof v === 'number' ) {
+				tgt[k] = v;
+			} else if( v === undefined ) {
+				rc.report('error', `Function "${fnObj.id}" Variable "${k}" could not be evaluated?`);
+			} else {
+				rc.report('error', `Function "${fnObj.id}" Variable "${k}" was provided unusable value of type "${typeof v}"`);
+			}
+		}
+		
+		const ReduceArray = (vars, fnObj, def, vals, callback) => {
+			if( def.array ) {
+				const v = vars[def.name] = [];
+				vals.forEach(r => {
+					const cg = {};
+					v.push(cg)
+					callback(r, setter(cg, fnObj));
+				});
+			} else {
+				callback(vals[0], setter(vars, fnObj));
+			}
+		};
+
+		function SetRelsVariables(rc, proc, fnObj, vars, relDef, rels) {
+			if( !relDef.array && rels.length > 1 ) {
+				rc.report('error', `Function "${fnObj.id}" Relation "${relDef.name}" has bad relation arity; expected 1, saw ${rels.length}!`);
+				return;
+			} else if( !relDef.optional && rels.length === 0 ) {
+				rc.report('error', `Function "${fnObj.id}" Relation "${relDef.name}" missing at least one required value.`);
+				return;
+			}
+
+			switch(relDef.type) {
+				case 'equipment':
+					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
+						const ref = def.FindObject(rel.toNode)?.properties?.ReferenceId;
+						set(rel.fromPin, ref);
+						set(`${rel.fromPin}.ReferenceId`, ref);
+						if( rel.toPin ) {
+							set(`${rel.fromPin}.Logic`, rel.toPin);
+						}
+					});
+					break;
+
+				case 'data':
+					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
+						const dataNode = def.FindObject(rel.toNode);
+						set(`${rel.fromPin}.RAM`, def.FindObject(dataNode?.properties?.node)?.properties?.ReferenceId);
+						set(`${rel.fromPin}.Addr`, dataNode?.properties?.addr)
+					});
+					break;
+				
+				case 'function':
+					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
+						const itsVars = varsByFunc[rel.toNode];
+						if( ! itsVars ) {
+							rc.report('error', `Failed to look up variables of related function "${rel.toNode}"!`);
+						} else {
+							for(var k in itsVars) {
+								const val = itsVars[k];
+								// Make sure we don't inherit Array properties, which isn't allowed.
+								if( typeof val !== 'string' && typeof val !== 'number' ) continue;
+								// Enforce Law of Demeter, by excluding variables which were inherited from a third function?
+								if( k.indexOf('.') !== k.lastIndexOf('.') ) continue;
+								set(`${rel.fromPin}.${k}`, val);
+							}
+						}
+					});
+					break;
+			}
+		}
+
+		function SetPropVariables(rc, proc, fnObj, vars, propDef, val) {
+			if( !propDef.array && val instanceof Array ) {
+				rc.report('error', `Function "${fnObj.id}" Property "${propDef.name}" has bad arity; expected single value, saw an array.`);
+				return;
+			} else if( propDef.array && !(val instanceof Array) ) {
+				rc.report('error', `Function "${fnObj.id}" Property "${propDef.name}" has bad arity; expected array, saw a single value.`);
+				return;
+			}
+
+			// Fall back on defaults when provided.
+			if( val === undefined ) val = propDef.value;
+
+			// For consistent `ReduceArray` interface compared to relations,
+			// wrap a single value into an array.
+			if( !propDef.array ) val = [val];
+
+			switch(propDef.type) {
+				case 'constant':
+					ReduceArray(vars, fnObj, propDef, val, (v, set) => {
+						set(propDef.name, v);
+					});
+					break;
+				
+				case 'register':
+					// Nothing to be done; allocation was done earlier.
+					break;
+
+				case 'buffer':
+					const data = def.ReadRelation(fnObj.id, propDef.name);
+					const ram = def.FindObject(data.properties.node);
+					ReduceArray(vars, fnObj, propDef, val, (v, set) => {
+						set(`B.RAM`, ram.properties?.ReferenceId);
+						set(`B.${propDef.name}`, data.properties.addr);
+					});
+					break;
+			}
+		}
+
 		// Generate code
 		funcsByDep.forEach(fnObj => {
-			//TODO: generate substitution values and allocate instance-level reservations (mostly registers).
+			const vars = varsByFunc[fnObj.id] = {};
+			const fnDef = functiondef_db[fnObj.kind];
+			const fproc = def.ReadRelation(fnObj.id, 'Processor');
+			const proc = processors.find(p => p.node === fproc.id);
+			
+			// Copy variables allocated at processor scope to each function vars
+			const procFuncVars = proc.varsByFType[fnObj.kind] ?? {};
+			for(var ftk in procFuncVars) vars[ftk] = procFuncVars[ftk];
+			
+			// Populate relation-based variables
+			for(var rd of fnDef.rels)
+				SetRelsVariables(rc, proc, fnObj, vars, rd, def.FindRelations(fnObj.id).filter(r => r.fromNode === fnObj.id && r.fromPin === rd.name));
 
+			// Populate property-based variables (which includes instance-scope register allocations)
+			for(var pd of fnDef.properties)
+				SetPropVariables(rc, proc, fnObj, vars, pd, fnObj.properties?.[pd.name]);
+
+			for(var k in vars) {
+				rc.report('debug', `Fn "${fnObj.id}" Variable "${k}" = "${vars[k]}"`);
+			}
 		});
+
+		const lpad = (n,s,r) => (r??' ').repeat(Math.max(0, n-String(s).length)) + s;
+		const rpad = (n,s,r) => s + (r??' ').repeat(Math.max(0, n-String(s).length));
 		
 		for(var procid in procTables) {
 			const proc = procTables[procid];
-			//TODO: generate body of function code blocks
+			const all_lines = [];
+			['zone-init','processor-init','cycle-init','instance','cycle-outro'].forEach(section => {
+				proc[section].forEach(({func,block,count}) => {
+					const o_vars = (func && varsByFunc[func.id]) ?? {};
+					const comments = true; //DEBUG:
+
+					var next_comment = null;
+					if( comments ) {
+						if( !func ) {
+							next_comment = `# (cycle control)`;
+						} else {
+							next_comment = `# ${func.kind} ${func.properties?.Name ?? func.id} CB#${block.index}${block.scope !== 'array'?'':` array:${block.target}`}`;
+						}
+					}
+					
+					const generate = (a_vars, code) => {
+						code.forEach(line => {
+							var ln = line.replaceAll(/%([^% ]*)%/g, (_, name) => {
+								return a_vars[name] ?? `%FAILED: ${name}%`;
+							});
+
+							if( next_comment ) {
+								ln = rpad(32,ln) + next_comment;
+								next_comment = null;
+							}
+							all_lines.push(ln);
+						});
+					}
+
+					if( block.scope === 'array' ) {
+						for(var repl of o_vars[block.target]) {
+							generate({...o_vars, ...repl}, block.code);
+						}
+					} else {
+						generate(o_vars, block.code);
+					}
+				})
+			});
+
+			if( /*DEBUG*/ true ) {
+				console.log(`Processor "${procid}" Code:\n`,
+					all_lines.reduce(([lst,acc],ln) => {
+						if( ln[0] === '#' ) {
+							lst.push([-1,ln]);
+						} else {
+							lst.push([acc++,ln]);
+						}
+						return [lst, acc];
+					},[[],0])[0]
+					.map(([lineNo,text],i) => `${lineNo < 0 ? '  ' : (lpad(3,lineNo,'0')+':')} ${text}`)
+					.join('\n'));
+			}
 		}
 	}
 }

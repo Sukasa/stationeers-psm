@@ -119,12 +119,13 @@ Each Configuration Variable comes in a variety of types:
 
 Each Configuration Variable exposes some Configuration Values to the code compiler.
 - Constant exposes `%name%` (its value)
-- Equipment exposes `%name%` (its RefId)
-- Data exposes `%name.RAM%` and `%name.Addr%`, the storage device and first address offset within that device.
-- Buffer exposes `%B.RAM` and `%B.name%`, the storage device and first address offset within that device.
-- Function exposes each of its configuration variable values with its own `name.` as a prefix.
 - Register exposes `%name%` (its value)
-- array CVs are only valid within an Array code block of the same variable
+- Buffer exposes `%B.RAM` and `%B.name%`, the storage device and first address offset within that device. Yes, all buffers of a given function type will be allocated to the same RAM storage.
+- Equipment exposes `%name%` (its RefId)
+- Equipment with subtype 'Logic' also `%name.ReferenceId%` and `%name.Logic%`
+- Data exposes `%name.RAM%` and `%name.Addr%`, the storage device and first address offset within that device.
+- Function exposes each of its configuration variable values with its own `name.` as a prefix.
+- array CVs are only valid within an Array code block of the same variable.
 
 
 # [IR] INSTANCE INTRO
