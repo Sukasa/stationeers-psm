@@ -81,6 +81,14 @@ window.onload = () => {
 		PSSet('workspaces', []);
 		rerender();
 	});
+
+	onResize();
+}
+
+window.onresize = onResize;
+function onResize() {
+	document.body.className = window.innerWidth < 1.4 * window.innerHeight
+		? 'narrow-viewport' : 'wide-viewport';
 }
 
 var isRenderQueued = false;

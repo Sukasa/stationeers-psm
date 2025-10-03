@@ -304,6 +304,98 @@ const functiondef_db = {
 				]
 			}
 		]
+	},
+
+	"ST": {
+		// Implements a schmitt trigger with an active-high Set ("raise"), and an active-low Reset ("hold").
+		// e.g. if you have Set as Temp > 30 and Hold as Temp > 20, and the trigger controls a cooling system,
+		// then it turns on when the temp goes above 30 and off when the temp falls to 20.
+		fullname: 'Schmitt Trigger',
+		rels: [
+			{name: 'State', type: 'data', allocate: true, },
+			{name: 'Raise', type: 'data',},
+			{name: 'Hold', type: 'data',},
+		],
+		properties: [
+			{name: 'R0', type: 'register', scope: 'instance', allocate: true, hidden: true, },
+			{name: 'R1', type: 'register', scope: 'instance', allocate: true, hidden: true, },
+		],
+		validate(report, workspace) {
+
+		},
+		blocks: [
+			{
+				scope: 'zone-init',
+				code: [
+					'put %State.RAM% %State.Addr% 0',
+				],
+			},
+			{
+				scope: 'instance',
+				code: [
+					'get %R0% %State.RAM% %State.Addr%',
+					'get %R1% %Raise.RAM% %Raise.Addr%',
+					'breqz %R0% 2',
+					'get %R1% %Hold.RAM% %Hold.Addr%',
+					'select %R0% %R1% 1 0',
+					'put %State.RAM% %State.Addr% %R0%',
+				],
+			}
+		],
+	},
+
+	"IL": {
+		fullname: "Interlock",
+		rels: [
+			{name: 'Source', type: 'data',},
+			{name: 'Output', type: 'data', allocate: true, },
+			{name: 'Barrier', type: 'data', array: true, },
+		],
+		properties: [
+			{name: 'R0', type: 'register', scope: 'instance', allocate: true, hidden: true, },
+			{name: 'R1', type: 'register', scope: 'instance', allocate: true, hidden: true, },
+		],
+		validate(report,workspace) {
+
+		},
+		blocks: [
+			{
+				scope: 'instance',
+				constraints: [{type: 'array-plural', target: 'Barrier'}],
+				code: [
+					'move %R0% 0',
+				],
+			},
+			{
+				scope: 'array',
+				target: 'Barrier',
+				constraints: [{type: 'array-plural', target: 'Barrier'}],
+				code: [
+					'get %R1% %Barrier.RAM% %Barrier.Addr%',
+					'or %R0% %R0% %R1%',
+				],
+			},
+			{
+				scope: 'instance',
+				constraints: [{type: 'array-plural', target: 'Barrier'}],
+				code: [
+					'brnez %R0% 3',
+					'get %R0% %Source.RAM% %Source.Addr%',
+					'put %Output.RAM% %Output.Addr% %R0%',
+				],
+			},
+			{
+				scope: 'array',
+				target: 'Barrier',
+				constraints: [{type: 'array-singular', target: 'Barrier'}],
+				code: [
+					'get %R1% %Barrier.RAM% %Barrier.Addr%',
+					'brnez %R0% 3',
+					'get %R0% %Source.RAM% %Source.Addr%',
+					'put %Output.RAM% %Output.Addr% %R0%',
+				]
+			}
+		]
 	}
 }
 
@@ -964,6 +1056,26 @@ function ZoneCodeCompile(def, rc, cc) {
 				} else if( c.kind === 'immediately-after' ) {
 					// Would be solved (if possible) by the function ordering phase.
 					return true;
+
+				} else if( c.kind === 'array-plural' || c.kind === 'array-singular' ) {
+					var arity;
+					if( fnDef.rels.find(r => r.name === c.target) ) {
+						arity = def.FindRelations(fnObj.id).filter(r => r.fromNode === fnObj.id && r.fromPin === c.target).length;
+					} else if( fnDef.properties.find(r => r.name === c.target) ) {
+						const a = fnObj.properties?.[c.target];
+						if( a instanceof Array ) {
+							arity = a.length;
+						} else {
+							arity = 0;
+						}
+					} else {
+						rc.report('error', `Unable to find Relation or Property matching the constraint target "${c.target}"`);
+						return false;
+					}
+
+					if( c.kind === 'array-plural' && arity > 1 ) return true;
+					if( c.kind === 'array-singular' && arity === 1 ) return true;
+					return false;
 
 				} else {
 					rc.report('error', `Unsupported function code block constraint type "${c.kind}"`);

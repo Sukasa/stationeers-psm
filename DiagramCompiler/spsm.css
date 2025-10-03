@@ -117,6 +117,28 @@ canvas                     { pointer-events: none; }
 	height: 98.5vh;
 }
 
+body.narrow-viewport .window-inner.psm-diagram {
+	left: 0.5vw;
+	width: 99vw;
+	height: 49.5vh;
+}
+
+body.narrow-viewport .window-inner.psm-properties {
+	left: 50.5vw;
+	width: 49.0vw;
+}
+
+body.narrow-viewport .window-inner.psm-navigation {
+	left: 0.5vw;
+	width: 49.0vw;
+}
+
+body.narrow-viewport .window-inner.psm-properties,
+body.narrow-viewport .window-inner.psm-navigation {
+	top: 50.5vh;
+	height: 49.0vh;
+}
+
 .window-inner.psm-diagram .window-body,
 .window-inner.psm-properties .window-body,
 .window-inner.psm-navigation .window-body {
