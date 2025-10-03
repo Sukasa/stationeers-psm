@@ -382,12 +382,6 @@ const test_workspace = [
 		'Name': 'Foyer Wall Heater',
 		'ReferenceId': 1320,
 	}},
-	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
-		'Name': 'Foyer Control',
-		'ReferenceId': 4118,
-		'Lines': 128,
-		'Memory': 512,
-	}},
 	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
 		'Name': 'Temp Wall Display (North)',
 		'Initialize': {Color:2, On:1, Mode:4},
@@ -413,24 +407,53 @@ const test_workspace = [
 		'Initialize': {Color:4, On:1},
 		'ReferenceId': 4243,
 	}},
+	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
+		'Name': 'Foyer Control A',
+		'ReferenceId': 4118,
+		'Lines': 128,
+		'Memory': 512,
+	}},
+	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3124', properties: {
+		'Name': 'Foyer Control B',
+		'ReferenceId': 5423,
+		'Lines': 128,
+		'Memory': 512,
+	}},
+	{type: 'equipment', kind: 'Utility Socket', id: 'UC48', properties: {
+		'Name': 'Foyer Control RAM',
+		'ReferenceId': 5766,
+		'Lines': 0,
+		'Memory': 8192,
+	}},
 
 	// Zone
 	{type: 'zone', id: 'ZHab1', properties: {
 		'Name': 'Habitat 1',
 	}},
 
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', fromIndex:0, toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', fromIndex:1, toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'UC48'},
 
 	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UV8201', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UV8201',   fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG82030', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG7364', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG82030',  fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG7364',   fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG2022', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'ZG7188',   fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG2022',   fromPin: 'Zone', toNode: 'ZHab1'},
 	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
+
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UV8201',   fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UG82030',  fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UG7364',   fromPin: 'Processor', toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Processor', toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'ZG7188',   fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UG2022',   fromPin: 'Processor', toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Processor', toNode: 'RG3124'},
 
 	// Functions
 	{type: 'function', kind: 'IR', id: 'UK381091', properties: {
@@ -829,6 +852,8 @@ function ZoneCodeCompile(def, rc, cc) {
 							// This node's last dependency was the one we just resolved.
 							// Enqueue it for fast-track resolution.
 							innerQueue.unshift(fQueue[i].func);
+							fQueue.splice(i, 1);
+							--i;
 						}
 					}
 				}
