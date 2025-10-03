@@ -1,7 +1,18 @@
 
-body, table, #popup .window, #picker .window, .pin-top {
-	background: #3aa;
-	color: #000;
+@media screen {
+	body, table, #popup .window, #picker .window, .pin-top {
+		background: #4BB;
+		color: #000;
+	}
+
+	.window-inner {
+		background: #CCC;
+	}
+
+	.window-title {
+		background: #0000AA;
+		color: #FFF;
+	}
 }
 
 body, table, button, input {
@@ -9,7 +20,131 @@ body, table, button, input {
 	font-size: 16px !important;
 }
 
+h1,h2,h3,h4,h5 { margin: 0.2em 0.3em; }
+
 *                          { user-select: none; }
 textarea, input[type=text] { user-select: initial; }
 canvas                     { pointer-events: none; }
 
+.window-outer {
+	position: fixed;
+	margin: 0;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+}
+
+.window-outer.modal {
+	pointer-events: initial;
+	background-attachment: fixed;
+	background-image: radial-gradient(
+		circle at center,
+		black 1px,
+		transparent 0
+	);
+	background-size: 4px 4px;
+	background-repeat: round;
+}
+
+.window-inner {
+	position: absolute;
+	pointer-events: initial;
+	border: 2px outset;
+	display: flex;
+	flex-direction: column;
+}
+
+.window-inner.center {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.window-title {
+	padding: 2px;
+	font-weight: bold;
+	flex-shrink: 1;
+}
+
+.window-inner.dialog .window-body {
+	padding: 4px;
+}
+
+.window-inner.dialog .window-body,
+.window-inner.vscroll .window-body {
+	overflow-x: clip;
+	overflow-y: auto;
+}
+
+@media screen {
+	.window-inner.xyscroll .window-body {
+		overflow-x: scroll !important;
+		overflow-y: scroll !important;
+	}
+}
+
+.window-inner.autosize {
+	min-width: 33vw;
+	max-width: max-content;
+}
+
+.window-inner.autosize .window-body {
+	min-height: 20vh;
+	max-height: calc(100vh - 6em);
+}
+
+.window-inner.psm-diagram {
+	left: 25vw;
+	width: 50vw;
+}
+
+.window-inner.psm-properties {
+	left: 75.5vw;
+	width: 24vw;
+}
+
+.window-inner.psm-navigation {
+	left: 0.5vw;
+	width: 24vw;
+}
+
+.window-inner.psm-diagram,
+.window-inner.psm-properties,
+.window-inner.psm-navigation {
+	top: 0.5vh;
+	height: 98.5vh;
+}
+
+.window-inner.psm-diagram .window-body,
+.window-inner.psm-properties .window-body,
+.window-inner.psm-navigation .window-body {
+	height: 100%;
+}
+
+@media print {
+	.window-outer, .window-title {
+		display: none;
+	}
+	.window-outer.printable, .window-inner.printable {
+		display: initial;
+		border: none !important;
+		left: unset !important;
+		right: unset !important;
+		top: unset !important;
+		bottom: unset !important;
+		width: unset !important;
+		height: unset !important;
+		min-width: unset !important;
+		max-width: unset !important;
+		min-height: unset !important;
+		max-height: unset !important;
+		overflow-x: visible !important;
+		overflow-y: visible !important;
+	}
+	.window-inner.printable > .window-body {
+		position: initial !important;
+		display: block !important;
+	}
+}

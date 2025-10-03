@@ -1,68 +1,9 @@
 
-// Must match up with their matching constants. The canonical list has no skips or duplicates.
-const LogicTypeNames = [
-	"None", "Power", "Open", "Mode", "Error", "Pressure", "Temperature", "PressureExternal",
-	"PressureInternal", "Activate", "Lock", "Charge", "Setting", "Reagents", "RatioOxygen",
-	"RatioCarbonDioxide", "RatioNitrogen", "RatioPollutant", "RatioVolatiles", "RatioWater",
-	"Horizontal", "Vertical", "SolarAngle", "Maximum", "Ratio", "PowerPotential",
-	"PowerActual", "Quantity", "On", "ImportQuantity", "ImportSlotOccupant", "ExportQuantity",
-	"ExportSlotOccupant", "RequiredPower", "HorizontalRatio", "VerticalRatio", "PowerRequired",
-	"Idle", "Color", "ElevatorSpeed", "ElevatorLevel", "RecipeHash", "ExportSlotHash",
-	"ImportSlotHash", "PlantHealth1", "PlantHealth2", "PlantHealth3", "PlantHealth4",
-	"PlantGrowth1", "PlantGrowth2", "PlantGrowth3", "PlantGrowth4", "PlantEfficiency1",
-	"PlantEfficiency2", "PlantEfficiency3", "PlantEfficiency4", "PlantHash1", "PlantHash2",
-	"PlantHash3", "PlantHash4", "RequestHash", "CompletionRatio", "ClearMemory", "ExportCount",
-	"ImportCount", "PowerGeneration", "TotalMoles", "Volume", "Plant", "Harvest", "Output",
-	"PressureSetting", "TemperatureSetting", "TemperatureExternal", "Filtration", "AirRelease",
-	"PositionX", "PositionY", "PositionZ", "VelocityMagnitude", "VelocityRelativeX",
-	"VelocityRelativeY", "VelocityRelativeZ", "RatioNitrousOxide", "PrefabHash", "ForceWrite",
-	"SignalStrength", "SignalID", "TargetX", "TargetY", "TargetZ", "SettingInput",
-	"SettingOutput", "CurrentResearchPodType", "ManualResearchRequiredPod",
-	"MineablesInVicinity", "MineablesInQueue", "NextWeatherEventTime", "Combustion", "Fuel",
-	"ReturnFuelCost", "CollectableGoods", "Time", "Bpm", "EnvironmentEfficiency",
-	"WorkingGasEfficiency", "PressureInput", "TemperatureInput", "RatioOxygenInput",
-	"RatioCarbonDioxideInput", "RatioNitrogenInput", "RatioPollutantInput",
-	"RatioVolatilesInput", "RatioWaterInput", "RatioNitrousOxideInput", "TotalMolesInput",
-	"PressureInput2", "TemperatureInput2", "RatioOxygenInput2", "RatioCarbonDioxideInput2",
-	"RatioNitrogenInput2", "RatioPollutantInput2", "RatioVolatilesInput2", "RatioWaterInput2",
-	"RatioNitrousOxideInput2", "TotalMolesInput2", "PressureOutput", "TemperatureOutput",
-	"RatioOxygenOutput", "RatioCarbonDioxideOutput", "RatioNitrogenOutput",
-	"RatioPollutantOutput", "RatioVolatilesOutput", "RatioWaterOutput",
-	"RatioNitrousOxideOutput", "TotalMolesOutput", "PressureOutput2", "TemperatureOutput2",
-	"RatioOxygenOutput2", "RatioCarbonDioxideOutput2", "RatioNitrogenOutput2",
-	"RatioPollutantOutput2", "RatioVolatilesOutput2", "RatioWaterOutput2",
-	"RatioNitrousOxideOutput2", "TotalMolesOutput2", "CombustionInput", "CombustionInput2",
-	"CombustionOutput", "CombustionOutput2", "OperationalTemperatureEfficiency",
-	"TemperatureDifferentialEfficiency", "PressureEfficiency", "CombustionLimiter", "Throttle",
-	"Rpm", "Stress", "InterrogationProgress", "TargetPadIndex", "SizeX", "SizeY", "SizeZ",
-	"MinimumWattsToContact", "WattsReachingContact", "Channel0", "Channel1", "Channel2",
-	"Channel3", "Channel4", "Channel5", "Channel6", "Channel7", "LineNumber", "Flush",
-	"SoundAlert", "SolarIrradiance", "RatioLiquidNitrogen", "RatioLiquidNitrogenInput",
-	"RatioLiquidNitrogenInput2", "RatioLiquidNitrogenOutput", "RatioLiquidNitrogenOutput2",
-	"VolumeOfLiquid", "RatioLiquidOxygen", "RatioLiquidOxygenInput", "RatioLiquidOxygenInput2",
-	"RatioLiquidOxygenOutput", "RatioLiquidOxygenOutput2", "RatioLiquidVolatiles",
-	"RatioLiquidVolatilesInput", "RatioLiquidVolatilesInput2", "RatioLiquidVolatilesOutput",
-	"RatioLiquidVolatilesOutput2", "RatioSteam", "RatioSteamInput", "RatioSteamInput2",
-	"RatioSteamOutput", "RatioSteamOutput2", "ContactTypeId", "RatioLiquidCarbonDioxide",
-	"RatioLiquidCarbonDioxideInput", "RatioLiquidCarbonDioxideInput2",
-	"RatioLiquidCarbonDioxideOutput", "RatioLiquidCarbonDioxideOutput2",
-	"RatioLiquidPollutant", "RatioLiquidPollutantInput", "RatioLiquidPollutantInput2",
-	"RatioLiquidPollutantOutput", "RatioLiquidPollutantOutput2", "RatioLiquidNitrousOxide",
-	"RatioLiquidNitrousOxideInput", "RatioLiquidNitrousOxideInput2",
-	"RatioLiquidNitrousOxideOutput", "RatioLiquidNitrousOxideOutput2", "Progress",
-	"DestinationCode", "Acceleration", "ReferenceId", "AutoShutOff", "Mass", "DryMass",
-	"Thrust", "Weight", "ThrustToWeight", "TimeToDestination", "BurnTimeRemaining", "AutoLand",
-	"ForwardX", "ForwardY", "ForwardZ", "Orientation", "VelocityX", "VelocityY", "VelocityZ",
-	"PassedMoles", "ExhaustVelocity", "FlightControlRule", "ReEntryAltitude", "Apex",
-	"EntityState", "DrillCondition", "Index", "CelestialHash", "AlignmentError", "DistanceAu",
-	"OrbitPeriod", "Inclination", "Eccentricity", "SemiMajorAxis", "DistanceKm",
-	"CelestialParentHash", "TrueAnomaly", "RatioHydrogen", "RatioLiquidHydrogen",
-	"RatioPollutedWater", "Discover", "Chart", "Survey", "NavPoints", "ChartedNavPoints",
-	"Sites", "CurrentCode", "Density", "Richness", "Size", "TotalQuantity", "MinedQuantity",
-	"BestContactFilter", "NameHash",
-];
+// Get/Set functions for the IndexedDB-based Key/Value store.
+const PSSet = IDB_KEYVAL.set;
+const PSGet = IDB_KEYVAL.get;
 
-
+// Rendering function for extremely shorthand HTML DOM generation.
 function $() {
 	var carried = null;
 	for (var i = 0; i < arguments.length; ++i) {
@@ -129,4 +70,169 @@ function $() {
 	return carried;
 }
 
+var avail_workspaces = [], active_workspace = null, active_data = null;
 
+window.onload = () => {
+	PSGet('workspaces').then(async workspaces => {
+		avail_workspaces = workspaces ?? [];
+		rerender();
+	}, err => {
+		avail_workspaces = [];
+		PSSet('workspaces', []);
+		rerender();
+	});
+}
+
+var isRenderQueued = false;
+function rerender() {
+	if( isRenderQueued ) return;
+	isRenderQueued = true;
+	requestAnimationFrame(() => {
+		isRenderQueued = false;
+		render();
+	});
+}
+
+function forgetWorkspace(w) {
+	var idx = avail_workspaces.indexOf(w);
+	if( idx >= 0 ) {
+		avail_workspaces.splice(idx, 1);
+		PSSet('workspaces', avail_workspaces);
+		rerender();
+	}
+}
+
+async function addNewWorkspace() {
+	showDirectoryPicker({mode: 'readwrite'})
+		.then(d => {
+			const w = {handle:d, name: new Date().toString(), data:{}};
+			avail_workspaces.push(w)
+			PSSet('workspaces', avail_workspaces);
+			active_workspace = w;
+			rerender();
+		}, err => {
+			// Nothing to be done.
+		});
+}
+
+function renameWorkspace(w) {
+	const nname = prompt("New name for the workspace?", w.name);
+	if( !nname ) return;
+	w.name = nname;
+	PSSet('workspaces', avail_workspaces);
+	rerender();
+}
+
+async function loadWorkspace(w) {
+	const opt = { mode: 'readwrite' };
+	if( 'granted' !== await w.handle.queryPermission(opt) && 'granted' !== await w.handle.requestPermission(opt) )
+		return forgetWorkspace(w);
+
+	try {
+		const fh = await w.handle.getFileHandle("workspace.json", {create:true});
+		const rd = await fh.getFile();
+		w.data = JSON.parse(await rd.text());
+	} catch {
+		w.data = {};
+	}
+
+	try {
+		const fh = await w.handle.getFileHandle("state.json", {create:true});
+		const rd = await fh.getFile();
+		w.state = JSON.parse(await rd.text());
+	} catch {
+		w.state = {};
+	}
+
+	active_workspace = w;
+	active_workspace.update = rerender;
+	active_workspace.save = async function() {
+		try {
+			const fh = await w.handle.getFileHandle("workspace.json", {create:true});
+			const wt = await fh.createWritable();
+			await wt.write(JSON.stringify(this.data, undefined, 2));
+			await wt.close();
+		} catch { }
+		try {
+			const fh = await w.handle.getFileHandle("state.json", {create:true});
+			const wt = await fh.createWritable();
+			await wt.write(JSON.stringify(this.state, undefined, 2));
+			await wt.close();
+		} catch { }
+	};
+
+	const assert = (o,i) => w[o][i] = w[o][i] ?? {};
+	assert("data", "equipment_type");
+	assert("data", "zone");
+	assert("data", "diagram");
+	assert("data", "drawing");
+	assert("data", "equipment");
+	assert("data", "network");
+	assert("data", "metafunction");
+	assert("data", "function");
+	assert("data", "data");
+	assert("state", "diagram");
+	assert("state", "properties");
+	assert("state", "navigation");
+	w.save();
+
+	rerender();
+}
+
+var windowZ;
+function renderWindow(target, options, content) {
+	if( !target || !options ) throw new Error("bad arguments to renderWindow()");
+	return $(target, "div", { className: `window-outer ${options?.className ?? ''}`, style: `z-index: +${windowZ++}`, }, [
+		["div", { className: `window-inner ${options?.className ?? ''}` }, [
+			["div", { className: 'window-title' }, "=" + (options?.title ?? "SPSM")],
+			["div", { className: 'window-body' }, content ?? undefined],
+		]]
+	]);
+}
+
+function renderWorkspaceSelector(target) {
+	renderWindow(target, { title: "Load Workspace", className: "center autosize dialog modal" }, [
+		["h3", "=Recent"],
+		...avail_workspaces.map(w => ["div", [
+			["button", "=Load", {'?click': () => loadWorkspace(w)}],
+			["button", "=Rename", {'?click': () => renameWorkspace(w)}],
+			["button", "=Forget", {'?click': () => forgetWorkspace(w)}],
+			["span", {className: 'label'}, "="+w.name],
+		]]),
+		["h3", "=Open New"],
+		["button", "=Select", {'?click': addNewWorkspace}],
+	]);
+}
+
+function render() {
+	const root = document.body;
+	root.innerHTML = '';
+	windowZ = 1;
+
+	if( ! active_workspace ) {
+		renderWorkspaceSelector(root)
+	} else {
+		renderWorkspace(root, active_workspace)
+	}
+};
+
+
+function renderWorkspace(target, workspace) {
+	workspace.save();
+
+	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll' }, renderDiagramView(workspace.data, workspace.state.diagram));
+	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state.properties));
+	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state.navigation));
+}
+
+function renderDiagramView(D, S) {
+	return [["h2", "=diagram"]];
+}
+
+function renderProperties(D, S) {
+	return [["h2", "=props"]];
+}
+
+function renderNavigation(D, S) {
+	return [["h2", "=nav"]];
+}

@@ -29,6 +29,7 @@ To manage the devices in a given operation zone. Each ZONE has a RAM chip which 
 - [AS] ALARM STATE (a specialization of PL) updates ALARM STATE values based on ALARM TRIGGER values and an ACKNOWLEDGE signal.
 
 - [OR] OUTPUT ROUTER (the inverse of INPUT ROUTER) transfer information from ZONE RAM to DISPLAY UNITS and OPERATION UNITS.
+- [EI] EQUIPMENT INITIALIZATION (a specialization of OR) to transfer constant values to DISPLAY UNITS and OPERATION UNITS, once at system startup.
 - [AA] ALARM ANNUNCIATOR (a specialization of OR) read ALARM STATE values effect them on displays to visualize inactive/active/acknowledged alarms.
 
 - [SD] STACK DATA (splitting the difference between OR and PL) are block transfers of data between STACK UNITS, e.g. transferring data between ZONE RAM blocks, or interfacing with advanced network devices
@@ -76,28 +77,36 @@ To effect this, we want to design FUNCTIONS, allocate them to hardware, and be a
 - Functions
 - Data Units
 
-Each of those need storage for permanent elements, and we need a helper class that lets us procedurally generate more and validate and compile on the result of that.
+Each of those need storage for permanent elements, and we need an interpretation layer that lets us virtually generate more, and validate and compile on the result of that.
+
+We want to be able to override the configuration of the virtually generated functions and data units that come out of a Metafunction.
+
+
+## GUI Design
+
+- Left side: Diagram Explorer (pan, zoom, select, add, remove, edit). Can also be maximized. When Printing, this is the only part of the UI included.
+- Mid-right: Property panels (the selected item in Diagram Explorer, plus each pinned property panel, all in a scrollable pane)
+- Far right: Navigator (filterable tree of all objects)
 
 
 ## Functions
 
 Functions have code blocks in a few types, and configuration variables which can be manually set or automatically filled.
 
-Each Code Block can run at...
-- Zone Init: once when powering up, once per zone.
-- Processor Init: once when powering up, once per chip on which this function type appears.
-- Prologue: once per processor cycle, before all instances.
-- Instance Intro: once per function instance.
-- Array: once per value of a named Configuration Variable, contiguous between instance intro and instance outro.
-- Instance Outro: once per function instance.
-- Epilogue: once per processor cycle, after all instances.
+Each Code Block can be placed at these scopes...
+- Zone Init: once when powering up, per instance.
+- Processor Init: once when powering up, per chip on which this function type appears.
+- Cycle Init: once per processor per function type, each cycle before all instances.
+- Instance: once per function instance.
+- Array: once per value of a named Configuration Variable, otherwise placed in definition order amongst other 'Instance' scopes.
+- Cycle Outro: once per processor cycle, after all instances.
 
 Each Code Block can have optional constraints...
-- Immediately After Function in Configuration Variable X
-- Same Processor as Function in Configuration Variable X
-- Different Processor as Function in Configuration Variable X
+- Immediately After Related Function (by relation name)
+- Same Processor as Related Function (by relation name)
+- Different Processor as Related Function (by relation name)
 
-Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as exactly one block passes its constraints. This is how you can have a function which depends on another function, and have it generate different code varying by whether it ends up in the same Processor as that other function or not.
+Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as at least one block passes its constraints. When multiple pass, only one will be compiled, and it will be a member of the group with a maximal number of constraints. This is how you can have a function which depends on another function, and have it generate different code varying by e.g. whether it is placed in the same Processor as that other function or not.
 
 Each Configuration Variable comes in a variety of types:
 - Constant: some user-filled constant, with optional default and with constraints including 'numeric', 'text', 'logic'
@@ -106,20 +115,18 @@ Each Configuration Variable comes in a variety of types:
 - Buffer: a shared block of RAM in the zone used by all instances of this function which have the same value of a named Constant configuration variable. Otherwise the same as Data.
 - Function: another function object, with an optional filter for type.
 - Register: a register allocated to this function, can be fixed or any available.
+- Code: multiline text with syntax highlighting for use in custom PL blocks
 - a Configuration Variable can be of 'Array' type so long as there is a Code Block of Array type matching it.
 
 Each Configuration Variable exposes some Configuration Values to the code compiler.
 - Constant exposes `%name%` (its value)
-- Equipment exposes `%name%` (its RefId)
-- Data exposes `%name.RAM%` and `%name.Addr%`, the storage device and first address offset within that device.
-- Buffer exposes `%B.RAM` and `%B.name%`, the storage device and first address offset within that device.
-- Function exposes each of its configuration variable values with its own `name.` as a prefix.
 - Register exposes `%name%` (its value)
-- array CVs are only valid within an Array code block of the same variable
-
-Substitutions are made in code blocks...
-- `%name%` is replaced with the matching configuration value.
-- `%name|name|..%` is replaced with the first configuration value which is not the empty string.
+- Buffer exposes `%B.RAM` and `%B.name%`, the storage device and first address offset within that device. Yes, all buffers of a given function type will be allocated to the same RAM storage.
+- Equipment exposes `%name%` (its RefId)
+- Equipment with subtype 'Logic' also `%name.ReferenceId%` and `%name.Logic%`
+- Data exposes `%name.RAM%` and `%name.Addr%`, the storage device and first address offset within that device.
+- Function exposes each of its configuration variable values with its own `name.` as a prefix.
+- array CVs are only valid within an Array code block of the same variable.
 
 
 # [IR] INSTANCE INTRO
@@ -135,7 +142,7 @@ Substitutions are made in code blocks...
 # [XR] INLINE
 	l %R0% %SRef% Setting
 	breqz %R0% 2
-	putd %RAM% %IntAddr% %IntSignal|R0%
+	putd %RAM% %IntAddr% %IntSignal%
 
 # [AT] INLINE (append to each [IR/SR], one per test on that same variable)
 # e.g. if ALSelOp=sgt, R1 = (PV > PVALValue)
@@ -152,16 +159,17 @@ Substitutions are made in code blocks...
 	select %R_ACK% %R_ACK% %B.ACKON% %B.ACKNO%
 	putd %ACK.RAM% %ACK.Addr% 0
 # [AS] INLINE (append after each [AT])
-	select %R2% %AT.R1% 3 0       # +3 to table addr if trigger is on
-	getd %R3% %AS.RAM% %AS.Addr%  # Read current alarm state
-	add %R2% %R2% %R3%            # Add table offset
+	select %AT.R1% %AT.R1% 3 0    # +3 to table addr if trigger is on
+	getd %R2% %AS.RAM% %AS.Addr%  # Read current alarm state
+	add %R2% %R2% %AT.R1%         # Add table offset
 	add %R2% %R2% %R_ACK%         # Add table select
-	getd %R2% %B.RAM% %R2%       # Read table
+	getd %R2% %B.RAM% %R2%        # Read table
 	putd %AS.RAM% %AS.Addr% %R2%  # Write new alarm state
 
 # [OR] INLINE
 	getd %R0% %RAM% %MVAddr%
-	s %DRef% %DLogic% %R0%
+# [OR] ARRAY (DEST)
+	s %DestRef% %DestLogic% %R0%
 
 # [AA] Init (once at powerup for each chip that includes 1+ [AA] INLINE)
 	move   r0 0

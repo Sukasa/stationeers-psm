@@ -3,3 +3,5 @@
 *~
 $*
 
+# Local state files
+/DiagramCompiler/Workspace/state.json
