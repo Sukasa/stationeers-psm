@@ -170,3 +170,8 @@ body.narrow-viewport .window-inner.psm-navigation {
 		display: block !important;
 	}
 }
+
+.diagram-root {
+	min-width: 100vw;
+	min-height: 100vh;
+}

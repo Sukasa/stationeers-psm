@@ -139,9 +139,10 @@ async function loadWorkspace(w) {
 	try {
 		const fh = await w.handle.getFileHandle("workspace.json", {create:true});
 		const rd = await fh.getFile();
-		w.data = JSON.parse(await rd.text());
+		w.data = new GraphLayer();
+		w.data.Deserialize(await rd.text());
 	} catch {
-		w.data = {};
+		w.data = new GraphLayer();
 	}
 
 	try {
@@ -149,7 +150,7 @@ async function loadWorkspace(w) {
 		const rd = await fh.getFile();
 		w.state = JSON.parse(await rd.text());
 	} catch {
-		w.state = {};
+		w.state = {diagram:{}, navigation:{}, properties:{}};
 	}
 
 	active_workspace = w;
@@ -158,7 +159,7 @@ async function loadWorkspace(w) {
 		try {
 			const fh = await w.handle.getFileHandle("workspace.json", {create:true});
 			const wt = await fh.createWritable();
-			await wt.write(JSON.stringify(this.data, undefined, 2));
+			await wt.write(this.data.Serialize());
 			await wt.close();
 		} catch { }
 		try {
@@ -168,21 +169,6 @@ async function loadWorkspace(w) {
 			await wt.close();
 		} catch { }
 	};
-
-	const assert = (o,i) => w[o][i] = w[o][i] ?? {};
-	assert("data", "equipment_type");
-	assert("data", "zone");
-	assert("data", "diagram");
-	assert("data", "drawing");
-	assert("data", "equipment");
-	assert("data", "network");
-	assert("data", "metafunction");
-	assert("data", "function");
-	assert("data", "data");
-	assert("state", "diagram");
-	assert("state", "properties");
-	assert("state", "navigation");
-	w.save();
 
 	rerender();
 }
@@ -228,13 +214,34 @@ function render() {
 function renderWorkspace(target, workspace) {
 	workspace.save();
 
-	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll' }, renderDiagramView(workspace.data, workspace.state.diagram));
-	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state.properties));
-	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state.navigation));
+	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll' }, renderDiagramView(workspace.data, workspace.state));
+	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state));
+	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
 }
 
 function renderDiagramView(D, S) {
-	return [["h2", "=diagram"]];
+	const selected = S.selection ?? (S.selection = []);
+	const {drawing,zoom} = S.diagram.view ?? (S.diagram.view = {drawing:null, zoom:1});
+	const root = $("div", {className:'diagram-root',});
+
+	const dgrams = D.Objects(o => o.type === 'drawing');
+	var active = dgrams.find(d => d.id === drawing);
+	if( dgrams.length === 0 ) {
+		active = {type: 'drawing', id: D.NewId(), properties: {Name:'New Drawing', defaultNodeType:'functional'}};
+		dgrams.push(active);
+		D.AddObject(active);
+	}
+	if( !active ) {
+		active = dgrams[0];
+	}
+
+	const content = D.FindRelations(active.id)
+		.filter(r => r.fromNode === active.id && r.fromPin === 'Component');
+
+	//TODO: render each content
+	console.log(content);
+
+	return [root];
 }
 
 function renderProperties(D, S) {

@@ -620,15 +620,15 @@ const test_workspace = [
 
 /* DRAWING TEST DATA
 	{type: 'drawing', id: 'DW927741', properties: {
-		'Name': 'Habitat 1 Air Temperature Management',
+		'Name': 'Greenhouse Support Module',
 	}},
 
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 0, toNode: 'EK419931', properties: {x:23, y:-4, as:'icon'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 1, toNode: 'LC183102', properties: {x:23, y:-3, as:'icon'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 2, toNode: 'RG3123', properties: {x:23, y:-2, as:'icon'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 3, toNode: 'TW818194', properties: {x:23, y:-1, as:'icon'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:23, y:-0, as:'icon'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:23, y:1, as:'icon'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 0, toNode: 'EK419931', properties: {x:2, y:-1, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 1, toNode: 'LC183102', properties: {x:2, y:0, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 2, toNode: 'RG3123', properties: {x:2, y:1, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 3, toNode: 'TW818194', properties: {x:0, y:-1, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:0, y:0, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:0, y:1, as:'schematic'}},
 */
 
 
@@ -702,7 +702,7 @@ class GraphLayer {
 			});
 		});
 
-		return JSON.stringify(list);
+		return JSON.stringify(list, undefined, 2);
 	}
 
 	AddObject(def) {
@@ -811,37 +811,6 @@ class ReportReceiver {
 		if( sev === 'error' ) this.fatal = true;
 	}
 }
-
-(function() {
-	// Create graph layer from prototype test data.
-	const db = new GraphLayer();
-	db.Deserialize(JSON.stringify(test_workspace));
-
-	const timeStart = performance.now();
-	// Make a sublayer upon the original graph.
-	const def = new GraphLayer(db);
-	const rc = new ReportReceiver();
-	const cc = {};
-	ZoneCodeCompile(def, rc, cc);
-	const timeEnd = performance.now();
-
-	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
-	console.log(`Done 1st prototype compile (${timeEnd - timeStart}ms)`);
-	for(var proc in cc) {
-		console.log(`Processor "${proc}" Code:`);
-		console.log(cc[proc]);
-	}
-	
-	// Run compile on it again, so we can verify the result is stable.
-	/*
-	const rc2 = new ReportReceiver();
-	const cc2 = {};
-	ZoneCodeCompile(def, rc2, cc2);
-	rc2.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
-	console.log(`Done 2nd prototype compile`);
-	console.log(`Created New Graph Elements:`, JSON.parse(def.Serialize()));
-	*/
-})();
 
 function ZoneCodeCompile(def, rc, cc) {
 	// Gather function-related assets in Zone.
@@ -1684,3 +1653,26 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 			report('error', `Undefined function relationship type "${reldef.type}"`);
 	}
 }
+
+/* DEBUG: run compiler on test data
+(function() {
+	// Create graph layer from prototype test data.
+	const db = new GraphLayer();
+	db.Deserialize(JSON.stringify(test_workspace));
+
+	const timeStart = performance.now();
+	// Make a sublayer upon the original graph.
+	const def = new GraphLayer(db);
+	const rc = new ReportReceiver();
+	const cc = {};
+	ZoneCodeCompile(def, rc, cc);
+	const timeEnd = performance.now();
+
+	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
+	console.log(`Done 1st prototype compile (${timeEnd - timeStart}ms)`);
+	for(var proc in cc) {
+		console.log(`Processor "${proc}" Code:`);
+		console.log(cc[proc]);
+	}
+})();
+*/
