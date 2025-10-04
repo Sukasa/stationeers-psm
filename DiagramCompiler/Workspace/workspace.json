@@ -539,9 +539,9 @@
     "fromIndex": 0,
     "toNode": "EK419931",
     "properties": {
-      "x": 2,
-      "y": -1,
-      "as": "schematic"
+      "x": 200,
+      "y": -100,
+      "as": "functional"
     }
   },
   {
@@ -551,9 +551,9 @@
     "fromIndex": 1,
     "toNode": "LC183102",
     "properties": {
-      "x": 2,
+      "x": 200,
       "y": 0,
-      "as": "schematic"
+      "as": "functional"
     }
   },
   {
@@ -563,9 +563,9 @@
     "fromIndex": 2,
     "toNode": "RG3123",
     "properties": {
-      "x": 2,
-      "y": 1,
-      "as": "schematic"
+      "x": 200,
+      "y": 100,
+      "as": "functional"
     }
   },
   {
@@ -576,8 +576,8 @@
     "toNode": "TW818194",
     "properties": {
       "x": 0,
-      "y": -1,
-      "as": "schematic"
+      "y": -100,
+      "as": "functional"
     }
   },
   {
@@ -587,9 +587,9 @@
     "fromIndex": 4,
     "toNode": "RI39151",
     "properties": {
-      "x": 0,
-      "y": 0,
-      "as": "schematic"
+      "x": -300,
+      "y": 20,
+      "as": "functional"
     }
   },
   {
@@ -600,8 +600,8 @@
     "toNode": "TW3716",
     "properties": {
       "x": 0,
-      "y": 1,
-      "as": "schematic"
+      "y": 100,
+      "as": "functional"
     }
   }
 ]

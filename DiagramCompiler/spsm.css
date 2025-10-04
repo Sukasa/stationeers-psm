@@ -145,10 +145,34 @@ body.narrow-viewport .window-inner.psm-navigation {
 	height: 100%;
 }
 
+.diagram-root {
+	position: relative;
+}
+
+.drawing-node {
+	position: absolute;
+}
+
+.drawing-br-anchor {
+	position: absolute;
+	width: 1px; height: 1px;
+	pointer-events: none;
+}
+
+.drawing-node.functional-node {
+	width: 150px;
+	min-height: 2em;
+	background: #fff;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border: thin solid #888;
+}
+
 @media print {
 	.window-outer, .window-title {
 		display: none;
 	}
+
 	.window-outer.printable, .window-inner.printable {
 		display: initial;
 		border: none !important;
@@ -165,13 +189,18 @@ body.narrow-viewport .window-inner.psm-navigation {
 		overflow-x: visible !important;
 		overflow-y: visible !important;
 	}
+
 	.window-inner.printable > .window-body {
 		position: initial !important;
 		display: block !important;
 	}
-}
 
-.diagram-root {
-	min-width: 100vw;
-	min-height: 100vh;
+	.drawing-br-anchor {
+		display: none;
+	}
+
+	.diagram-root {
+		margin-top: -50vw;
+		margin-left: -50vw;
+	}
 }

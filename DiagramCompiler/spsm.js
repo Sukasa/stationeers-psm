@@ -212,11 +212,10 @@ function render() {
 
 
 function renderWorkspace(target, workspace) {
-	workspace.save();
-
 	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll' }, renderDiagramView(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
+	workspace.save();
 }
 
 function renderDiagramView(D, S) {
@@ -227,16 +226,50 @@ function renderDiagramView(D, S) {
 	const dgrams = D.Objects(o => o.type === 'drawing');
 	var active = dgrams.find(d => d.id === drawing);
 	if( dgrams.length === 0 ) {
-		active = {type: 'drawing', id: D.NewId(), properties: {Name:'New Drawing', defaultNodeType:'functional'}};
-		dgrams.push(active);
-		D.AddObject(active);
+		const ins = {type: 'drawing', id: D.NewId(), properties: {Name:'New Drawing', defaultNodeType:'functional'}};
+		dgrams.push(ins);
+		D.AddObject(ins);
 	}
 	if( !active ) {
 		active = dgrams[0];
+		S.diagram.view = active.id;
 	}
 
+	const FUNCNODESZ = 150;
+	const SCHEMNODESZ = 80;
+
+	var minX = +Infinity, minY = +Infinity, maxX = -Infinity, maxY = -Infinity;
 	const content = D.FindRelations(active.id)
 		.filter(r => r.fromNode === active.id && r.fromPin === 'Component');
+	
+	content.forEach(c => {
+		// Assert sanity on x/y/as values, and gather range.
+		if( ! c.properties ) c.properties = {};
+		if( undefined === c.properties.as ) c.properties.as = 'functional';
+		if( 'number' !== typeof c.properties.x ) c.properties.x = 0;
+		if( 'number' !== typeof c.properties.y ) c.properties.y = 0;
+		
+		const {x,y,as} = c.properties;
+		const sz = 'functional' === as ? FUNCNODESZ : SCHEMNODESZ;
+		minX = Math.min(minX, x); maxX = Math.max(maxX, x+sz);
+		minY = Math.min(minY, y); maxY = Math.max(maxY, y+sz);
+	});
+
+	const pad = window.innerWidth / 2;
+
+	$(root, "div", {
+		className: `drawing-br-anchor`,
+		style: `left: ${pad*2 + maxX - minX}px; top: ${pad*2 + maxY - minY}px;`,
+	});
+
+	content.forEach(c => {
+		const e = $(root, "div", {
+			className: `drawing-node ${c.properties.as}-node`,
+			style: `left: ${pad + c.properties.x - minX}px; top: ${pad + c.properties.y - minY}px`,
+		});
+
+
+	});
 
 	//TODO: render each content
 	console.log(content);
@@ -245,9 +278,17 @@ function renderDiagramView(D, S) {
 }
 
 function renderProperties(D, S) {
-	return [["h2", "=props"]];
+	const selected = S.selection ?? (S.selection = []);
+	if( selected.length === 0 ) return [];
+
+	const editing = selected[0];
+	//TODO: determine what is being edited, and build property editor for it
+
+	return [["h2", "=Props of " + String(editing)]];
 }
 
 function renderNavigation(D, S) {
+	const selected = S.selection ?? (S.selection = []);
+
 	return [["h2", "=nav"]];
 }
