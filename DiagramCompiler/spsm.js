@@ -91,13 +91,28 @@ function onResize() {
 		? 'narrow-viewport' : 'wide-viewport';
 }
 
+const _prerender_teardowns = [];
+function preRerender(obj, cb) {
+	_prerender_teardowns.push(cb);
+	return obj;
+}
+
+const _postrender_setups = [];
+function postRender(cb) {
+	_postrender_setups.push(cb);
+}
+
 var isRenderQueued = false;
 function rerender() {
 	if( isRenderQueued ) return;
 	isRenderQueued = true;
 	requestAnimationFrame(() => {
 		isRenderQueued = false;
+		_prerender_teardowns.forEach(cb => {try{cb()} catch(e) { console.error("During pre-rerender callback:", e);}});
+		_prerender_teardowns.length = 0;
 		render();
+		_postrender_setups.forEach(cb => {try{cb()} catch(e) { console.error("During post-render callback:", e);}});
+		_postrender_setups.length = 0;
 	});
 }
 
@@ -212,16 +227,22 @@ function render() {
 
 
 function renderWorkspace(target, workspace) {
-	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll' }, renderDiagramView(workspace.data, workspace.state));
+	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll', scrollLeft: workspace.state.scrollX??0, scrollTop: workspace.state.scrollY??0 }, renderDiagramView(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
 	workspace.save();
 }
 
+const RDVref = {diagram:null, data:null, pad:null};
 function renderDiagramView(D, S) {
 	const selected = S.selection ?? (S.selection = []);
 	const {drawing,zoom} = S.diagram.view ?? (S.diagram.view = {drawing:null, zoom:1});
-	const root = $("div", {className:'diagram-root',});
+	
+	const diagram = $("div", {
+		className:'diagram-root',
+		scrollLeft: S.scrollX ?? 0,
+		scrollTop: S.scrollY ?? 0,
+	});
 
 	const dgrams = D.Objects(o => o.type === 'drawing');
 	var active = dgrams.find(d => d.id === drawing);
@@ -256,25 +277,47 @@ function renderDiagramView(D, S) {
 	});
 
 	const pad = window.innerWidth / 2;
-
-	$(root, "div", {
+	$(diagram, "div", {
 		className: `drawing-br-anchor`,
 		style: `left: ${pad*2 + maxX - minX}px; top: ${pad*2 + maxY - minY}px;`,
 	});
 
+	const toggleSelect = id => {
+		const idx = selected.indexOf(id);
+		if( idx === -1 ) {
+			selected.push(id);
+		} else {
+			selected.splice(idx, 1);
+		}
+		rerender();
+	};
+
 	content.forEach(c => {
-		const e = $(root, "div", {
+		const e = $(diagram, "div", {
 			className: `drawing-node ${c.properties.as}-node`,
 			style: `left: ${pad + c.properties.x - minX}px; top: ${pad + c.properties.y - minY}px`,
 		});
 
-
+		$(e, "div", "="+c.toNode, {
+			className: 'title draggable selectable' + (-1 < selected.indexOf(c.toNode) ? ' selected':''),
+			'?click': () => toggleSelect(c.toNode),
+			'?drag': evt => {
+				console.log('drag', evt);
+			},
+		});
 	});
 
-	//TODO: render each content
-	console.log(content);
+	console.log(`Content:`, content);
+	console.log(`State:`, S);
 
-	return [root];
+	postRender(() => {
+		diagram.parentNode.scrollLeft = S.scrollX;
+		diagram.parentNode.scrollTop = S.scrollY;
+	});
+	return preRerender(diagram, () => {
+		S.scrollX = diagram.parentNode.scrollLeft;
+		S.scrollY = diagram.parentNode.scrollTop;
+	});
 }
 
 function renderProperties(D, S) {

@@ -204,3 +204,22 @@ body.narrow-viewport .window-inner.psm-navigation {
 		margin-left: -50vw;
 	}
 }
+
+
+.drawing-node.functional-node .title {
+	padding: 2px;
+}
+
+.drawing-node.functional-node .draggable {
+	cursor: grab;
+}
+
+.drawing-node.functional-node .selectable {
+	background: inherit;
+	color: #227;
+}
+
+.drawing-node.functional-node .selectable.selected {
+	background: #22F;
+	color: #FFF;
+}
