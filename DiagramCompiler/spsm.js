@@ -102,17 +102,34 @@ function postRender(cb) {
 	_postrender_setups.push(cb);
 }
 
-var isRenderQueued = false;
+var isRenderQueued = false, isRendering = false;
 function rerender() {
+	if( isRendering ) {
+		console.warn(`rerender() attempted while rendering; ignoring!`);
+		return;
+	}
 	if( isRenderQueued ) return;
 	isRenderQueued = true;
+
 	requestAnimationFrame(() => {
+		const _s = performance.now();
+
 		isRenderQueued = false;
 		_prerender_teardowns.forEach(cb => {try{cb()} catch(e) { console.error("During pre-rerender callback:", e);}});
 		_prerender_teardowns.length = 0;
-		render();
+
+		isRendering = true;
+		try {
+			render();
+		} finally {
+			isRendering = false;
+		}
+		
 		_postrender_setups.forEach(cb => {try{cb()} catch(e) { console.error("During post-render callback:", e);}});
 		_postrender_setups.length = 0;
+
+		const _e = performance.now();
+		console.debug(`Rerender took ~${Math.round((_e - _s)*1000)/1000}ms`);
 	});
 }
 
@@ -260,8 +277,7 @@ function renderDiagramView(D, S) {
 	const SCHEMNODESZ = 80;
 
 	var minX = +Infinity, minY = +Infinity, maxX = -Infinity, maxY = -Infinity;
-	const content = D.FindRelations(active.id)
-		.filter(r => r.fromNode === active.id && r.fromPin === 'Component');
+	const content = D.RelationsOf(active.id, 'Component');
 	
 	content.forEach(c => {
 		// Assert sanity on x/y/as values, and gather range.
@@ -292,23 +308,91 @@ function renderDiagramView(D, S) {
 		rerender();
 	};
 
-	content.forEach(c => {
-		const e = $(diagram, "div", {
-			className: `drawing-node ${c.properties.as}-node`,
-			style: `left: ${pad + c.properties.x - minX}px; top: ${pad + c.properties.y - minY}px`,
+	const titleClickHandler = comp => evt => {
+		if( evt.shiftKey ) {
+			toggleSelect(comp.toNode);
+		} else {
+			selected.length = 0;
+			selected.push(comp.toNode);
+			rerender();
+		}
+	};
+
+	const titleDragHandler = (el, comp) => evt => {
+		if( selected.length !== 1 || selected[0] !== comp.toNode || evt.button !== 0 ) return;
+		evt.preventDefault();
+
+		var relX = evt.clientX, relY = evt.clientY;
+
+		document.onmouseup = ed => {
+			if( !ed.ctrlKey ) {
+				// Snap final coordinates
+				comp.properties.x = Math.round(comp.properties.x / 50) * 50;
+				comp.properties.y = Math.round(comp.properties.y / 50) * 50;
+			}
+			document.onmouseup = document.onmousemove = null;
+			rerender();
+		};
+
+		document.onmousemove = em => {
+			em.preventDefault();
+			const dx = relX - em.clientX;
+			const dy = relY - em.clientY;
+			relX = em.clientX;
+			relY = em.clientY;
+			comp.properties.x -= dx;
+			comp.properties.y -= dy;
+
+			var ex = !em.ctrlKey ? Math.round(comp.properties.x / 50) * 50 : comp.properties.x;
+			var ey = !em.ctrlKey ? Math.round(comp.properties.y / 50) * 50 : comp.properties.y;
+			el.style = `z-index: +999; left: ${pad + ex - minX}px; top: ${pad + ey - minY}px`;
+		};
+	};
+
+	function renderFunctionalComponent(target, comp) {
+		const e = $(target, "div", {
+			className: `drawing-node ${comp.properties.as}-node`,
+			style: `left: ${pad + comp.properties.x - minX}px; top: ${pad + comp.properties.y - minY}px`,
 		});
 
-		$(e, "div", "="+c.toNode, {
-			className: 'title draggable selectable' + (-1 < selected.indexOf(c.toNode) ? ' selected':''),
-			'?click': () => toggleSelect(c.toNode),
-			'?drag': evt => {
-				console.log('drag', evt);
-			},
+		$(e, "div", "="+comp.toNode, {
+			className: 'title draggable selectable' + (-1 < selected.indexOf(comp.toNode) ? ' selected':''),
+			'?click': titleClickHandler(comp),
+			'?mousedown': titleDragHandler(e, comp),
 		});
+
+		var refComp = D.FindObject(comp.toNode);
+		if( refComp.properties?.Name ) {
+			$(e, "div", "="+refComp.properties.Name);
+		}
+
+		const metanode = metanode_db[refComp.type];
+		metanode.Pins(refComp).forEach(pin => {
+			const vals = D.RelationsOf(refComp, pin.name);
+			
+			// Each value connected gets a pin row
+			vals.forEach(v => {
+				$(e, "div", `=${v.toNode + (v.toPin?`:${v.toPin}`:'')} (${pin.name})`);
+			});
+			
+			// Empty pin if values is empty or pin is 'array'.
+			if( vals.length === 0 || pin.array ) {
+				$(e, "div", `=(${pin.name})`);
+			}
+		});
+	}
+
+	content.forEach(c => {
+		if( c.properties.as === 'functional' ) {
+			renderFunctionalComponent(diagram, c);
+		} else {
+			//TODO: other component types
+			console.warn(`unhandled diagram component type ${c.properties.as}`);
+		}
 	});
 
-	console.log(`Content:`, content);
-	console.log(`State:`, S);
+	//DEBUG: console.log(`Content:`, content);
+	//DEBUG: console.log(`State:`, S);
 
 	postRender(() => {
 		diagram.parentNode.scrollLeft = S.scrollX;

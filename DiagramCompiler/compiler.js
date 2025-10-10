@@ -671,10 +671,22 @@ class GraphLayer {
 		return intoResult;
 	}
 
+	// List ONLY relations FROM a given node, and optionally only those of a specific pin.
+	// More efficient than calling FindRelations() and filtering it yourself.
+	RelationsOf(objId, pinName, intoResult) {
+		intoResult = intoResult ?? [];
+		if( this.parent ) this.parent.RelationsOf(objId, pinName, intoResult);
+		this.Rels[objId]?.forEach(r => {
+			if( pinName === undefined || pinName === r.fromPin )
+				intoResult.push(r);
+		});
+		return intoResult;
+	}
+
 	// Read the node at the OTHER END of a specific non-array relationship pin.
 	ReadRelation(objId, pinName) {
 		if( !objId || !pinName || !this.FindObject(objId) ) return undefined;
-		const rel = this.FindRelations(objId).find(r => r.fromPin === pinName && r.index === undefined);
+		const rel = this.RelationsOf(objId, pinName).find(r => r.index === undefined);
 		return rel && this.FindObject(rel.toNode);
 	}
 
@@ -819,13 +831,12 @@ function ZoneCodeCompile(def, rc, cc) {
 			&& (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
 
 	// Gather Functions in Zone
-	const funcs = def.FindRelations('ZHab1')
-		.filter(rel => rel.fromPin === 'Zone')
+	const funcs = def.RelationsOf('ZHab1', 'Zone')
 		.map(rel => def.FindObject(rel.fromNode))
 		.filter(o => o.type === 'function');
 
 	// Gather Equipment in Zone which need Initialization code.
-	const initEquip = funcs.flatMap(f => def.FindRelations(f.id).filter(r => r.fromNode === f.id))
+	const initEquip = funcs.flatMap(f => def.RelationsOf(f.id))
 		.map(rel => def.FindObject(rel.toNode))
 		.filter(o => o.type === 'equipment' && o.properties?.Initialize);
 	
@@ -886,7 +897,7 @@ function ZoneCodeCompile(def, rc, cc) {
 		// Pull dependency strings to sequence related function code blocks.
 		const fQueue = funcs.map(f => ({
 			func: f,
-			refs: def.FindRelations(f.id)
+			refs: def.RelationsOf(f.id)
 				.filter(r => r.fromNode === f.id)
 				.map(r => def.FindObject(r.toNode))
 				.filter(f2 => f2.type === 'function')
@@ -943,7 +954,6 @@ function ZoneCodeCompile(def, rc, cc) {
 
 			const proc = processors.find(p => p.node === fproc.id);
 			const datum = def.FindRelations(f.id)
-				.filter(r => f.id === r.fromNode)
 				.map(r => def.FindObject(r.toNode))
 				.filter(o => o?.type === 'data');
 			datum.forEach(d => CheckAndValidateDatum(d, rc, storages));
@@ -1029,7 +1039,7 @@ function ZoneCodeCompile(def, rc, cc) {
 				} else if( c.kind === 'array-plural' || c.kind === 'array-singular' ) {
 					var arity;
 					if( fnDef.rels.find(r => r.name === c.target) ) {
-						arity = def.FindRelations(fnObj.id).filter(r => r.fromNode === fnObj.id && r.fromPin === c.target).length;
+						arity = def.RelationsOf(fnObj.id, c.target).length;
 					} else if( fnDef.properties.find(r => r.name === c.target) ) {
 						const a = fnObj.properties?.[c.target];
 						if( a instanceof Array ) {
@@ -1108,7 +1118,7 @@ function ZoneCodeCompile(def, rc, cc) {
 
 					var cnt = 1;
 					if( b.scope === 'array' ) {
-						const arel = def.FindRelations(fnObj.id).filter(r => fnObj.id === r.fromNode && b.target === r.fromPin);
+						const arel = def.RelationsOf(fnObj.id, b.target);
 						const acfg = fnObj.properties?.[b.target];
 						if( acfg instanceof Array && arel.length === 0 ) {
 							cnt = acfg.length;
@@ -1316,7 +1326,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			
 			// Populate relation-based variables
 			for(var rd of fnDef.rels)
-				SetRelsVariables(rc, proc, fnObj, vars, rd, def.FindRelations(fnObj.id).filter(r => r.fromNode === fnObj.id && r.fromPin === rd.name));
+				SetRelsVariables(rc, proc, fnObj, vars, rd, def.RelationsOf(fnObj.id, rd.name));
 
 			// Populate property-based variables (which includes instance-scope register allocations)
 			for(var pd of fnDef.properties)
@@ -1503,8 +1513,7 @@ function ValidateFunction(report, fnObj, layer) {
 
 			const dname = `${fnObj.kind}:${scope}=${scopeTarget}:${propDef.name}`;
 			const dat = layer
-				.FindRelations(scopeTarget)
-				.filter(r => r.toNode === scopeTarget && r.fromPin === 'Scope')
+				.RelationsOf(scopeTarget, 'Scope')
 				.map(r => layer.FindObject(r.fromNode))
 				.filter(o => o.type === 'data' && o.name === dname);
 
