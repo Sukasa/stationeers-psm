@@ -157,21 +157,24 @@ function renderDiagramView(D, S) {
 		}
 	});
 
-	const viewbox = `0 0 ${totalWidth} ${totalHeight}`;
-	const svg = $(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), { class: 'zigzag', viewBox: viewbox });
-	$("#svgrule").textContent = `svg.zigzag {width:${totalWidth}px; height:${totalHeight}px;}`;
+	//const viewbox = `0 0 ${totalWidth} ${totalHeight}`;
+	const SVGNS = 'http://www.w3.org/2000/svg';
+	const svg = $(document.createElementNS(SVGNS, 'svg'), { class: 'zigzag' });
 
-	const ZigZag = (a,b) => postRender(() => {
+	const ZigZag = (a,b,selected) => postRender(() => {
 		//TODO: autoroute zigzagline if missing
 		//TODO: draw zigzagline
 		const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
 		const cr = diagram.getBoundingClientRect();
 		const x1 = ar.x - cr.x + ar.width/2, y1 = ar.y - cr.y + ar.height / 2;
 		const x2 = br.x - cr.x + br.width/2, y2 = br.y - cr.y + br.height / 2;
+		const xM = (x1 + x2) / 2 + (Math.abs(y2) % 9 - 4) * 4;
 
 		a.classList.add('on-page');
 		b.classList.add('on-page');
-		$(svg, document.createElementNS('http://www.w3.org/2000/svg', "path"), {d:`M ${x1} ${y1} L ${x2} ${y2}`});
+		const p = $(svg, document.createElementNS(SVGNS, "path"),
+			{d:`M ${x1} ${y1} H ${xM} V ${y2} H ${x2}`});
+		if( selected ) p.classList.add('selected');
 	});
 
 	// Render relations between all nodes for which both ends are present.
@@ -180,6 +183,7 @@ function renderDiagramView(D, S) {
 		// Ignore relations from drawings
 		if( rel.fromPin === 'Component' && rel.properties ) return;
 
+		const oS = selected.includes(rel.fromNode), vS = selected.includes(rel.viaNode), fS = selected.includes(rel.toNode);
 		const o = pass_anchors[`L/${rel.fromNode}:${rel.fromPin}:${rel.fromIndex ?? '-'}`];
 		const v = rel.viaNode && pass_anchors[`R/${rel.viaNode}:${rel.viaPin}`];
 		const f = (rel.toPin === undefined && pass_anchors[`N/${rel.toNode}`])
@@ -187,18 +191,18 @@ function renderDiagramView(D, S) {
 
 		if( o && v ) {
 			// Route from O to V
-			ZigZag(o, v);
+			ZigZag(o, v, oS || vS);
 			
 			// Check for route from V's LHS to F
 			const vl = pass_anchors[`L/${rel.viaNode}:${rel.viaPin}`];
 			if( vl && f ) {
 				// Route from VL to F
-				ZigZag(vl, f);
+				ZigZag(vl, f, vS || fS);
 			}
 
 		} else if( o && f ) {
 			// Route from O to F
-			ZigZag(o, f);
+			ZigZag(o, f, oS || fS);
 
 		} else if( o && !v && !f ) {
 			// FromNode needs off-page icon

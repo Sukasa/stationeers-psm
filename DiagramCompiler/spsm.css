@@ -282,5 +282,11 @@ body.narrow-viewport .window-inner.psm-navigation {
 
 .diagram-root svg.zigzag path {
 	stroke: black;
-	stroke-width: 2px;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.diagram-root svg.zigzag path.selected {
+	stroke: #00f;
+	stroke-width: 3px;
 }

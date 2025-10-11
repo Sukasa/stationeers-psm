@@ -302,9 +302,3 @@ function renderProperties(D, S) {
 
 	return [["h2", "=Props of " + String(editing)]];
 }
-
-function renderNavigation(D, S) {
-	const selected = S.selection ?? (S.selection = []);
-
-	return [["h2", "=nav"]];
-}

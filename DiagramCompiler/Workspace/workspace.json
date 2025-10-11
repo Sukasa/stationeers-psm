@@ -511,7 +511,7 @@
     "toNode": "EK419931",
     "properties": {
       "x": -400,
-      "y": -700,
+      "y": -800,
       "as": "functional"
     }
   },
@@ -571,7 +571,7 @@
     "properties": {
       "as": "functional",
       "x": -100,
-      "y": -700
+      "y": -750
     },
     "type": "rel"
   },
@@ -643,7 +643,7 @@
     "properties": {
       "as": "functional",
       "x": 250,
-      "y": -500
+      "y": -550
     },
     "type": "rel"
   },
@@ -679,7 +679,7 @@
     "properties": {
       "as": "functional",
       "x": -400,
-      "y": 200
+      "y": 250
     },
     "type": "rel"
   },

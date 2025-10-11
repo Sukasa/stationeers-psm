@@ -719,7 +719,7 @@ class GraphLayer {
 		intoResult = intoResult ?? [];
 		if( this.parent ) this.parent.RelationsOf(objId, pinName, intoResult);
 		this.Rels[objId]?.forEach(r => {
-			if( pinName === undefined || pinName === r.fromPin )
+			if( r.fromNode === objId && (pinName === undefined || pinName === r.fromPin) )
 				intoResult.push(r);
 		});
 		return intoResult;
