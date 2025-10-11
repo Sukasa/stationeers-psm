@@ -158,7 +158,7 @@ function renderDiagramView(D, S) {
 	});
 
 	const viewbox = `0 0 ${totalWidth} ${totalHeight}`;
-	const svg = $("svg", { className: 'zigzag', viewbox: viewbox });
+	const svg = $(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), { class: 'zigzag', viewBox: viewbox });
 	$("#svgrule").textContent = `svg.zigzag {width:${totalWidth}px; height:${totalHeight}px;}`;
 
 	const ZigZag = (a,b) => postRender(() => {
@@ -171,7 +171,7 @@ function renderDiagramView(D, S) {
 
 		a.classList.add('on-page');
 		b.classList.add('on-page');
-		$(svg, "path", {d:`M ${x1} ${y1} L ${x2} ${y2}`});
+		$(svg, document.createElementNS('http://www.w3.org/2000/svg', "path"), {d:`M ${x1} ${y1} L ${x2} ${y2}`});
 	});
 
 	// Render relations between all nodes for which both ends are present.
