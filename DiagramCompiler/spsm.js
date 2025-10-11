@@ -216,7 +216,50 @@ function renderWindow(target, options, content) {
 	]);
 }
 
+// A debug tool for generating a 'failover' script used for non-Chrome browsers
+// Save in `./failover.js` relative to `index.html`
+window.dump = () => {
+	document.body.innerHTML = '';
+	$(document.body, "pre", `=window.workspace_failover = ${w.data.Serialize()};\n\nwindow.state_failover = ${JSON.stringify(w.state,null,2)};\n`);
+};
+
+var failoverLoading = false;
 function renderWorkspaceSelector(target) {
+	if( window.showDirectoryPicker === undefined ) {
+		// If no filesystem access API is available, try to load the `failover` script.
+		if( window.failover_failed ) {
+			return renderWindow(target, { title: "No Failover Available!", className: "center autosize dialog modal" }, [
+				["div", "=You need to dump a functional workspace into `./failover.js` to operate without FilesystemAPI support."],
+			]);
+
+		} else if( window.workspace_failover && failoverLoading ) {
+			failoverLoading = false;
+
+			const w = {};
+			w.data = new GraphLayer();
+			w.data.Deserialize(JSON.stringify(window.workspace_failover));
+			w.state = window.state_failover ?? {diagram:{}, navigation:{}, properties:{}};
+
+			active_workspace = w;
+			active_workspace.update = rerender;
+			active_workspace.save = () => {};
+
+			setTimeout(rerender, 0);
+			return;
+
+		} else if( !failoverLoading ) {
+			failoverLoading = true;
+			$(document.head, $("script", {src:"./failover.js", '?error': () => {
+				failoverLoading = false;
+				window.failover_failed = true;
+			}}));
+		}
+
+		renderWindow(target, { title: "Loading failover...", className: "center autosize dialog modal"});
+		setTimeout(rerender, 100);
+		return;
+	}
+
 	renderWindow(target, { title: "Load Workspace", className: "center autosize dialog modal" }, [
 		["h3", "=Recent"],
 		...avail_workspaces.map(w => ["div", [

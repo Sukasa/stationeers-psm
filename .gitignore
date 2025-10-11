@@ -5,3 +5,4 @@ $*
 
 # Local state files
 /DiagramCompiler/Workspace/state.json
+/DiagramCompiler/failover.js
