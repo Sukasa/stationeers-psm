@@ -2,10 +2,14 @@
 const equipmenttype_db = {
 	'StructureAirlock': {
 		name: 'Airlock',
-		prefab: '-2105052344',
 		logicWrite: ['Open','Mode','Lock','Setting','On',],
 		logicRead: ['Idle',],
 		connections: [{data:1},{power:1},],
+	},
+	'StructureWallHeater': {
+		name: 'Wall Heater',
+		logicWrite: ['Lock','On',],
+		connections: [{data:1,power:1},],
 	},
 	'StructureLogicButton': {
 		name: 'Button',
@@ -421,11 +425,25 @@ const metanode_db = {
 	'function': {
 		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
 		Pins(obj) {
+			const def = functiondef_db[obj.kind];
+			if( ! def ) return [];
+			if( def._cache_pins === undefined ) {
+				// Generate and cache pins
+				const res = [{name: 'Zone', type: 'zone'}, {name: 'Processor', type: 'equipment', equipmenttype: ['StructureCircuitHousing'],}];
+				def.rels?.forEach(rel => res.push(rel));
+				def._cache_pins = res;
+			}
+			return def._cache_pins;
 		},
-		// Generate list of {name:,type:,hidden:} property definitions this node exposes to property editor.
+
+		// Generate list of {name:,category?:,type:,hidden:} property definitions this node exposes to property editor.
 		Fields(obj) {
+			const def = functiondef_db[obj.kind];
+			if( !def ) return [];
+			return def.properties ?? [];
 		},
-		// Return renderer class for Diagram view of this metanode.
+
+		// Return renderer class for Schematic view of this metanode.
 		Diagram(obj) {
 		},
 	},
@@ -434,9 +452,12 @@ const metanode_db = {
 		Pins(obj) {
 			return [{name:'Zone', type:'zone'}];
 		},
+
 		Fields(obj) {
 
 		},
+
+		// Return renderer class for Schematic view of this metanode.
 		Diagram(obj) {
 
 		},
@@ -450,31 +471,34 @@ const metanode_db = {
 				equipmenttype_db[obj.kind] = {pins:[]};
 				return [];
 			}
-			if( def.pins === undefined ) {
+			if( def._cache_pins === undefined ) {
 				// Generate and cache pins by equipment type.
 				const res = [{name:'Zone', type:'zone'}];
 
 				if( def.logicRead ) {
-					const AddRO = L => res.push({name:L, type:'logic', writable:false,});
+					const AddRO = L => res.push({name:L, inert:true, type:'logic', writable:false,});
 					def.logicRead.forEach(AddRO);
 					StdLogic.forEach(AddRO);
-
-					def.logicWrite?.forEach(L => res.push({name:L, type:'logic', writable:true,}));
 				}
 
+				def.logicWrite?.forEach(L => res.push({name:L, inert:true, type:'logic', writable:true,}));
+
 				def.logicSlots?.forEach((S,si) => {
-					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, type:'logic', writable:false});
+					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, inert:true, type:'logic', writable:false});
 					S.forEach(addSlot);
 					StdSlotLogic.forEach(addSlot);
 				});
 
-				def.pins = res;
+				def._cache_pins = res;
 			}
-			return def.pins;
+			return def._cache_pins;
 		},
+
 		Fields(obj) {
 			return [{name:'Name', type:'string',}, {name:'ReferenceId', type:'number',}];
 		},
+
+		// Return renderer class for Schematic view of this metanode.
 		Diagram(obj) {
 
 		},

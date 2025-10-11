@@ -98,6 +98,8 @@ function renderDiagramView(D, S) {
 		};
 	};
 
+	const pass_anchors = {};
+
 	function renderFunctionalComponent(target, comp) {
 		const e = $(target, "div", {
 			className: `drawing-node ${comp.properties.as}-node`,
@@ -112,26 +114,40 @@ function renderDiagramView(D, S) {
 
 		var refComp = D.FindObject(comp.toNode);
 		if( refComp.properties?.Name ) {
-			$(e, "div", "="+refComp.properties.Name);
+			const ni = $("div", {className: 'pin-output'});
+			pass_anchors[`N/${refComp.id}`] = ni;
+			$(e, "div", [
+				ni,
+				["div", {className:'label'}, "="+refComp.properties.Name]
+			]);
 		}
 
 		const metanode = metanode_db[refComp.type];
 		metanode.Pins(refComp).forEach(pin => {
-			const vals = D.RelationsOf(refComp, pin.name);
+			const vals = D.RelationsOf(refComp.id, pin.name);
 			
+			const MakePin = (v) => {
+				const pi = $("div", {className: 'pin-input'});
+				const po = $("div", {className: 'pin-output'});
+				if( !pin.inert ) pass_anchors[`L/${refComp.id}:${pin.name}:${v?.fromIndex ?? '-'}`] = pi;
+				pass_anchors[`R/${refComp.id}:${pin.name}`] = po;
+				return $(e, "div", {className: 'pin'}, [
+					(pin.inert?null:pi), po, ["div", {className: 'label'}, '=' + pin.name + (pin.array?` [${v?.fromIndex??'+'}]`:'')],
+				]);
+			};
+
 			// Each value connected gets a pin row
-			vals.forEach(v => {
-				$(e, "div", `=${v.toNode + (v.toPin?`:${v.toPin}`:'')} (${pin.name})`);
-			});
-			
-			// Empty pin if values is empty or pin is 'array'.
-			if( vals.length === 0 || pin.array ) {
-				$(e, "div", `=(${pin.name})`);
-			}
+			vals.forEach(MakePin);
+
+			// Add an empty pin if values is empty or pin is 'array'.
+			if( vals.length === 0 || pin.array )
+				MakePin(null);
 		});
 	}
 
+	const rels = [];
 	content.forEach(c => {
+		D.RelationsOf(c.toNode).forEach(r => rels.push(r));
 		if( c.properties.as === 'functional' ) {
 			renderFunctionalComponent(diagram, c);
 		} else {
@@ -140,12 +156,49 @@ function renderDiagramView(D, S) {
 		}
 	});
 
+	// Render relations between all nodes for which both ends are present.
+	console.debug(`Routing ${rels.length} potential connections`);
+	rels.forEach(rel => {
+		const o = pass_anchors[`L/${rel.fromNode}:${rel.fromPin}:${rel.fromIndex ?? '-'}`];
+		if( !o ) return;
+
+		const f = (rel.toPin === undefined && pass_anchors[`N/${rel.toNode}`])
+			|| pass_anchors[`R/${rel.toNode}:${rel.toPin}`];
+		if( !f ) return;
+
+		//TODO: draw zigzagline
+	});
+
+	function NextIndex() {
+		return content.reduce((a,c) => Math.max(a, c.fromIndex + 1), 0);
+	}
+
+	function AddAction(evt) {
+		if( ! evt.altKey ) return;
+		const atX = evt.clientX, atY = evt.clientY;
+
+		//TODO: show dialog to select the object to add
+		
+		// For now, pick any function/equipment component not already included in the diagram
+		const choices = D.Objects(o => -1 !== ['equipment','function'].indexOf(o.type) && !content.find(c => c.toNode === o.id));
+		if( choices.length === 0 ) return;
+		const pickedNode = choices[0].id;
+
+		D.AddRel({
+			fromNode: active.id, fromPin: 'Component',
+			fromIndex: NextIndex(), toNode: pickedNode,
+			properties:{as: active.properties?.defaultNodeType ?? 'functional', x: atX - pad, y: atY - pad}
+		});
+		rerender();
+	}
+
 	//DEBUG: console.log(`Content:`, content);
 	//DEBUG: console.log(`State:`, S);
 
 	postRender(() => {
 		diagram.parentNode.scrollLeft = S.scrollX;
 		diagram.parentNode.scrollTop = S.scrollY;
+		diagram.parentNode.onclick = AddAction;
 	});
 	return preRerender(diagram, () => {
 		S.scrollX = diagram.parentNode.scrollLeft;

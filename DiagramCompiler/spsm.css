@@ -159,15 +159,6 @@ body.narrow-viewport .window-inner.psm-navigation {
 	pointer-events: none;
 }
 
-.drawing-node.functional-node {
-	width: 150px;
-	min-height: 2em;
-	background: #fff;
-	border-top-left-radius: 4px;
-	border-top-right-radius: 4px;
-	border: thin solid #888;
-}
-
 @media print {
 	.window-outer, .window-title {
 		display: none;
@@ -195,10 +186,6 @@ body.narrow-viewport .window-inner.psm-navigation {
 		display: block !important;
 	}
 
-	.drawing-br-anchor {
-		display: none;
-	}
-
 	.diagram-root {
 		margin-top: -50vw;
 		margin-left: -50vw;
@@ -206,8 +193,18 @@ body.narrow-viewport .window-inner.psm-navigation {
 }
 
 
+.drawing-node.functional-node {
+	min-width: 150px;
+	background: #fff;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border: thin solid #888;
+}
+
 .drawing-node.functional-node .title {
-	padding: 2px;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	padding: 2px 2px 2px 6px;
 }
 
 .drawing-node.functional-node .draggable {
@@ -215,11 +212,32 @@ body.narrow-viewport .window-inner.psm-navigation {
 }
 
 .drawing-node.functional-node .selectable {
-	background: inherit;
-	color: #227;
+	background: #aff;
+	color: #000;
 }
 
 .drawing-node.functional-node .selectable.selected {
 	background: #22F;
 	color: #FFF;
+}
+
+.drawing-node.functional-node .label {
+	white-space: nowrap;
+	padding: 0px 4px;
+}
+
+.drawing-node.functional-node .pin-input {
+	display: block;
+	position: absolute;
+	left: calc(-1em - 5px);
+	width: 1em; height: 1em;
+	border: thin solid green;
+}
+
+.drawing-node.functional-node .pin-output {
+	display: block;
+	position: absolute;
+	left: calc(100% + 2px);
+	width: 1em; height: 1em;
+	border: thin solid greenyellow;
 }

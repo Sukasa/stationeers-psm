@@ -1,7 +1,7 @@
 [
   {
     "type": "equipment",
-    "kind": "Gas Sensor",
+    "kind": "StructureGasSensor",
     "id": "EK419931",
     "properties": {
       "Name": "Foyer Gas Sensor",
@@ -10,7 +10,7 @@
   },
   {
     "type": "equipment",
-    "kind": "Wall Heater",
+    "kind": "StructureWallHeater",
     "id": "LC183102",
     "properties": {
       "Name": "Foyer Wall Heater",
@@ -19,7 +19,7 @@
   },
   {
     "type": "equipment",
-    "kind": "LED Display",
+    "kind": "StructureConsoleLED",
     "id": "TW818194",
     "properties": {
       "Name": "Temp Wall Display (North)",
@@ -33,7 +33,7 @@
   },
   {
     "type": "equipment",
-    "kind": "LED Display",
+    "kind": "StructureConsoleLED",
     "id": "TW37182",
     "properties": {
       "Name": "Temp Wall Display (South)",
@@ -47,7 +47,7 @@
   },
   {
     "type": "equipment",
-    "kind": "Button",
+    "kind": "StructureLogicButton",
     "id": "RI39151",
     "properties": {
       "Name": "ACK button",
@@ -59,7 +59,7 @@
   },
   {
     "type": "equipment",
-    "kind": "LED Panel",
+    "kind": "ModularDeviceLight",
     "id": "TW3716",
     "properties": {
       "Name": "Low Temp Alarm Lamp",
@@ -72,7 +72,7 @@
   },
   {
     "type": "equipment",
-    "kind": "LED Panel",
+    "kind": "ModularDeviceLight",
     "id": "TW7191",
     "properties": {
       "Name": "High Temp Alarm Lamp",
@@ -85,35 +85,13 @@
   },
   {
     "type": "equipment",
-    "kind": "IC10 Socket",
+    "kind": "StructureCircuitHousing",
     "id": "RG3123",
     "properties": {
-      "Name": "Foyer Control A",
+      "Name": "Foyer Controller",
       "ReferenceId": 4118,
       "Lines": 128,
       "Memory": 512
-    }
-  },
-  {
-    "type": "equipment",
-    "kind": "IC10 Socket",
-    "id": "RG3124",
-    "properties": {
-      "Name": "Foyer Control B",
-      "ReferenceId": 5423,
-      "Lines": 128,
-      "Memory": 512
-    }
-  },
-  {
-    "type": "equipment",
-    "kind": "Utility Socket",
-    "id": "UC48",
-    "properties": {
-      "Name": "Foyer Control RAM",
-      "ReferenceId": 5766,
-      "Lines": 0,
-      "Memory": 8192
     }
   },
   {
@@ -277,15 +255,8 @@
   {
     "type": "rel",
     "fromNode": "ZHab1",
-    "fromPin": "Processor",
-    "fromIndex": 1,
-    "toNode": "RG3124"
-  },
-  {
-    "type": "rel",
-    "fromNode": "ZHab1",
     "fromPin": "RAM",
-    "toNode": "UC48"
+    "toNode": "RG3123"
   },
   {
     "type": "rel",
@@ -406,7 +377,7 @@
     "type": "rel",
     "fromNode": "UG7364",
     "fromPin": "Processor",
-    "toNode": "RG3124"
+    "toNode": "RG3123"
   },
   {
     "type": "rel",
@@ -438,7 +409,7 @@
     "type": "rel",
     "fromNode": "UG175689",
     "fromPin": "Processor",
-    "toNode": "RG3124"
+    "toNode": "RG3123"
   },
   {
     "type": "rel",
@@ -486,7 +457,7 @@
     "type": "rel",
     "fromNode": "UG2022",
     "fromPin": "Processor",
-    "toNode": "RG3124"
+    "toNode": "RG3123"
   },
   {
     "type": "rel",
@@ -518,7 +489,7 @@
     "type": "rel",
     "fromNode": "UG497710",
     "fromPin": "Processor",
-    "toNode": "RG3124"
+    "toNode": "RG3123"
   },
   {
     "type": "rel",
@@ -539,8 +510,8 @@
     "fromIndex": 0,
     "toNode": "EK419931",
     "properties": {
-      "x": 400,
-      "y": 0,
+      "x": -350,
+      "y": -650,
       "as": "functional"
     }
   },
@@ -551,8 +522,8 @@
     "fromIndex": 1,
     "toNode": "LC183102",
     "properties": {
-      "x": 400,
-      "y": 150,
+      "x": 200,
+      "y": 250,
       "as": "functional"
     }
   },
@@ -563,8 +534,8 @@
     "fromIndex": 2,
     "toNode": "RG3123",
     "properties": {
-      "x": -300,
-      "y": 50,
+      "x": -350,
+      "y": 250,
       "as": "functional"
     }
   },
@@ -575,8 +546,8 @@
     "fromIndex": 3,
     "toNode": "TW818194",
     "properties": {
-      "x": 400,
-      "y": -200,
+      "x": 200,
+      "y": -50,
       "as": "functional"
     }
   },
@@ -587,8 +558,8 @@
     "fromIndex": 4,
     "toNode": "RI39151",
     "properties": {
-      "x": -300,
-      "y": -50,
+      "x": -350,
+      "y": 50,
       "as": "functional"
     }
   },
@@ -599,9 +570,141 @@
     "fromIndex": 5,
     "toNode": "TW3716",
     "properties": {
-      "x": -300,
-      "y": -150,
+      "x": 950,
+      "y": -650,
       "as": "functional"
     }
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 6,
+    "toNode": "UK381091",
+    "properties": {
+      "as": "functional",
+      "x": -100,
+      "y": -650
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 7,
+    "toNode": "UV8201",
+    "properties": {
+      "as": "functional",
+      "x": -150,
+      "y": 0
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 8,
+    "toNode": "EQ818293",
+    "properties": {
+      "as": "functional",
+      "x": 200,
+      "y": -300
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 9,
+    "toNode": "UG82030",
+    "properties": {
+      "as": "functional",
+      "x": 200,
+      "y": -700
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 10,
+    "toNode": "UG7364",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": -700
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 11,
+    "toNode": "UG175689",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": -700
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 12,
+    "toNode": "ZG7188",
+    "properties": {
+      "as": "functional",
+      "x": 200,
+      "y": -500
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 13,
+    "toNode": "UG2022",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": -500
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 14,
+    "toNode": "UG497710",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": -500
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 15,
+    "toNode": "TW37182",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": -50
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 16,
+    "toNode": "TW7191",
+    "properties": {
+      "as": "functional",
+      "x": 950,
+      "y": -500
+    },
+    "type": "rel"
   }
 ]
