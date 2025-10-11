@@ -96,25 +96,24 @@ canvas                     { pointer-events: none; }
 }
 
 .window-inner.psm-diagram {
-	left: 25vw;
-	width: 50vw;
+	top: 0.5vh;
+	left: 25.0vw;
+	width: 74.5vw;
+	height: 99.0vh
 }
 
 .window-inner.psm-properties {
-	left: 75.5vw;
-	width: 24vw;
-}
-
-.window-inner.psm-navigation {
+	top: 50.5vh;
 	left: 0.5vw;
 	width: 24vw;
+	height: 49vh;
 }
 
-.window-inner.psm-diagram,
-.window-inner.psm-properties,
 .window-inner.psm-navigation {
 	top: 0.5vh;
-	height: 98.5vh;
+	left: 0.5vw;
+	width: 24vw;
+	height: 49vh;
 }
 
 body.narrow-viewport .window-inner.psm-diagram {
@@ -199,6 +198,7 @@ body.narrow-viewport .window-inner.psm-navigation {
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
 	border: thin solid #888;
+	z-index: 20;
 }
 
 .drawing-node.functional-node .title {
@@ -229,9 +229,9 @@ body.narrow-viewport .window-inner.psm-navigation {
 .drawing-node.functional-node .pin-input {
 	display: block;
 	position: absolute;
-	left: calc(-1em - 5px);
+	left: calc(-1em - 3px);
 	width: 1em; height: 1em;
-	border: thin solid green;
+	/*border: thin solid green;*/
 }
 
 .drawing-node.functional-node .pin-output {
@@ -239,5 +239,48 @@ body.narrow-viewport .window-inner.psm-navigation {
 	position: absolute;
 	left: calc(100% + 2px);
 	width: 1em; height: 1em;
-	border: thin solid greenyellow;
+	/*border: thin solid greenyellow;*/
+}
+
+.drawing-node.functional-node .pin-input,
+.drawing-node.functional-node .pin-output {
+	/* Disconnected */
+	background: radial-gradient(circle at center, transparent 2px, white 6px, transparent 0) no-repeat;
+}
+
+.drawing-node.functional-node .pin-input.off-page {
+	left: -0.5em;
+	width: 0.5em;
+	background: radial-gradient(circle at right, green 6px, transparent 0px) no-repeat;
+}
+
+.drawing-node.functional-node .pin-output.off-page {
+	left: 100%;
+	width: 0.5em;
+	background: radial-gradient(circle at left, green 6px, transparent 0px) no-repeat;
+}
+
+.drawing-node.functional-node .pin-input.on-page {
+	left: calc(-1em - 3px) !important;
+	width: 1em !important;
+	background: radial-gradient(circle at center, black 0px, transparent 6px) no-repeat;
+}
+
+.drawing-node.functional-node .pin-output.on-page {
+	left: calc(100% + 2px) !important;
+	width: 1em !important;
+	background: radial-gradient(circle at center, black 0px, transparent 6px) no-repeat;
+}
+
+.diagram-root svg.zigzag {
+	display: block;
+	position: absolute;
+	overflow: visible;
+	pointer-events: none;
+	z-index: 10;
+}
+
+.diagram-root svg.zigzag path {
+	stroke: black;
+	stroke-width: 2px;
 }

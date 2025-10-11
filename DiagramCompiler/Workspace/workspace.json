@@ -510,7 +510,7 @@
     "fromIndex": 0,
     "toNode": "EK419931",
     "properties": {
-      "x": -350,
+      "x": -400,
       "y": -650,
       "as": "functional"
     }
@@ -531,23 +531,11 @@
     "type": "rel",
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 2,
-    "toNode": "RG3123",
-    "properties": {
-      "x": -350,
-      "y": 250,
-      "as": "functional"
-    }
-  },
-  {
-    "type": "rel",
-    "fromNode": "366ad.m3q4t6",
-    "fromPin": "Component",
     "fromIndex": 3,
     "toNode": "TW818194",
     "properties": {
-      "x": 200,
-      "y": -50,
+      "x": -400,
+      "y": 50,
       "as": "functional"
     }
   },
@@ -558,8 +546,8 @@
     "fromIndex": 4,
     "toNode": "RI39151",
     "properties": {
-      "x": -350,
-      "y": 50,
+      "x": -550,
+      "y": -150,
       "as": "functional"
     }
   },
@@ -570,8 +558,8 @@
     "fromIndex": 5,
     "toNode": "TW3716",
     "properties": {
-      "x": 950,
-      "y": -650,
+      "x": 650,
+      "y": -600,
       "as": "functional"
     }
   },
@@ -594,8 +582,8 @@
     "toNode": "UV8201",
     "properties": {
       "as": "functional",
-      "x": -150,
-      "y": 0
+      "x": -350,
+      "y": -150
     },
     "type": "rel"
   },
@@ -607,7 +595,7 @@
     "properties": {
       "as": "functional",
       "x": 200,
-      "y": -300
+      "y": -150
     },
     "type": "rel"
   },
@@ -618,8 +606,8 @@
     "toNode": "UG82030",
     "properties": {
       "as": "functional",
-      "x": 200,
-      "y": -700
+      "x": 250,
+      "y": -750
     },
     "type": "rel"
   },
@@ -631,7 +619,7 @@
     "properties": {
       "as": "functional",
       "x": 450,
-      "y": -700
+      "y": -750
     },
     "type": "rel"
   },
@@ -642,8 +630,8 @@
     "toNode": "UG175689",
     "properties": {
       "as": "functional",
-      "x": 700,
-      "y": -700
+      "x": 900,
+      "y": -750
     },
     "type": "rel"
   },
@@ -654,7 +642,7 @@
     "toNode": "ZG7188",
     "properties": {
       "as": "functional",
-      "x": 200,
+      "x": 250,
       "y": -500
     },
     "type": "rel"
@@ -678,7 +666,7 @@
     "toNode": "UG497710",
     "properties": {
       "as": "functional",
-      "x": 700,
+      "x": 900,
       "y": -500
     },
     "type": "rel"
@@ -690,8 +678,8 @@
     "toNode": "TW37182",
     "properties": {
       "as": "functional",
-      "x": 450,
-      "y": -50
+      "x": -400,
+      "y": 300
     },
     "type": "rel"
   },
@@ -702,8 +690,8 @@
     "toNode": "TW7191",
     "properties": {
       "as": "functional",
-      "x": 950,
-      "y": -500
+      "x": 650,
+      "y": -350
     },
     "type": "rel"
   }

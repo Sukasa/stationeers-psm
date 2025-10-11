@@ -42,9 +42,10 @@ function renderDiagramView(D, S) {
 	});
 
 	const pad = window.innerWidth / 2;
+	const totalWidth = pad*2 + maxX - minX, totalHeight = pad*2 + maxY - minY;
 	$(diagram, "div", {
 		className: `drawing-br-anchor`,
-		style: `left: ${pad*2 + maxX - minX}px; top: ${pad*2 + maxY - minY}px;`,
+		style: `left: ${totalWidth}px; top: ${totalHeight}px;`,
 	});
 
 	const toggleSelect = id => {
@@ -156,18 +157,67 @@ function renderDiagramView(D, S) {
 		}
 	});
 
+	const viewbox = `0 0 ${totalWidth} ${totalHeight}`;
+	const svg = $("svg", { className: 'zigzag', viewbox: viewbox });
+	$("#svgrule").textContent = `svg.zigzag {width:${totalWidth}px; height:${totalHeight}px;}`;
+
+	const ZigZag = (a,b) => postRender(() => {
+		//TODO: autoroute zigzagline if missing
+		//TODO: draw zigzagline
+		const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
+		const cr = diagram.getBoundingClientRect();
+		const x1 = ar.x - cr.x + ar.width/2, y1 = ar.y - cr.y + ar.height / 2;
+		const x2 = br.x - cr.x + br.width/2, y2 = br.y - cr.y + br.height / 2;
+
+		a.classList.add('on-page');
+		b.classList.add('on-page');
+		$(svg, "path", {d:`M ${x1} ${y1} L ${x2} ${y2}`});
+	});
+
 	// Render relations between all nodes for which both ends are present.
 	console.debug(`Routing ${rels.length} potential connections`);
 	rels.forEach(rel => {
-		const o = pass_anchors[`L/${rel.fromNode}:${rel.fromPin}:${rel.fromIndex ?? '-'}`];
-		if( !o ) return;
+		// Ignore relations from drawings
+		if( rel.fromPin === 'Component' && rel.properties ) return;
 
+		const o = pass_anchors[`L/${rel.fromNode}:${rel.fromPin}:${rel.fromIndex ?? '-'}`];
+		const v = rel.viaNode && pass_anchors[`R/${rel.viaNode}:${rel.viaPin}`];
 		const f = (rel.toPin === undefined && pass_anchors[`N/${rel.toNode}`])
 			|| pass_anchors[`R/${rel.toNode}:${rel.toPin}`];
-		if( !f ) return;
 
-		//TODO: draw zigzagline
+		if( o && v ) {
+			// Route from O to V
+			ZigZag(o, v);
+			
+			// Check for route from V's LHS to F
+			const vl = pass_anchors[`L/${rel.viaNode}:${rel.viaPin}`];
+			if( vl && f ) {
+				// Route from VL to F
+				ZigZag(vl, f);
+			}
+
+		} else if( o && f ) {
+			// Route from O to F
+			ZigZag(o, f);
+
+		} else if( o && !v && !f ) {
+			// FromNode needs off-page icon
+			o.classList.add(`off-page`);
+
+		} else {
+			if( v ) {
+				// V needs off-page icon
+				v.classList.add(`off-page`);
+			}
+			if( f ) {
+				// F needs off-page icon
+				f.classList.add(`off-page`);
+			}
+		}
 	});
+
+	// Add the SVG to the document after all paths are rendered to it.
+	postRender(() => setTimeout(() => diagram.append(svg), 0));
 
 	function NextIndex() {
 		return content.reduce((a,c) => Math.max(a, c.fromIndex + 1), 0);
