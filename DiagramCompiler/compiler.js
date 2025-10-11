@@ -7,6 +7,11 @@ const equipmenttype_db = {
 		logicRead: ['Idle',],
 		connections: [{data:1},{power:1},],
 	},
+	'StructureLogicButton': {
+		name: 'Button',
+		logicRead: ['Setting'],
+		connections: [{data:1,power:1},],
+	},
 	'ModularDeviceLight': {
 		name: 'Modular Light Diode',
 		logicWrite: ['On','Color'],
@@ -26,6 +31,15 @@ const equipmenttype_db = {
 			['LineNumber',],
 		],
 		connections: [{data:1},{power:1}],
+	},
+	'StructureGasSensor': {
+		name: 'Gas Sensor',
+		logicRead: [
+			'Pressure','Temperature','TotalMoles','Combustion',
+			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioNitrousOxide',
+			'RatioLiquidNitrogen','RatioLiquidOxygen','RatioLiquidVolatiles','RatioSteam','RatioLiquidCarbonDioxide','RatioLiquidPollutant','RatioLiquidNitrousOxide',
+		],
+		connections: [{data:1,power:1}],
 	},
 	'StructureFiltration': {
 		name: 'Filtration Unit',
@@ -431,31 +445,35 @@ const metanode_db = {
 	'equipment': {
 		Pins(obj) {
 			const def = equipmenttype_db[obj.kind];
-			if( ! def ) return [];
+			if( ! def ) {
+				console.warn(`Unknown Equipment type "${obj.kind}", plz add`);
+				equipmenttype_db[obj.kind] = {pins:[]};
+				return [];
+			}
 			if( def.pins === undefined ) {
 				// Generate and cache pins by equipment type.
 				const res = [{name:'Zone', type:'zone'}];
-	
+
 				if( def.logicRead ) {
 					const AddRO = L => res.push({name:L, type:'logic', writable:false,});
 					def.logicRead.forEach(AddRO);
 					StdLogic.forEach(AddRO);
-					
+
 					def.logicWrite?.forEach(L => res.push({name:L, type:'logic', writable:true,}));
 				}
-	
+
 				def.logicSlots?.forEach((S,si) => {
 					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, type:'logic', writable:false});
 					S.forEach(addSlot);
 					StdSlotLogic.forEach(addSlot);
 				});
-	
+
 				def.pins = res;
 			}
 			return def.pins;
 		},
 		Fields(obj) {
-			return [{name:'ReferenceId', type:'number',}];
+			return [{name:'Name', type:'string',}, {name:'ReferenceId', type:'number',}];
 		},
 		Diagram(obj) {
 
