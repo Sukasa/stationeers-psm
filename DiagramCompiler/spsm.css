@@ -211,14 +211,28 @@ body.narrow-viewport .window-inner.psm-navigation {
 	cursor: grab;
 }
 
-.drawing-node.functional-node .selectable {
+.drawing-node.functional-node.selectable .title {
+	background: #009;
+	color: #fff;
+}
+
+.drawing-node.functional-node.selectable.selected {
+	border: thin solid #0f0;
+}
+
+.drawing-node.functional-node.selectable.selected .title {
 	background: #aff;
 	color: #000;
 }
 
-.drawing-node.functional-node .selectable.selected {
-	background: #22F;
-	color: #FFF;
+.drawing-node.functional-node.selectable.function-type .title {
+	background: #730;
+	color: #fff;
+}
+
+.drawing-node.functional-node.selectable.selected.function-type .title {
+	background: #fc7;
+	color: #000;
 }
 
 .drawing-node.functional-node .label {
@@ -287,6 +301,6 @@ body.narrow-viewport .window-inner.psm-navigation {
 }
 
 .diagram-root svg.zigzag path.selected {
-	stroke: #00f;
+	stroke: #afa;
 	stroke-width: 3px;
 }

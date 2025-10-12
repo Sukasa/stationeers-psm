@@ -423,6 +423,11 @@ const StdSlotLogic = ['Occupied','OccupantHash','Quantity','MaxQuantity','Damage
 // Metanode Definitions
 const metanode_db = {
 	'function': {
+		// Title for navigation item or functional node
+		Name(obj) {
+			const def = functiondef_db[obj.kind];
+			return `[${obj.kind}] ${obj.properties.Name ?? def.fullname}`;
+		},
 		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
 		Pins(obj) {
 			const def = functiondef_db[obj.kind];
@@ -449,6 +454,10 @@ const metanode_db = {
 	},
 
 	'data': {
+		Name(obj) {
+
+		},
+
 		Pins(obj) {
 			return [{name:'Zone', type:'zone'}];
 		},
@@ -464,6 +473,11 @@ const metanode_db = {
 	},
 
 	'equipment': {
+		Name(obj) {
+			const def = equipmenttype_db[obj.kind];
+			return (obj.properties?.Name ?? def.name) + (obj.properties?.ReferenceId ? ` (\$${obj.properties.ReferenceId.toString(16)})` : '');
+		},
+		
 		Pins(obj) {
 			const def = equipmenttype_db[obj.kind];
 			if( ! def ) {

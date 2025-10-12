@@ -41,7 +41,7 @@ function renderDiagramView(D, S) {
 		minY = Math.min(minY, y); maxY = Math.max(maxY, y+sz);
 	});
 
-	const pad = window.innerWidth / 2;
+	const pad = Math.max(window.innerWidth, window.innerHeight) / 6;
 	const totalWidth = pad*2 + maxX - minX, totalHeight = pad*2 + maxY - minY;
 	$(diagram, "div", {
 		className: `drawing-br-anchor`,
@@ -102,28 +102,26 @@ function renderDiagramView(D, S) {
 	const pass_anchors = {};
 
 	function renderFunctionalComponent(target, comp) {
+		var refComp = D.FindObject(comp.toNode);
+		const metanode = metanode_db[refComp.type];
+
 		const e = $(target, "div", {
-			className: `drawing-node ${comp.properties.as}-node`,
+			className: `drawing-node ${comp.properties.as}-node ${refComp.type}-type selectable ${selected.includes(comp.toNode) ? 'selected' : ''}`,
 			style: `left: ${pad + comp.properties.x - minX}px; top: ${pad + comp.properties.y - minY}px`,
 		});
 
-		$(e, "div", "="+comp.toNode, {
-			className: 'title draggable selectable' + (-1 < selected.indexOf(comp.toNode) ? ' selected':''),
-			'?click': titleClickHandler(comp),
-			'?mousedown': titleDragHandler(e, comp),
-		});
-
-		var refComp = D.FindObject(comp.toNode);
-		if( refComp.properties?.Name ) {
-			const ni = $("div", {className: 'pin-output'});
-			pass_anchors[`N/${refComp.id}`] = ni;
-			$(e, "div", [
+		const ni = $("div", {className: 'pin-output'});
+		pass_anchors[`N/${refComp.id}`] = ni;
+		$(e, "div", {
+				className: `title draggable`,
+				'?click': titleClickHandler(comp),
+				'?mousedown': titleDragHandler(e, comp),
+			}, [
 				ni,
-				["div", {className:'label'}, "="+refComp.properties.Name]
-			]);
-		}
+				["div", {className:'label'}, "="+(metanode?.Name(refComp) ?? refComp?.type)]
+			]
+		);
 
-		const metanode = metanode_db[refComp.type];
 		metanode.Pins(refComp).forEach(pin => {
 			const vals = D.RelationsOf(refComp.id, pin.name);
 			
