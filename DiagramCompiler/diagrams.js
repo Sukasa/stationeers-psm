@@ -128,10 +128,10 @@ function renderDiagramView(D, S) {
 			const MakePin = (v) => {
 				const pi = $("div", {className: 'pin-input'});
 				const po = $("div", {className: 'pin-output'});
-				if( !pin.inert ) pass_anchors[`L/${refComp.id}:${pin.name}:${v?.fromIndex ?? '-'}`] = pi;
+				if( !pin.passive ) pass_anchors[`L/${refComp.id}:${pin.name}:${v?.fromIndex ?? '-'}`] = pi;
 				pass_anchors[`R/${refComp.id}:${pin.name}`] = po;
 				return $(e, "div", {className: 'pin'}, [
-					(pin.inert?null:pi), po, ["div", {className: 'label'}, '=' + pin.name + (pin.array?` [${v?.fromIndex??'+'}]`:'')],
+					(pin.passive?null:pi), po, ["div", {className: 'label'}, '=' + pin.name + (pin.array?` [${v?.fromIndex??'+'}]`:'')],
 				]);
 			};
 
