@@ -160,8 +160,6 @@ function renderDiagramView(D, S) {
 	const svg = $(document.createElementNS(SVGNS, 'svg'), { class: 'zigzag' });
 
 	const ZigZag = (a,b,selected) => postRender(() => {
-		//TODO: autoroute zigzagline if missing
-		//TODO: draw zigzagline
 		const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
 		const cr = diagram.getBoundingClientRect();
 		const x1 = ar.x - cr.x + ar.width/2, y1 = ar.y - cr.y + ar.height / 2;
@@ -176,7 +174,7 @@ function renderDiagramView(D, S) {
 	});
 
 	// Render relations between all nodes for which both ends are present.
-	console.debug(`Routing ${rels.length} potential connections`);
+	//DEBUG: console.log(`Routing ${rels.length} potential connections`);
 	rels.forEach(rel => {
 		// Ignore relations from drawings
 		if( rel.fromPin === 'Component' && rel.properties ) return;
@@ -247,12 +245,32 @@ function renderDiagramView(D, S) {
 	//DEBUG: console.log(`Content:`, content);
 	//DEBUG: console.log(`State:`, S);
 
+	function OnKey(evt) {
+		// Do not process document input events if the focused element is an input control
+		if( evt.target instanceof HTMLInputElement || evt.target instanceof HTMLSelectElement ) return;
+		if( evt.key === 'Delete' ) {
+			// Remove selected components from the diagram.
+			if( D.RelationsOf(active.id, 'Component').reduce((a,rel) => {
+				if( ! selected.includes(rel.toNode) ) return a;
+				D.RemoveRel(rel);
+				selected.splice(selected.indexOf(rel.toNode), 1);
+				return a+1;
+			}, 0) ) {
+				rerender();
+			}
+		} else if( evt.key === 'Escape' ) {
+			//TODO: cancel an active verb (e.g. draw relation, add object, etc)
+		}
+	}
+
 	postRender(() => {
+		document.onkeyup = OnKey;
 		diagram.parentNode.scrollLeft = S.scrollX;
 		diagram.parentNode.scrollTop = S.scrollY;
 		diagram.parentNode.onclick = AddAction;
 	});
 	return preRerender(diagram, () => {
+		document.onkeyup = null;
 		S.scrollX = diagram.parentNode.scrollLeft;
 		S.scrollY = diagram.parentNode.scrollTop;
 	});

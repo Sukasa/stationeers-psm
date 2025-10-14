@@ -13,6 +13,8 @@
 		background: #0000AA;
 		color: #FFF;
 	}
+
+	pre { margin: 0; }
 }
 
 body, table, button, input {
@@ -286,4 +288,31 @@ body.narrow-viewport .window-inner.psm-navigation {
 .diagram-root svg.zigzag path.selected {
 	stroke: #afa;
 	stroke-width: 3px;
+}
+
+.properties-table {
+	display: grid;
+	grid-template-columns: min-content 1fr;
+	align-items: baseline;
+}
+
+.properties-table hr {
+	width: 100%;
+	grid-column-start: 1;
+	grid-column-end: 3;
+}
+
+.properties-table .label {
+	margin-top: 3px;
+	padding: 2px 6px;
+	font-weight: bold;
+	grid-column: 1;
+	text-align: right;
+}
+
+.properties-table .value {
+	margin-top: 3px;
+	padding: 2px 6px;
+	display: flex;
+	grid-column: 2;
 }

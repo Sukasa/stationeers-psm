@@ -292,13 +292,3 @@ function renderWorkspace(target, workspace) {
 	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
 	workspace.save();
 }
-
-function renderProperties(D, S) {
-	const selected = S.selection ?? (S.selection = []);
-	if( selected.length === 0 ) return [];
-
-	const editing = selected[0];
-	//TODO: determine what is being edited, and build property editor for it
-
-	return [["h2", "=Props of " + String(editing)]];
-}

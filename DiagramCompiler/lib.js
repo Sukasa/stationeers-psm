@@ -280,8 +280,8 @@ const functiondef_db = {
 			{name: 'RAck', type: 'register', allocate: true, hidden: true, scope: 'processor', },
 			{name: 'R2', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 			{name: 'R3', type: 'register', allocate: true, hidden: true, scope: 'instance', },
-			{name: 'AckOn', type: 'buffer', value: [0,0,0,1,2,2], scope: 'zone'},
-			{name: 'AckNo', type: 'buffer', value: [0,1,0,1,1,2], scope: 'zone'},
+			{name: 'AckOn', type: 'buffer', hidden:true, value: [0,0,0,1,2,2], scope: 'zone'},
+			{name: 'AckNo', type: 'buffer', hidden:true, value: [0,1,0,1,1,2], scope: 'zone'},
 		],
 		validate(report, workspace) {
 			// Check the specific type of the input function.
@@ -482,6 +482,10 @@ const functiondef_db = {
 	}
 }
 
+function ValuesForEquipmentInitialize(obj, key) {
+	// Return a Field specification for a specific key of a map.
+}
+
 const StdLogic = ['Power','RequiredPower','ReferenceId','PrefabHash','NameHash'];
 const StdSlotLogic = ['Occupied','OccupantHash','Quantity','MaxQuantity','Damage','ReferenceId','PrefabHash','NameHash'];
 
@@ -510,7 +514,10 @@ const metanode_db = {
 		Fields(obj) {
 			const def = functiondef_db[obj.kind];
 			if( !def ) return [];
-			return def.properties ?? [];
+			return [
+				{name:'Name', type:'constant', subtype:'string'},
+				...def.properties ?? [],
+			];
 		},
 
 		// Return renderer class for Schematic view of this metanode.
@@ -540,7 +547,7 @@ const metanode_db = {
 	'equipment': {
 		Name(obj) {
 			const def = equipmenttype_db[obj.kind];
-			return (obj.properties?.Name ?? def.name) + (obj.properties?.ReferenceId ? ` (\$${obj.properties.ReferenceId.toString(16)})` : '');
+			return (obj.properties?.Name ?? def.name) + (obj.properties?.ReferenceId ? ` (#${obj.properties.ReferenceId})` : '');
 		},
 		
 		Pins(obj) {
@@ -574,7 +581,17 @@ const metanode_db = {
 		},
 
 		Fields(obj) {
-			return [{name:'Name', type:'string',}, {name:'ReferenceId', type:'number',}];
+			const def = equipmenttype_db[obj.kind];
+			const res = [
+				{name:'Name', type:'constant', subtype:'string',},
+				{name:'ReferenceId', type:'constant', subtype:'number',},
+			];
+
+			if( def.logicWrite?.length ) {
+				res.push({name:'Initialize', type:'map', keys: def.logicWrite, values: ValuesForEquipmentInitialize});
+			}
+
+			return res;
 		},
 
 		// Return renderer class for Schematic view of this metanode.
@@ -750,7 +767,6 @@ class GraphLayer {
 	RemoveRel(def) {
 		if( this.ro )
 			throw new Error("cannot delete from read-only graph layer");
-		if( -1 === this.Rels.indexOf(def) ) return;
 		this._unregister_rel(def, def.fromNode);
 		this._unregister_rel(def, def.toNode);
 		if( def.viaNode ) this._unregister_rel(def, def.viaNode);

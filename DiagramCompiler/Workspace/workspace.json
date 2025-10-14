@@ -133,7 +133,7 @@
     "properties": {
       "Name": "TI-401 low level alarm",
       "Test": "slt",
-      "Threshold": 283
+      "Threshold": "283"
     }
   },
   {
@@ -519,19 +519,7 @@
     "type": "rel",
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 1,
-    "toNode": "LC183102",
-    "properties": {
-      "x": -400,
-      "y": 200,
-      "as": "functional"
-    }
-  },
-  {
-    "type": "rel",
-    "fromNode": "366ad.m3q4t6",
-    "fromPin": "Component",
-    "fromIndex": 3,
+    "fromIndex": 2,
     "toNode": "TW818194",
     "properties": {
       "x": -400,
@@ -543,7 +531,7 @@
     "type": "rel",
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 4,
+    "fromIndex": 3,
     "toNode": "RI39151",
     "properties": {
       "x": -400,
@@ -555,7 +543,7 @@
     "type": "rel",
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 5,
+    "fromIndex": 4,
     "toNode": "TW3716",
     "properties": {
       "x": 600,
@@ -566,19 +554,19 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 6,
+    "fromIndex": 5,
     "toNode": "UK381091",
     "properties": {
       "as": "functional",
       "x": -100,
-      "y": -750
+      "y": -800
     },
     "type": "rel"
   },
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 7,
+    "fromIndex": 6,
     "toNode": "UV8201",
     "properties": {
       "as": "functional",
@@ -590,7 +578,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 8,
+    "fromIndex": 7,
     "toNode": "EQ818293",
     "properties": {
       "as": "functional",
@@ -602,7 +590,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 9,
+    "fromIndex": 8,
     "toNode": "UG82030",
     "properties": {
       "as": "functional",
@@ -614,7 +602,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 10,
+    "fromIndex": 9,
     "toNode": "UG7364",
     "properties": {
       "as": "functional",
@@ -626,7 +614,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 11,
+    "fromIndex": 10,
     "toNode": "UG175689",
     "properties": {
       "as": "functional",
@@ -638,19 +626,19 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 12,
+    "fromIndex": 11,
     "toNode": "ZG7188",
     "properties": {
       "as": "functional",
       "x": 250,
-      "y": -550
+      "y": -500
     },
     "type": "rel"
   },
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 13,
+    "fromIndex": 12,
     "toNode": "UG2022",
     "properties": {
       "as": "functional",
@@ -662,7 +650,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 14,
+    "fromIndex": 13,
     "toNode": "UG497710",
     "properties": {
       "as": "functional",
@@ -674,7 +662,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 15,
+    "fromIndex": 14,
     "toNode": "TW37182",
     "properties": {
       "as": "functional",
@@ -686,12 +674,24 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 16,
+    "fromIndex": 15,
     "toNode": "TW7191",
     "properties": {
       "as": "functional",
       "x": 600,
       "y": -350
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 16,
+    "toNode": "LC183102",
+    "properties": {
+      "as": "functional",
+      "x": -400,
+      "y": -950
     },
     "type": "rel"
   }
