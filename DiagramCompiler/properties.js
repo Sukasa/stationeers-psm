@@ -28,6 +28,11 @@ function renderProperties(D, S) {
 
 	if( MF.length + MP.length > 0 ) $(E, "hr");
 
+	function rm(rel) {
+		D.RemoveRel(rel);
+		rerender();
+	}
+
 	MP.forEach(pin => {
 		if( pin.passive ) return;
 		const Vs = D.RelationsOf(editing.id, pin.name);
@@ -35,16 +40,53 @@ function renderProperties(D, S) {
 		$(E, "div", {className:'label'}, '='+pin.name);
 
 		Vs.forEach(rel => {
-			$(E, "div", {className:'value'}, '=TODO '+rel.toNode);
+			const to = D.FindObject(rel.toNode);
+			const via = rel.viaNode && D.FindObject(rel.viaNode);
+
+			$(E, "div", {className:'value'}, [
+				["button", "=X", {'?click': () => rm(rel)}],
+				["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : '')],
+			]);
+
+			if( via ) {
+				$(E,
+					"div", {className:'value via'},
+					"span", `=via ${metanode_db[via.type].Name(via)}` + (rel.viaPin ? ` (${rel.viaPin})` : '')
+				);
+			}
 		});
 
-		if( Vs.length === 0 || pin.array )
-			$(E, "div", {className:'value'}, '=(add)');
+		if( Vs.length === 0 ) {
+			$(E, "div", {className:'value'}, "=(unconnected)");
+		}
 	});
-
 
 	return [E];
 }
+
+function makePicker(D, objId, pin, values, cval) {
+	//TODO: filter down to valid options
+	const opts = D.Objects(o => (cval?.toNode === o.id || !values.find(r => r.toNode === o.id)) && ObjectValidForPin(o, pin));
+	if( opts.length === 0 && !!cval ) {
+		// The current value is NOT valid; let's move toward sanity by removing it.
+		D.RemoveRel(cval);
+	}
+	if( opts.length === 0 ) {
+		// There are no legal options; show no picker.
+		return ['span', '=(none)'];
+	}
+
+	function onChange(evt) {
+
+	}
+
+	console.log(`Pin`, pin, `Val`, cval);
+	opts.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 : +1);
+	const sel = $('select', {'?change': onChangeObject}, opts.map(o => ["option", {value:o.id}]));
+	
+	return sel;
+}
+
 
 function commitString(setter) {
 	return (evt) => {

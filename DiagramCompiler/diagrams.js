@@ -112,15 +112,14 @@ function renderDiagramView(D, S) {
 
 		const ni = $("div", {className: 'pin-output'});
 		pass_anchors[`N/${refComp.id}`] = ni;
-		$(e, "div", {
-				className: `title draggable`,
+		$(e, "div", {className: `title`,}, [
+			ni,
+			["div", {
+				className:'label draggable',
 				'?click': titleClickHandler(comp),
 				'?mousedown': titleDragHandler(e, comp),
-			}, [
-				ni,
-				["div", {className:'label'}, "="+(metanode?.Name(refComp) ?? refComp?.type)]
-			]
-		);
+			}, "="+(metanode?.Name(refComp) ?? refComp?.type)]
+		]);
 
 		metanode.Pins(refComp).forEach(pin => {
 			const vals = D.RelationsOf(refComp.id, pin.name);

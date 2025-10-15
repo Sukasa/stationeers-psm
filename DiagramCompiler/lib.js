@@ -284,9 +284,6 @@ const functiondef_db = {
 			{name: 'AckNo', type: 'buffer', hidden:true, value: [0,1,0,1,1,2], scope: 'zone'},
 		],
 		validate(report, workspace) {
-			// Check the specific type of the input function.
-			if( 'AT' !== workspace.ReadRelation(this.id, 'Input')?.kind )
-				report('alarm', 'Alarm State function depends on an Alarm Test function');
 			//TODO: validate that all `AS` nodes assigned to the same processor use the same AckSignal,
 			//TODO: and that no two processors have `AS` nodes which use the same AckSignal
 		},
@@ -336,8 +333,8 @@ const functiondef_db = {
 	"AA": {
 		fullname: 'Alarm Annunciator',
 		rels: [
-			{name: 'Input', type: 'function', },
-			{name: 'Display', type: 'equipment', },
+			{name: 'Input', type: 'function', functiontype: ['AS'], },
+			{name: 'Display', type: 'equipment',  },
 		],
 		requiredPriority: 1,
 		properties: [
@@ -347,12 +344,9 @@ const functiondef_db = {
 			{name: 'RX', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 		],
 		validate(report, workspace) {
-			// Check the specific type of the input function.
-			if( 'AS' !== workspace.ReadRelation(this, 'Input')?.kind )
-				report('error', 'Input must be an Alarm State function');
-
 			// Check the logic support of the selected device.
-			if( ! workspace.ReadRelation(this, 'Display')?.Pin('On') )
+			const target = workspace.ReadRelation(this, 'Display');
+			if( !target || !equipmenttype_db[target.kind]?.Pins(target).find(p => p.name === 'On' && p.type === 'logic') )
 				report('error', 'selected Display does not support "On" logic');
 		},
 		blocks: [
@@ -527,7 +521,7 @@ const metanode_db = {
 
 	'data': {
 		Name(obj) {
-
+			return obj.properties?.Name ?? (obj.properties.Addr && `RAM \$${obj.properties.Addr.toString(16)}`) ?? `Unallocated Data ${obj.id}`;
 		},
 
 		Pins(obj) {
@@ -602,7 +596,9 @@ const metanode_db = {
 
 	//TODO:
 	'metafunction': {
-		Name(obj) { },
+		Name(obj) { 
+			return obj.properties?.Name ?? `Metafunction ${obj.id}`;
+		},
 		Pins(obj) { },
 		Fields(obj) { },
 		Diagram(obj) { },
@@ -610,7 +606,9 @@ const metanode_db = {
 
 	//TODO:
 	'zone': {
-		Name(obj) { },
+		Name(obj) {
+			return obj.properties?.Name ?? `Zone ${obj.id}`;
+		},
 		Pins(obj) { },
 		Fields(obj) { },
 		Diagram(obj) { },
@@ -618,7 +616,9 @@ const metanode_db = {
 
 	//TODO:
 	'network': {
-		Name(obj) { },
+		Name(obj) {
+			return obj.properties?.Name ?? `Network ${obj.id}`;
+		},
 		Pins(obj) { },
 		Fields(obj) { },
 		Diagram(obj) { },
@@ -626,7 +626,9 @@ const metanode_db = {
 
 	//TODO:
 	'diagram': {
-		Name(obj) { },
+		Name(obj) {
+			return obj.properties?.Name ?? `Diagram ${obj.id}`;
+		},
 		Pins(obj) { },
 		Fields(obj) { },
 		Diagram(obj) { },
@@ -822,4 +824,19 @@ class ReportReceiver {
 		this.reports.push({severity:sev, order:++this.ordinal, category:this.category, message:msg});
 		if( sev === 'error' ) this.fatal = true;
 	}
+}
+
+function ObjectValidForPin(obj, pin) {
+	if( pin.type === 'logic' && obj.type === 'equipment' ) return true;
+	if( pin.type === 'function' && (pin.functiontype === undefined || pin.functiontype.includes(obj.type)) ) return true;
+	if( pin.type === 'equipment' && (pin.equipmenttype === undefined || pin.equipmenttype.includes(obj.type)) ) return true;
+	if( metanode_db[obj.type]?.Pins(obj)?.find(p => p.type === pin.type && !p.passive) ) return true;
+	//TODO: other conditions?
+	return pin.type === obj.type;
+}
+
+function PinValidForPin(from, to) {
+	if( from.type === to.type ) return true;
+	//TODO: other conditions?
+	return false;
 }
