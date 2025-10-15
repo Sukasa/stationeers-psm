@@ -17,7 +17,7 @@ function renderProperties(D, S) {
 
 		$(E, [
 			["div", { className:'label', }, '='+f.name],
-			EditorFor($("div", { className:'value', }), f, editing.properties?.[f.name] ?? f.value, v => {
+			EditorFor($("div", { className:'value', }), f, editing, editing.properties?.[f.name] ?? f.value, v => {
 				if( v === editing.properties?.[f.name] ) return;
 				editing.properties = editing.properties ?? {};
 				editing.properties[f.name] = v;
@@ -94,6 +94,12 @@ function commitString(setter) {
 	};
 }
 
+function commitCheck(setter) {
+	return (evt) => {
+		setter(evt.currentTarget.checked ? 1 : 0);
+	};
+}
+
 function commitNumber(setter) {
 	return (evt) => {
 		const v = parseFloat(evt.currentTarget.value);
@@ -105,13 +111,15 @@ function commitNumber(setter) {
 	}
 }
 
-function EditorFor(tgt, field, val, setter)
+function EditorFor(tgt, field, object, val, setter)
 {
 	switch(field.type) {
 		case 'constant':
 			return ConstantEditor(tgt, field, val, setter);
 		
 		case 'map':
+			return MapEditor(tgt, field, object, val, setter);
+
 		case 'register':
 		case 'buffer':
 		default:
@@ -123,7 +131,22 @@ function EditorFor(tgt, field, val, setter)
 function ConstantEditor(tgt, field, val, setter)
 {
 	if( field.subtype === 'string' ) {
-		$(tgt, "input", {type: 'text', defaultValue:String(val), value: String(val), '?blur': commitString(setter),});
+		const S = $(tgt, "input", {
+			type: 'text',
+			defaultValue:String(val),
+			value: String(val),
+			'?blur': commitString(setter),
+		});
+
+		function PickMe(evt) {
+			if( evt.code === 'F2' && field.name === 'Name' ) {
+				S.focus();
+				S.setSelectionRange(0,-1);
+			}
+		}
+
+		preRerender(() => window.removeEventListener('keyup', PickMe));
+		postRender(() => window.addEventListener('keyup', PickMe));
 	
 	} else if( field.subtype === 'number' ) {
 		$(tgt, "input", {type: 'text', defaultValue:String(val), value: String(val), '?blur': commitNumber(setter),});
@@ -133,8 +156,66 @@ function ConstantEditor(tgt, field, val, setter)
 		const S = $(tgt, "select", {'?change': commitString(setter)}, field.options.map(opt => ["option", {value:opt.name}, "="+opt.label]));
 		S.value = val;
 
+	} else if( field.subtype === 'boolean' ) {
+		$(tgt, "input", {type: 'checkbox', value:1, checked: !!val, '?change': commitCheck(setter),});
+
 	} else {
 		$(tgt, "pre", "= ??" + field.subtype);
+	}
+
+	return tgt;
+}
+
+function MapEditor(tgt, field, object, val, setter)
+{
+	const G = $(tgt, "div", {className: 'map-grid'});
+
+	const remover = k => () => {
+		delete val[k];
+		rerender();
+	};
+
+	const writer = k => nv => {
+		if( nv === '' || nv === null || nv === undefined ) {
+			delete val[k];
+			rerender();
+		} else if( nv !== val[k] ) {
+			val[k] = nv;
+			rerender();
+		}
+	};
+
+	if( !(field.keys instanceof Array) || !field.values )
+		return $(tgt, [["pre", "=? bad map field spec"]]);
+
+	var opts = field.keys.slice();
+	if( val ) {
+		for(var i = 0; i < opts.length; ++i) {
+			const k = opts[i];
+			const kv = val[opts[i]];
+			if( kv === undefined ) continue;
+			opts.splice(i--, 1);
+			
+			$(G, "div", {className:'map-key'}, [
+				["button", "=X", {'?click': remover(k)}],
+				document.createTextNode(k),
+			]);
+			const VE = $(G, "div", {className:'map-val'});
+			ConstantEditor(VE, ('function' === typeof field.values ? field.values(object, k) : field.values) ?? {type:'constant', subtype:'string'}, kv, writer(k));
+		}
+	}
+
+	if( opts.length > 0 ) {
+		$(G, "div", {className:'adder'}, "select", {'?change': evt => {
+			if( ! evt.currentTarget.value ) return;
+			setter({
+				...(val ?? {}),
+				[evt.currentTarget.value]: '',
+			});
+		}}, [
+			["option", {value:''}, "=Add..."],
+			...opts.map(o => ["option", {value:o}, "="+o]),
+		]);
 	}
 
 	return tgt;

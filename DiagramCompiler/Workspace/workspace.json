@@ -24,9 +24,9 @@
     "properties": {
       "Name": "Temp Wall Display (North)",
       "Initialize": {
-        "Color": 2,
+        "Color": "2",
         "On": 1,
-        "Mode": 4
+        "Mode": "4"
       },
       "ReferenceId": 4102
     }
@@ -38,9 +38,9 @@
     "properties": {
       "Name": "Temp Wall Display (South)",
       "Initialize": {
-        "Color": 2,
+        "Color": "2",
         "On": 1,
-        "Mode": 4
+        "Mode": "4"
       },
       "ReferenceId": 4261
     }

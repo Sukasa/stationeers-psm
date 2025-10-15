@@ -316,3 +316,24 @@ body.narrow-viewport .window-inner.psm-navigation {
 	display: flex;
 	grid-column: 2;
 }
+
+.properties-table .value span {
+	padding: 3px;
+	align-items: baseline;
+}
+
+.properties-table .map-grid {
+	display: grid;
+	width: 100%;
+	grid-template-columns: min-content 1fr;
+}
+
+.properties-table .map-key {
+	line-break: strict;
+	white-space: nowrap;
+	padding-right: 1ch;
+}
+
+.properties-table .map-key button {
+	margin-right: 1ch;
+}

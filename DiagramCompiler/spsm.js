@@ -13,13 +13,13 @@ function $() {
 				// Find a specific named element in the document.
 				carried = document.getElementById(a.slice(1));
 			} else if (a[0] === '=') {
-				if (!(carried instanceof Element))
+				if (!(carried instanceof Node))
 					throw new Error("can only set text content of HTML elements");
 				carried.append(document.createTextNode(a.slice(1)));
 			} else {
 				// Create a new element in the document.
 				const n = document.createElement(a);
-				if (carried instanceof Element) carried.appendChild(n);
+				if (carried instanceof Node) carried.appendChild(n);
 				carried = n;
 			}
 
@@ -31,7 +31,7 @@ function $() {
 			a.forEach(i => {
 				if (i === undefined || i === null || i === true || i === false) {
 					// Ignore safely.
-				} else if (i instanceof Element) {
+				} else if (i instanceof Node) {
 					// Add this element, keep the same target for later elements.
 					carried.appendChild(i);
 				} else if (i instanceof Array) {
@@ -47,7 +47,7 @@ function $() {
 			if (carried === null) {
 				// Make this object the new target.
 				carried = a;
-			} else if (a instanceof Element) {
+			} else if (a instanceof Node) {
 				// Add an HTML element, then use it as the new target.
 				carried.appendChild(a);
 				carried = a;
@@ -55,7 +55,7 @@ function $() {
 				// Set properties or add listeners.
 				Object.keys(a).forEach(k => k[0] === '?'
 					? carried.addEventListener(k.slice(1), a[k])
-					: carried instanceof Element && carried[k] === undefined
+					: carried instanceof Node && carried[k] === undefined
 						? carried.setAttribute(k, a[k])
 						: carried[k] = a[k]);
 			}

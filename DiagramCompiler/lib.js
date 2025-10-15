@@ -476,8 +476,46 @@ const functiondef_db = {
 	}
 }
 
-function ValuesForEquipmentInitialize(obj, key) {
-	// Return a Field specification for a specific key of a map.
+const OnFieldSpec = {type:'constant', subtype:'boolean',};
+
+const ColorFieldSpec = {type:'constant', subtype:'list', options:[
+	{name: 0, label: 'Blue'},   {name: 1, label: 'Gray'},   {name: 2, label: 'Green'},
+	{name: 3, label: 'Orange'}, {name: 4, label: 'Red'},    {name: 5, label: 'Yellow'},
+	{name: 6, label: 'White'},  {name: 7, label: 'Black'},  {name: 8, label: 'Brown'},
+	{name: 9, label: 'Khako'},  {name: 10, label: 'Pink'},  {name: 11, label: 'Purple'},
+]};
+
+const LEDModeFieldSpec = {type:'constant', subtype:'list', options:[
+	{name: 0, label: 'Normal'},
+	{name: 1, label: 'Percentage'},
+	{name: 2, label: 'Power'},
+	{name: 3, label: 'Kelvin'},
+	{name: 4, label: 'Celcius'},
+	{name: 11, label: 'Fahrenheit'},
+	{name: 5, label: 'Meters'},
+	{name: 6, label: 'Credits'},
+	{name: 7, label: 'Seconds'},
+	{name: 8, label: 'Minutes'},
+	{name: 9, label: 'Days'},
+	{name: 10, label: 'String'},
+	{name: 12, label: 'Litres'},
+	{name: 13, label: 'Mol'},
+	{name: 14, label: 'Pascals'},
+]};
+
+function ValuesForEquipmentInitialize(object, key) {
+	if( key === 'On' ) {
+		return OnFieldSpec;
+
+	} else if( key === 'Color' ) {
+		return ColorFieldSpec;
+
+	} else if( key === 'Mode' && object.kind === 'StructureConsoleLED' ) {
+		return LEDModeFieldSpec;
+
+	} else {
+		return {type:'constant', subtype:'number'};
+	}
 }
 
 const StdLogic = ['Power','RequiredPower','ReferenceId','PrefabHash','NameHash'];
