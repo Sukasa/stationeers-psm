@@ -548,6 +548,7 @@ const metanode_db = {
 			if( !def ) return [];
 			return [
 				{name:'Name', type:'constant', subtype:'string'},
+				{name:'HideUnused', type:'constant', subtype:'boolean'},
 				...def.properties ?? [],
 			];
 		},
@@ -615,8 +616,9 @@ const metanode_db = {
 		Fields(obj) {
 			const def = equipmenttype_db[obj.kind];
 			const res = [
-				{name:'Name', type:'constant', subtype:'string',},
-				{name:'ReferenceId', type:'constant', subtype:'number',},
+				{name:'Name', type:'constant', subtype:'string'},
+				{name:'ReferenceId', type:'constant', subtype:'number'},
+				{name:'HideUnused', type:'constant', subtype:'boolean'},
 			];
 
 			if( def.logicWrite?.length ) {

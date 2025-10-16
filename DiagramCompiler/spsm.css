@@ -246,14 +246,18 @@ body.narrow-viewport .window-inner.psm-navigation {
 	display: block;
 	position: absolute;
 	left: calc(-1em - 3px);
-	width: 1em; height: 1em;
+	width: 18px; height: 18px;
 }
 
 .drawing-node.functional-node .pin-output {
 	display: block;
 	position: absolute;
 	left: calc(100% + 2px);
-	width: 1em; height: 1em;
+	width: 18px; height: 18px;
+}
+
+.drawing-node.functional-node .title .pin-output {
+	margin-top: 2px;
 }
 
 .drawing-node.functional-node .pin-input,
@@ -279,13 +283,19 @@ body.narrow-viewport .window-inner.psm-navigation {
 	z-index: 10;
 }
 
-.diagram-root svg.zigzag path {
+.diagram-root svg.zigzag path.underlay {
+	stroke: #ccc; /* window-inner background color */
+	stroke-width: 8px;
+	fill: none;
+}
+
+.diagram-root svg.zigzag path.drawn {
 	stroke: black;
 	stroke-width: 1px;
 	fill: none;
 }
 
-.diagram-root svg.zigzag path.selected {
+.diagram-root svg.zigzag path.drawn.selected {
 	stroke: #afa;
 	stroke-width: 3px;
 }
@@ -336,4 +346,8 @@ body.narrow-viewport .window-inner.psm-navigation {
 
 .properties-table .map-key button {
 	margin-right: 1ch;
+}
+
+.properties-table .adder {
+	grid-column: 1/3;
 }

@@ -5,7 +5,8 @@
     "id": "EK419931",
     "properties": {
       "Name": "Foyer Gas Sensor",
-      "ReferenceId": 4108
+      "ReferenceId": 4108,
+      "HideUnused": true
     }
   },
   {
@@ -14,7 +15,8 @@
     "id": "LC183102",
     "properties": {
       "Name": "Foyer Wall Heater",
-      "ReferenceId": 1320
+      "ReferenceId": 1320,
+      "HideUnused": true
     }
   },
   {
@@ -28,7 +30,8 @@
         "On": 1,
         "Mode": "4"
       },
-      "ReferenceId": 4102
+      "ReferenceId": 4102,
+      "HideUnused": true
     }
   },
   {
@@ -42,7 +45,8 @@
         "On": 1,
         "Mode": "4"
       },
-      "ReferenceId": 4261
+      "ReferenceId": 4261,
+      "HideUnused": true
     }
   },
   {
@@ -54,7 +58,8 @@
       "Initialize": {
         "Color": 5
       },
-      "ReferenceId": 4120
+      "ReferenceId": 4120,
+      "HideUnused": true
     }
   },
   {
@@ -67,7 +72,8 @@
         "Color": 5,
         "On": 1
       },
-      "ReferenceId": 4127
+      "ReferenceId": 4127,
+      "HideUnused": true
     }
   },
   {
@@ -80,7 +86,8 @@
         "Color": 4,
         "On": 1
       },
-      "ReferenceId": 4243
+      "ReferenceId": 4243,
+      "HideUnused": true
     }
   },
   {
@@ -510,8 +517,8 @@
     "fromIndex": 0,
     "toNode": "EK419931",
     "properties": {
-      "x": -400,
-      "y": -800,
+      "x": -350,
+      "y": -234,
       "as": "functional"
     }
   },
@@ -522,8 +529,8 @@
     "fromIndex": 2,
     "toNode": "TW818194",
     "properties": {
-      "x": -400,
-      "y": -50,
+      "x": -250,
+      "y": -144,
       "as": "functional"
     }
   },
@@ -534,8 +541,8 @@
     "fromIndex": 3,
     "toNode": "RI39151",
     "properties": {
-      "x": -400,
-      "y": -250,
+      "x": -100,
+      "y": -558,
       "as": "functional"
     }
   },
@@ -546,8 +553,8 @@
     "fromIndex": 4,
     "toNode": "TW3716",
     "properties": {
-      "x": 600,
-      "y": -600,
+      "x": 500,
+      "y": -414,
       "as": "functional"
     }
   },
@@ -559,7 +566,7 @@
     "properties": {
       "as": "functional",
       "x": -100,
-      "y": -800
+      "y": -270
     },
     "type": "rel"
   },
@@ -570,8 +577,8 @@
     "toNode": "UV8201",
     "properties": {
       "as": "functional",
-      "x": 250,
-      "y": -250
+      "x": 150,
+      "y": -612
     },
     "type": "rel"
   },
@@ -582,8 +589,8 @@
     "toNode": "EQ818293",
     "properties": {
       "as": "functional",
-      "x": 250,
-      "y": -50
+      "x": 150,
+      "y": -180
     },
     "type": "rel"
   },
@@ -594,8 +601,8 @@
     "toNode": "UG82030",
     "properties": {
       "as": "functional",
-      "x": 250,
-      "y": -750
+      "x": 150,
+      "y": -486
     },
     "type": "rel"
   },
@@ -606,8 +613,8 @@
     "toNode": "UG7364",
     "properties": {
       "as": "functional",
-      "x": 600,
-      "y": -750
+      "x": 500,
+      "y": -540
     },
     "type": "rel"
   },
@@ -618,8 +625,8 @@
     "toNode": "UG175689",
     "properties": {
       "as": "functional",
-      "x": 900,
-      "y": -750
+      "x": 800,
+      "y": -540
     },
     "type": "rel"
   },
@@ -630,8 +637,8 @@
     "toNode": "ZG7188",
     "properties": {
       "as": "functional",
-      "x": 250,
-      "y": -500
+      "x": 150,
+      "y": -306
     },
     "type": "rel"
   },
@@ -642,8 +649,8 @@
     "toNode": "UG2022",
     "properties": {
       "as": "functional",
-      "x": 600,
-      "y": -500
+      "x": 500,
+      "y": -360
     },
     "type": "rel"
   },
@@ -654,8 +661,8 @@
     "toNode": "UG497710",
     "properties": {
       "as": "functional",
-      "x": 900,
-      "y": -500
+      "x": 800,
+      "y": -360
     },
     "type": "rel"
   },
@@ -666,8 +673,8 @@
     "toNode": "TW37182",
     "properties": {
       "as": "functional",
-      "x": -400,
-      "y": 350
+      "x": -250,
+      "y": -90
     },
     "type": "rel"
   },
@@ -678,8 +685,8 @@
     "toNode": "TW7191",
     "properties": {
       "as": "functional",
-      "x": 600,
-      "y": -350
+      "x": 500,
+      "y": -234
     },
     "type": "rel"
   },

@@ -93,7 +93,7 @@ function onResize() {
 
 const _prerender_teardowns = [];
 function preRerender(obj, cb) {
-	_prerender_teardowns.push(cb);
+	_prerender_teardowns.push(cb ?? obj);
 	return obj;
 }
 
