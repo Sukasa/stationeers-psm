@@ -287,7 +287,9 @@ function render() {
 
 
 function renderWorkspace(target, workspace) {
-	renderWindow(target, { title: 'Diagram', className: 'psm-diagram printable xyscroll', scrollLeft: workspace.state.scrollX??0, scrollTop: workspace.state.scrollY??0 }, renderDiagramView(workspace.data, workspace.state));
+	const activeDiagram = workspace.data.FindObject(workspace.state?.diagram?.view);
+	const dwndTitle = (activeDiagram && metanode_db['drawing'].Name(activeDiagram)) ?? 'Diagram';
+	renderWindow(target, { title: dwndTitle, className: 'psm-diagram printable xyscroll', scrollLeft: workspace.state.scrollX??0, scrollTop: workspace.state.scrollY??0 }, renderDiagramView(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
 	workspace.save();

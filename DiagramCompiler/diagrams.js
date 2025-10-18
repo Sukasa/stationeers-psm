@@ -1,5 +1,4 @@
 
-const RDVref = {diagram:null, data:null, pad:null};
 function renderDiagramView(D, S) {
 	const selected = S.selection ?? (S.selection = []);
 	if( ! S.diagram ) S.diagram = {};

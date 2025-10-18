@@ -10,7 +10,7 @@ function renderProperties(D, S) {
 	if( ! meta ) return [];
 	const E = $("div", { className:'properties-table', });
 
-	const MF = meta.Fields(editing), MP = meta.Pins(editing);
+	const MF = meta.Fields(editing) ?? [], MP = meta.Pins(editing) ?? [];
 	
 	MF.forEach(f => {
 		if( f.hidden && !opts.ShowAll ) return;
@@ -24,6 +24,12 @@ function renderProperties(D, S) {
 				rerender();
 			}),
 		]);
+
+		if( f.name === 'Name' ) {
+			$(E, "div", {className:'shortcut'}, '=F2');
+		} else if( f.name === 'HideUnused' ) {
+			$(E, "div", {className:'shortcut'}, '=H');
+		}
 	});
 
 	if( MF.length + MP.length > 0 ) $(E, "hr");
@@ -45,14 +51,27 @@ function renderProperties(D, S) {
 
 			$(E, "div", {className:'value'}, [
 				["button", "=X", {'?click': () => rm(rel)}],
-				["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : '')],
+				["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : ''), {
+					className: 'link',
+					'?click': () => {
+						selected.length = 0; selected.push(to.id);
+						rerender();
+					},
+				}],
 			]);
 
 			if( via ) {
-				$(E,
-					"div", {className:'value via'},
-					"span", `=via ${metanode_db[via.type].Name(via)}` + (rel.viaPin ? ` (${rel.viaPin})` : '')
-				);
+				$(E, "div", {className:'value via'}, [
+					["span", '=via '],
+					["span", '=' + metanode_db[via.type].Name(via), {
+						className: 'link',
+						'?click': () => {
+							selected.length = 0; selected.push(via.id);
+							rerender();
+						},
+					}],
+					rel.viaPin && ["span", `= (${rel.viaPin})`],
+				]);
 			}
 		});
 

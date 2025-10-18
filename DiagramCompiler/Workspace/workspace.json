@@ -113,7 +113,8 @@
     "kind": "IR",
     "id": "UK381091",
     "properties": {
-      "Name": "TI-401 PV"
+      "Name": "TI-401 PV",
+      "HideUnused": false
     }
   },
   {
@@ -130,7 +131,8 @@
     "kind": "OR",
     "id": "EQ818293",
     "properties": {
-      "Name": "TI-401 PV (to HID)"
+      "Name": "TI-401 PV (to HID)",
+      "HideUnused": false
     }
   },
   {
@@ -514,7 +516,7 @@
     "type": "rel",
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 0,
+    "fromIndex": 1,
     "toNode": "EK419931",
     "properties": {
       "x": -350,
@@ -697,8 +699,8 @@
     "toNode": "LC183102",
     "properties": {
       "as": "functional",
-      "x": -400,
-      "y": -950
+      "x": -300,
+      "y": -666
     },
     "type": "rel"
   }

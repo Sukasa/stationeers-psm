@@ -617,8 +617,8 @@ const metanode_db = {
 			const def = equipmenttype_db[obj.kind];
 			const res = [
 				{name:'Name', type:'constant', subtype:'string'},
-				{name:'ReferenceId', type:'constant', subtype:'number'},
 				{name:'HideUnused', type:'constant', subtype:'boolean'},
+				{name:'ReferenceId', type:'constant', subtype:'number'},
 			];
 
 			if( def.logicWrite?.length ) {
@@ -649,9 +649,13 @@ const metanode_db = {
 		Name(obj) {
 			return obj.properties?.Name ?? `Zone ${obj.id}`;
 		},
-		Pins(obj) { },
-		Fields(obj) { },
-		Diagram(obj) { },
+		Pins(obj) { return []; },
+		Fields(obj) {
+			return [
+				{name:'Name', type: 'constant', subtype:'string'},
+			];
+		},
+		Diagram(obj) {},
 	},
 
 	//TODO:
@@ -659,19 +663,27 @@ const metanode_db = {
 		Name(obj) {
 			return obj.properties?.Name ?? `Network ${obj.id}`;
 		},
-		Pins(obj) { },
+		Pins(obj) { return []; },
 		Fields(obj) { },
 		Diagram(obj) { },
 	},
 
 	//TODO:
-	'diagram': {
+	'drawing': {
 		Name(obj) {
-			return obj.properties?.Name ?? `Diagram ${obj.id}`;
+			return obj.properties?.Name ?? `Drawing ${obj.id}`;
 		},
-		Pins(obj) { },
-		Fields(obj) { },
-		Diagram(obj) { },
+		Pins(obj) { return []; },
+		Fields(obj) {
+			return [
+				{name:'Name', type:'constant', subtype:'string'},
+			];
+		},
+
+		// Return renderer class for Schematic view of this metanode.
+		Diagram(obj) {
+			//TODO: render an off-page link
+		},
 	},
 };
 

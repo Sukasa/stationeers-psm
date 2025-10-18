@@ -1,13 +1,23 @@
 
 const categories = [
-	{name:"Drawings",
+	{
+		name:"Zones",
+		iconClass: 'zone',
+		gen(D) {
+			return D.Objects(o => o.type === 'zone')
+				.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 : +1);
+		},
+		actions(tgt,obj,D,S) {
+			//TODO
+		},
+	},
+	{
+		name:"Drawings",
+		iconClass: 'drawing',
 		gen(D) {
 			return D
 				.Objects(o => o.type === 'drawing')
 				.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 : +1);
-		},
-		item(tgt,obj) {
-			return $(tgt, "div", "="+(obj.properties?.Name ?? `Drawing ${obj.id}`));
 		},
 		actions(tgt,obj,D,S) {
 			$(tgt, [
@@ -17,34 +27,118 @@ const categories = [
 				}}],
 			])
 		},
+	},
+	{
+		name:"Equipment",
+		iconClass: 'equipment',
+		gen(D) {
+			return D
+				.Objects(o => o.type === 'equipment' || o.type === 'network')
+				.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 : +1);
+		},
+		actions(tgt, obj, D, S) {
+			$(tgt, [
+				["button", "=V", {"?click": () => {
+					//TODO: enumerate drawings mentioning this equipment,
+					// find the one after the active one, make it the active one,
+					// and center the view on (the/an) instance in that drawing.
+				}}],
+			])
+		},
+	},
+	{
+		name: "Functional",
+		iconClass: 'functional',
+		gen(D) {
+			return D.Objects(o => o.type === 'data' || o.type === 'function' || o.type === 'metafunction')
+				.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 :
+				               (a.properties?.Name ?? a.id) > (b.properties?.Name ?? b.id) ? +1 :
+							   (a.kind < b.kind) ? -1 : +1);
+		},
+		actions(tgt, obj, D, S) {
+			//TODO:
+		},
 	}
 ];
+
+function makeToggler(list, id) {
+	return (evt) => {
+		if( !(evt.ctrlKey || evt.shiftKey) ) {
+			list.length = 0;
+			list.push(id);
+		} else if( list.includes(id) ) {
+			list.splice(list.indexOf(id), 1);
+		} else {
+			list.push(id);
+		}
+		rerender();
+	};
+}
 
 function renderNavigation(D, S) {
 	const selected = S.selection ?? [];
 	const drawing = S.diagram?.view?.drawing;
 
-	const list = $("div", {className:'nav-list'});
+	const navRoot = $("div", {
+		className:'nav-list',
+		scrollTop: S.scrollN ?? 0,
+	});
 
-	var lastCat = NaN, ctgt;
+	const togs = S.navigation?.filters ?? {};
+	const filterByToggles = (tog, item) => {
+		//TODO: toggles (e.g. active diagram, active zone, related to selection)
+		return true;
+	};
+
+	var text = (S.navigation?.text ?? '').toLowerCase();
+	const defaultFilterByText = (text,item) =>
+		(-1 !== item.id.toLowerCase().indexOf(text))
+		|| (-1 !== (item.properties?.Name??'').indexOf(text));
+
+	//TODO: render filter toggles and text filter input
+
+	var lastCat = NaN;
 	categories.forEach(cat => {
 		var lastGroup = NaN;
 		cat.gen(D).forEach(item => {
-			//TODO: filter
+			if( ! filterByToggles(togs, item) )
+				return;
+
+			if( text && !(cat.filterByText ?? defaultFilterByText)(text,item) )
+				return;
 
 			if( lastCat !== cat ) {
 				lastCat = cat; lastGroup = NaN;
-				ctgt = $(list, "div", {className:'nav-cat'});
-				$(ctgt, "div", {className: 'heading'}, '='+cat.name);
+				$(navRoot, "div", {className:'nav-cat item'}, [
+					["div", {className: 'icon category ' + cat.iconClass}],
+					["div", '='+cat.name, {
+						className: 'label',
+						//TODO: folding
+					}],
+				]);
 			}
 
-			const itgt = $(ctgt, "div", {className:'item'});
-			cat.item(itgt, item);
+			//TODO: configurable grouping
 
-			const atgt = $(ctgt, "div", {className:'actions'});
+			//TODO: category/group/tree indent
+			const lhs = $(navRoot, "div", {className:"item"});
+
+			$(lhs, "div", {className: 'icon object ' + cat.iconClass});
+			$(lhs, "div", '='+metanode_db[item.type].Name(item), {
+				className:'label ' + (selected.includes(item.id)?'selected':''),
+				'?click': makeToggler(selected, item.id),
+			});
+
+			const atgt = $(navRoot, "div", {className:'actions'});
 			cat.actions(atgt, item);
 		});
 	});
 
-	return list;
+	postRender(() => {
+		navRoot.parentNode.scrollTop = S.scrollN;
+	});
+
+	return preRerender(navRoot, () => {
+		S.scrollN = navRoot.parentNode.scrollTop;
+	});
 }
