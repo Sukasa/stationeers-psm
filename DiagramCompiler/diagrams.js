@@ -2,7 +2,8 @@
 const RDVref = {diagram:null, data:null, pad:null};
 function renderDiagramView(D, S) {
 	const selected = S.selection ?? (S.selection = []);
-	const {drawing,zoom} = S.diagram.view ?? (S.diagram.view = {drawing:null, zoom:1});
+	if( ! S.diagram ) S.diagram = {};
+	const {drawing,zoom} = S.diagram?.view ?? (S.diagram.view = {drawing:null, zoom:1});
 
 	const diagram = $("div", {
 		className:'diagram-root',
