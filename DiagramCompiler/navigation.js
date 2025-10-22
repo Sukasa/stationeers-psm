@@ -22,7 +22,7 @@ const categories = [
 		actions(tgt,obj,D,S) {
 			$(tgt, [
 				["button", "=V", {"?click": () => {
-					S.diagram.view = {drawing: obj.id};
+					S.diagram.view = obj.id;
 					rerender();
 				}}],
 			])
@@ -77,14 +77,19 @@ function makeToggler(list, id) {
 
 function renderNavigation(D, S) {
 	const selected = S.selection ?? [];
-	const drawing = S.diagram?.view?.drawing;
+	if( ! S.navigation ) S.navigation = {filters:{}};
+	const togs = S.navigation.filters;
 
-	const navRoot = $("div", {
-		className:'nav-list',
-		scrollTop: S.scrollN ?? 0,
-	});
+	const makeToggle = id => ["div", {
+		className:`toggle toggle-${id.replaceAll('_','-')} ${togs[id]?'active':'inactive'}`,
+		'?click': () => {togs[id]=!togs[id]; rerender()},
+	}];
 
-	const togs = S.navigation?.filters ?? {};
+	const navRoot = $("div", { className:'nav-list' });
+	const navMenu = $("div", {className:'nav-options'}, [
+		makeToggle('same_drawing'),
+	]);
+
 	const filterByToggles = (tog, item) => {
 		//TODO: toggles (e.g. active diagram, active zone, related to selection)
 		return true;
@@ -130,12 +135,13 @@ function renderNavigation(D, S) {
 			});
 
 			const atgt = $(navRoot, "div", {className:'actions'});
-			cat.actions(atgt, item);
+			cat.actions(atgt, item, D, S);
 		});
 	});
 
 	postRender(() => {
 		navRoot.parentNode.scrollTop = S.scrollN;
+		navRoot.parentNode.parentNode.insertBefore(navMenu, navRoot.parentNode);
 	});
 
 	return preRerender(navRoot, () => {

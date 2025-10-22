@@ -46,19 +46,21 @@ function renderProperties(D, S) {
 		$(E, "div", {className:'label'}, '='+pin.name);
 
 		Vs.forEach(rel => {
-			const to = D.FindObject(rel.toNode);
+			const to = rel.toNode && D.FindObject(rel.toNode);
 			const via = rel.viaNode && D.FindObject(rel.viaNode);
 
-			$(E, "div", {className:'value'}, [
-				["button", "=X", {'?click': () => rm(rel)}],
-				["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : ''), {
-					className: 'link',
-					'?click': () => {
-						selected.length = 0; selected.push(to.id);
-						rerender();
-					},
-				}],
-			]);
+			if( to ) {
+				$(E, "div", {className:'value'}, [
+					["button", "=X", {'?click': () => rm(rel)}],
+					["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : ''), {
+						className: 'link',
+						'?click': () => {
+							selected.length = 0; selected.push(to.id);
+							rerender();
+						},
+					}],
+				]);
+			}
 
 			if( via ) {
 				$(E, "div", {className:'value via'}, [
@@ -85,7 +87,11 @@ function renderProperties(D, S) {
 
 function makePicker(D, objId, pin, values, cval) {
 	//TODO: filter down to valid options
-	const opts = D.Objects(o => (cval?.toNode === o.id || !values.find(r => r.toNode === o.id)) && ObjectValidForPin(o, pin));
+	const opts = D.Objects(o =>
+		(cval?.toNode === o.id || !values.find(r => r.toNode === o.id))
+		&& ObjectValidForPin(o, pin)
+	);
+
 	if( opts.length === 0 && !!cval ) {
 		// The current value is NOT valid; let's move toward sanity by removing it.
 		D.RemoveRel(cval);

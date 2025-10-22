@@ -804,16 +804,22 @@ class GraphLayer {
 	AddRel(def) {
 		if( this.ro )
 			throw new Error("cannot add to read-only graph layer");
-		if( !def || !def.fromNode || !def.toNode )
-			throw new Error("incomplete relation; requires {fromNode:,toNode:}");
+		if( !def || !def.fromNode )
+			throw new Error("incomplete relation; requires {fromNode:}");		
 		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0) )
 			throw new Error("illegal index relation number; must be undefined or else >= 0");
-		if( def.type === undefined ) def.type = 'rel';
-		if( !this.FindObject(def.fromNode) || !this.FindObject(def.toNode) || (def.viaNode && !this.FindObject(def.viaNode)))
+
+		if( def.type === undefined )
+			def.type = 'rel';
+
+		if( !this.FindObject(def.fromNode)
+			|| (def.toNode && !this.FindObject(def.toNode))
+			|| (def.viaNode && !this.FindObject(def.viaNode))
+		)
 			throw new Error("cannot create relation; all referenced objects must exist");
 
 		this._register_rel(def, def.fromNode);
-		this._register_rel(def, def.toNode);
+		if( def.toNode ) this._register_rel(def, def.toNode);
 		if( def.viaNode ) this._register_rel(def, def.viaNode);
 	}
 
@@ -821,9 +827,14 @@ class GraphLayer {
 	RemoveRel(def) {
 		if( this.ro )
 			throw new Error("cannot delete from read-only graph layer");
+
 		this._unregister_rel(def, def.fromNode);
-		this._unregister_rel(def, def.toNode);
-		if( def.viaNode ) this._unregister_rel(def, def.viaNode);
+
+		if( def.toNode )
+			this._unregister_rel(def, def.toNode);
+
+		if( def.viaNode )
+			this._unregister_rel(def, def.viaNode);
 	}
 
 	_register_rel(d, n) {
