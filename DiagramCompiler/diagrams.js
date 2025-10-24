@@ -298,7 +298,9 @@ function renderDiagramView(D, S) {
 
 	function OnKey(evt) {
 		// Do not process document input events if the focused element is an input control
-		if( evt.target instanceof HTMLInputElement || evt.target instanceof HTMLSelectElement || evt.target instanceof HTMLTextAreaElement ) return;
+		if( evt.target instanceof HTMLInputElement || evt.target instanceof HTMLSelectElement || evt.target instanceof HTMLTextAreaElement )
+			return;
+		
 		if( evt.key === 'Delete' ) {
 			// Remove selected components from the diagram.
 			if( D.RelationsOf(active.id, 'Component').reduce((a,rel) => {
@@ -310,7 +312,8 @@ function renderDiagramView(D, S) {
 				rerender();
 			}
 		} else if( evt.key === 'Escape' ) {
-			//TODO: cancel an active verb (e.g. draw relation, add object, etc)
+			//TODO: cancel active tools (e.g. draw relation, add object, etc)
+			rerender();
 
 		} else if( evt.key === 'h' ) {
 			selected.forEach(id => {
@@ -341,6 +344,10 @@ function renderDiagramView(D, S) {
 				}
 			});
 			rerender();
+
+		} else if( evt.key === 'A' ) {
+			// Start "add" process
+			AddProcess(D, S);
 		}
 	}
 

@@ -75,10 +75,6 @@ function makeToggler(list, id) {
 	};
 }
 
-function AddProcess(D,S) {
-	//TODO: popup for what to add
-}
-
 function renderNavigation(D, S) {
 	const selected = S.selection ?? [];
 	if( ! S.navigation ) S.navigation = {filters:{}};

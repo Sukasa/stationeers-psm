@@ -294,3 +294,113 @@ function renderWorkspace(target, workspace) {
 	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
 	workspace.save();
 }
+
+function stringSequentialMatch(query, candidate) {
+	var i = 0, j = 0;
+	while( i < query.length ) {
+		const q = query[i++];
+		if( q <= ' ' ) continue;
+		const p = candidate.indexOf(q, j);
+		if( p === -1 ) return false;
+		j = p + 1;
+	}
+	return true;
+}
+
+function AddCommit(D,S,recipe) {
+	//TODO:
+	rerender();
+}
+
+var addInProgress = false;
+function AddProcess(D,S) {
+	if( addInProgress ) return;
+	addInProgress = true;
+
+	const resultBox = $("div", {className:'add-list'});
+	const filterBox = $("input", {type:'text', '?blur': onblur, '?keyup': onkeyup});
+	const resList = [];
+	var lastFilter = null;
+
+	function onblur() {
+		updateFilter();
+	}
+	function onkeyup(evt) {
+		if( evt.key === 'Escape' ) {
+			filterBox.removeEventListener('blur', onblur);
+			return rerender();
+		}
+
+		if( evt.key >= '1' && evt.key <= '9' && evt.ctrlKey ) {
+			// Create nth search result immediately!
+			var idx = evt.key.charCodeAt(0) - 49;
+			if( resList.length > idx ) {
+				evt.preventDefault();
+				AddCommit(D,S,resList[idx]);
+			}
+		
+		} else if( evt.key === 'Enter' && resList.length === 1 && filterBox.value === lastFilter ) {
+			// User accepts this single result
+			evt.preventDefault();
+			AddCommit(D,S,resList[0]);
+
+		} else if( evt.key === 'Enter' ) {
+			// User wants to update search
+			lastFilter = filterBox.value;
+			evt.preventDefault();
+			updateFilter();
+		}
+	};
+
+	const sortRecipes = (a,b) => {
+		if( a.priority === b.priority ) return a.label < b.label ? -1 : +1;
+		return a.priority - b.priority;
+	}
+	const recipes = Object.values(metanode_db)
+		.flatMap(meta => meta.Addable?.() ?? []);
+
+	function updateFilter() {
+		resultBox.innerHTML = '';
+		const term = filterBox.value.toLowerCase();
+
+		resList.length = 0;
+		recipes.forEach(r => {
+			if( stringSequentialMatch(term, r.label.toLowerCase()) ) resList.push(r);
+		})
+		resList.sort(sortRecipes);
+
+		var lastGroup = null;
+		resList.forEach((r,i) => {
+			if( r.group !== lastGroup ) {
+				$(resultBox, "div", {
+					className: 'search-group',
+				}, "div", "="+r.group);
+				lastGroup = r.group;
+			}
+
+			$(resultBox, "div", {
+				className: 'search-result',
+				'?click': () => AddCommit(D,S,r)
+			}, [
+				["div", "=" + (i < 9 ? (i+1) : '')],
+				["div", "=TODO icon"],
+				["div", "="+r.label],
+			]);
+		});
+	};
+
+	renderWindow(document.body, {
+		title: 'Add New',
+		className: 'psm-add-object dialog modal'
+	}, [
+		filterBox, resultBox,
+	]);
+
+	setTimeout(() => {
+		filterBox.focus();
+		updateFilter();
+	}, 1);
+	preRerender(() => {
+		addInProgress = false;
+	});
+}

@@ -128,7 +128,7 @@ const equipmenttype_db = {
 // Function Definition
 const functiondef_db = {
 	"IR": {
-		fullname: 'Input Router',
+		name: 'Input Router',
 		rels: [
 			{name: 'Source', type: 'equipment', subtype: 'logic', },
 			{name: 'Destination', type: 'data', allocate: true, },
@@ -151,7 +151,7 @@ const functiondef_db = {
 	},
 
 	"XR": {
-		fullname: 'Interrupt Router',
+		name: 'Interrupt Router',
 		rels: [
 			{name: 'Source', type: 'equipment', subtype: null, },
 			{name: 'Destination', type: 'data', allocate: true, },
@@ -176,7 +176,7 @@ const functiondef_db = {
 	},
 
 	"OR": {
-		fullname: 'Output Router',
+		name: 'Output Router',
 		rels: [
 			{name: 'Source', type: 'data' },
 			{name: 'Destination', array:true, type: 'equipment', subtype: 'logic', },
@@ -204,7 +204,8 @@ const functiondef_db = {
 	},
 
 	"EI": {
-		fullname: 'Equipment Initialization',
+		name: 'Equipment Initialization',
+		notAddable: true,
 		rels: [
 			{name: 'Destination', type: 'equipment', subtype: 'logic'},
 		],
@@ -222,7 +223,7 @@ const functiondef_db = {
 	},
 
 	"AT": {
-		fullname: 'Alarm Test',
+		name: 'Alarm Test',
 		rels: [
 			{name: 'Input', type: 'function', functiontype:['IR','SR'], },
 			{name: 'Destination', type: 'data', allocate: true, },
@@ -270,7 +271,7 @@ const functiondef_db = {
 	},
 
 	"AS": {
-		fullname: 'Alarm State',
+		name: 'Alarm State',
 		rels: [
 			{name: 'Input', type: 'function', functiontype: ['AT']},
 			{name: 'State', type: 'data', allocate: true, },
@@ -331,7 +332,7 @@ const functiondef_db = {
 	},
 
 	"AA": {
-		fullname: 'Alarm Annunciator',
+		name: 'Alarm Annunciator',
 		rels: [
 			{name: 'Input', type: 'function', functiontype: ['AS'], },
 			{name: 'Display', type: 'equipment',  },
@@ -387,7 +388,7 @@ const functiondef_db = {
 		// Implements a schmitt trigger with an active-high Set ("raise"), and an active-low Reset ("hold").
 		// e.g. if you have Set as Temp > 30 and Hold as Temp > 20, and the trigger controls a cooling system,
 		// then it turns on when the temp goes above 30 and off when the temp falls to 20.
-		fullname: 'Schmitt Trigger',
+		name: 'Schmitt Trigger',
 		rels: [
 			{name: 'State', type: 'data', allocate: true, },
 			{name: 'Raise', type: 'data',},
@@ -422,7 +423,7 @@ const functiondef_db = {
 	},
 
 	"IL": {
-		fullname: "Interlock",
+		name: "Interlock",
 		rels: [
 			{name: 'Source', type: 'data',},
 			{name: 'Output', type: 'data', allocate: true, },
@@ -527,7 +528,7 @@ const metanode_db = {
 		// Title for navigation item or functional node
 		Name(obj) {
 			const def = functiondef_db[obj.kind];
-			return `[${obj.kind}] ${obj.properties.Name ?? def.fullname}`;
+			return `[${obj.kind}] ${obj.properties.Name ?? obj.id}`;
 		},
 		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
 		Pins(obj) {
@@ -556,11 +557,26 @@ const metanode_db = {
 		// Return renderer class for Schematic view of this metanode.
 		Diagram(obj) {
 		},
+
+		Addable() {
+			return Object.keys(functiondef_db).map(key => {
+				const def = functiondef_db[key];
+				if( def.notAddable ) return null;
+				return {
+					group: 'Functional',
+					priority: 2,
+					label: def.name,
+					ctor: id => ({type: 'function', kind: key, properties:{Name: id},}),
+				}
+			}).filter(x => x);
+		},
 	},
 
 	'data': {
 		Name(obj) {
-			return obj.properties?.Name ?? (obj.properties.Addr && `RAM \$${obj.properties.Addr.toString(16)}`) ?? `Unallocated Data ${obj.id}`;
+			return obj.properties?.name
+				?? (obj.properties.addr && obj.properties.node && `[RAM] ${obj.properties.node}:\$${obj.properties.addr.toString(16)}`)
+				?? `[RAM] Unallocated ${obj.id}`;
 		},
 
 		Pins(obj) {
@@ -574,6 +590,15 @@ const metanode_db = {
 		// Return renderer class for Schematic view of this metanode.
 		Diagram(obj) {
 
+		},
+
+		Addable() {
+			return [{
+				group: 'Functional',
+				priority: 2,
+				label: `Data Allocation`,
+				ctor: id => ({type: 'data', properties:{},}),
+			}];
 		},
 	},
 
@@ -632,6 +657,15 @@ const metanode_db = {
 		Diagram(obj) {
 
 		},
+
+		Addable() {
+			return Object.keys(equipmenttype_db).map(key => ({
+				group: 'Equipment',
+				priority: 1,
+				label: equipmenttype_db[key].name,
+				ctor: id => ({type: 'equipment', kind: key, properties:{Name: `${equipmenttype_db[key].name} ${id}`,}}),
+			}));
+		},
 	},
 
 	//TODO:
@@ -642,6 +676,15 @@ const metanode_db = {
 		Pins(obj) { },
 		Fields(obj) { },
 		Diagram(obj) { },
+
+		Addable() {
+			return []; /*Object.keys(equipmenttype_db).map(key => ({
+				group: 'Equipment',
+				priority: 1,
+				label: equipmenttype_db[key].name,
+				ctor: id => ({type: 'equipment', kind: key, properties:{Name: `${equipmenttype_db[key].name} ${id}`,}}),
+			}));*/
+		},
 	},
 
 	//TODO:
@@ -656,6 +699,15 @@ const metanode_db = {
 			];
 		},
 		Diagram(obj) {},
+
+		Addable() {
+			return [{
+				group: 'Organizational',
+				priority: 0,
+				label: 'Zone',
+				ctor: id => ({type: 'zone', properties:{}}),
+			}];
+		},
 	},
 
 	//TODO:
@@ -666,6 +718,15 @@ const metanode_db = {
 		Pins(obj) { return []; },
 		Fields(obj) { },
 		Diagram(obj) { },
+
+		Addable() {
+			return [{
+				group: 'Organizational',
+				priority: 0,
+				label: 'Network',
+				ctor: id => ({type: 'network', properties:{}}),
+			}];
+		},
 	},
 
 	//TODO:
@@ -683,6 +744,15 @@ const metanode_db = {
 		// Return renderer class for Schematic view of this metanode.
 		Diagram(obj) {
 			//TODO: render an off-page link
+		},
+
+		Addable() {
+			return [{
+				group: 'Organizational',
+				priority: 0,
+				label: 'Drawing',
+				ctor: id => ({type: 'drawing', properties:{}}),
+			}];
 		},
 	},
 };

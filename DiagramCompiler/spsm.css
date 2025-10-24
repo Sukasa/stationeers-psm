@@ -118,6 +118,13 @@ canvas                     { pointer-events: none; }
 	height: 49vh;
 }
 
+.window-inner.psm-add-object {
+	top: 24vh;
+	left: 24vw;
+	width: 48vw;
+	height: 48vh;
+}
+
 body.narrow-viewport .window-inner.psm-diagram {
 	left: 0.5vw;
 	width: 99vw;
