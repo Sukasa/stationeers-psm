@@ -150,6 +150,10 @@ body.narrow-viewport .window-inner.psm-navigation {
 	position: relative;
 }
 
+.window-body.addable {
+	cursor: crosshair;
+}
+
 .drawing-node {
 	position: absolute;
 }
@@ -391,6 +395,14 @@ body.narrow-viewport .window-inner.psm-navigation {
 	border-bottom: thin outset;
 }
 
+.nav-options .action.action-create::before {
+	content: '+';
+}
+
+.nav-options .action.action-compile::before {
+	content: 'C';
+}
+
 .nav-options .toggle.toggle-same-drawing::before {
 	content: 'D';
 }
@@ -399,6 +411,7 @@ body.narrow-viewport .window-inner.psm-navigation {
 	content: 'Z';
 }
 
+.nav-options .action,
 .nav-options .toggle {
 	border: thin outset;
 	background: #aaa;
@@ -406,6 +419,14 @@ body.narrow-viewport .window-inner.psm-navigation {
 	height: 1em;
 	margin: 1px 2px;
 	text-align: center;
+}
+
+.nav-options .action {
+	background: #ffa;
+}
+
+.nav-options .toggle.inactive {
+	background: #aaa;
 }
 
 .nav-options .toggle.active {

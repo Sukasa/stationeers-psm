@@ -8,7 +8,7 @@ const categories = [
 				.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 : +1);
 		},
 		actions(tgt,obj,D,S) {
-			//TODO
+			//TODO: 
 		},
 	},
 	{
@@ -22,7 +22,7 @@ const categories = [
 		actions(tgt,obj,D,S) {
 			$(tgt, [
 				["button", "=V", {"?click": () => {
-					S.diagram.view = obj.id;
+					S.diagram.view = {drawing:obj.id, zoom:1};
 					rerender();
 				}}],
 			])
@@ -41,7 +41,7 @@ const categories = [
 				["button", "=V", {"?click": () => {
 					//TODO: enumerate drawings mentioning this equipment,
 					// find the one after the active one, make it the active one,
-					// and center the view on (the/an) instance in that drawing.
+					// and center the view on an instance in that drawing.
 				}}],
 			])
 		},
@@ -75,6 +75,10 @@ function makeToggler(list, id) {
 	};
 }
 
+function AddProcess(D,S) {
+	//TODO: popup for what to add
+}
+
 function renderNavigation(D, S) {
 	const selected = S.selection ?? [];
 	if( ! S.navigation ) S.navigation = {filters:{}};
@@ -87,6 +91,19 @@ function renderNavigation(D, S) {
 
 	const navRoot = $("div", { className:'nav-list' });
 	const navMenu = $("div", {className:'nav-options'}, [
+		["div", {
+			className: `action action-compile`,
+			'?click': () => {
+				//TODO: compile, and pop-up the results
+			}
+		}],
+		["div", {
+			className: `action action-create`,
+			'?click': () => AddProcess(D,S),
+		}],
+		
+		["div", { style: "flex-grow: 1; "}],
+
 		makeToggle('same_drawing'),
 	]);
 
@@ -99,8 +116,6 @@ function renderNavigation(D, S) {
 	const defaultFilterByText = (text,item) =>
 		(-1 !== item.id.toLowerCase().indexOf(text))
 		|| (-1 !== (item.properties?.Name??'').indexOf(text));
-
-	//TODO: render filter toggles and text filter input
 
 	var lastCat = NaN;
 	categories.forEach(cat => {

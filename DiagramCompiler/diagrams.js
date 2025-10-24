@@ -3,6 +3,7 @@ function renderDiagramView(D, S) {
 	const selected = S.selection ?? (S.selection = []);
 	if( ! S.diagram ) S.diagram = {};
 	const {drawing,zoom} = S.diagram?.view ?? (S.diagram.view = {drawing:null, zoom:1});
+	const activeNodeType = S.diagram.activeNodeType ?? 'functional';
 
 	const diagram = $("div", {
 		className:'diagram-root',
@@ -19,7 +20,7 @@ function renderDiagramView(D, S) {
 	}
 	if( !active ) {
 		active = dgrams[0];
-		S.diagram.view = active.id;
+		S.diagram.view = {drawing: active.id, zoom:1};
 	}
 
 	const FUNCNODESZ = 150;
@@ -64,6 +65,8 @@ function renderDiagramView(D, S) {
 	var hasDragged = false;
 	const titleClickHandler = comp => evt => {
 		if( hasDragged ) { hasDragged = false; return; }
+
+		evt.preventDefault();
 		if( evt.shiftKey ) {
 			toggleSelect(comp.toNode);
 		} else {
@@ -186,7 +189,6 @@ function renderDiagramView(D, S) {
 		}
 	});
 
-	//const viewbox = `0 0 ${totalWidth} ${totalHeight}`;
 	const SVGNS = 'http://www.w3.org/2000/svg';
 	const svg = $(document.createElementNS(SVGNS, 'svg'), { class: 'zigzag' });
 
@@ -270,22 +272,24 @@ function renderDiagramView(D, S) {
 		return content.reduce((a,c) => Math.max(a, c.fromIndex + 1), 0);
 	}
 
+	// Add the selected object to the drawing (only available when it isn't already on it)
 	function AddAction(evt) {
-		if( ! evt.altKey ) return;
-		const atX = evt.clientX, atY = evt.clientY;
+		if( selected.length !== 1 || evt.target !== diagram.parentNode ) return;
+		const viewport = diagram.parentNode.getBoundingClientRect();
+		const atX = evt.x + minX - viewport.x - pad + diagram.parentNode.scrollLeft;
+		const atY = evt.y + minY - viewport.y - pad + diagram.parentNode.scrollTop;
+		const pX = evt.ctrlKey ? atX : GRIDX * Math.round(atX / GRIDX);
+		const pY = evt.ctrlKey ? atY : GRIDY * Math.round(atY / GRIDY);
 
-		//TODO: show dialog to select the object to add
-		
 		// For now, pick any function/equipment component not already included in the diagram
-		const choices = D.Objects(o => -1 !== ['equipment','function'].indexOf(o.type) && !content.find(c => c.toNode === o.id));
-		if( choices.length === 0 ) return;
-		const pickedNode = choices[0].id;
+		const pickedNode = selected[0];
 
 		D.AddRel({
 			fromNode: active.id, fromPin: 'Component',
 			fromIndex: NextIndex(), toNode: pickedNode,
-			properties:{as: active.properties?.defaultNodeType ?? 'functional', x: atX - pad, y: atY - pad}
+			properties:{as: active.properties?.defaultNodeType ?? 'functional', x: pX, y: pY}
 		});
+
 		rerender();
 	}
 
@@ -345,11 +349,15 @@ function renderDiagramView(D, S) {
 		diagram.parentNode.scrollLeft = S.scrollX;
 		diagram.parentNode.scrollTop = S.scrollY;
 
-		//DEBUG:diagram.parentNode.addEventListener('click', AddAction);
+		if( selected.length === 1 && !content.find(r => r.fromPin === 'Component' && r.toNode === selected[0] && r.properties?.as === activeNodeType) ) {
+			diagram.parentNode.classList.add('addable');
+			diagram.parentNode.addEventListener('click', AddAction);
+		}
 	});
 
 	return preRerender(diagram, () => {
 		document.removeEventListener('keyup', OnKey);
+		diagram.parentNode.removeEventListener('click', AddAction);
 		S.scrollX = diagram.parentNode.scrollLeft;
 		S.scrollY = diagram.parentNode.scrollTop;
 	});
