@@ -318,7 +318,11 @@ function AddProcess(D,S) {
 	addInProgress = true;
 
 	const resultBox = $("div", {className:'add-list'});
-	const filterBox = $("input", {type:'text', '?blur': onblur, '?keyup': onkeyup});
+	const filterBox = $("input", {
+		type:'text', className:'add-filter',
+		'?blur': onblur,
+		'?keyup': onkeyup
+	});
 	const resList = [];
 	var lastFilter = null;
 
@@ -372,9 +376,9 @@ function AddProcess(D,S) {
 		var lastGroup = null;
 		resList.forEach((r,i) => {
 			if( r.group !== lastGroup ) {
-				$(resultBox, "div", {
+				$(resultBox, "div", "="+r.group, {
 					className: 'search-group',
-				}, "div", "="+r.group);
+				});
 				lastGroup = r.group;
 			}
 
@@ -382,9 +386,9 @@ function AddProcess(D,S) {
 				className: 'search-result',
 				'?click': () => AddCommit(D,S,r)
 			}, [
-				["div", "=" + (i < 9 ? (i+1) : '')],
-				["div", "=TODO icon"],
-				["div", "="+r.label],
+				["div", {className:'index'}, "=" + (i < 9 ? (i+1) : '')],
+				["div", {className:'icon' }], //TODO: icon
+				["div", {className:'label'}, "="+r.label],
 			]);
 		});
 	};
@@ -393,7 +397,8 @@ function AddProcess(D,S) {
 		title: 'Add New',
 		className: 'psm-add-object dialog modal'
 	}, [
-		filterBox, resultBox,
+		["div", {className: 'filters'}, [filterBox]],
+		resultBox,
 	]);
 
 	setTimeout(() => {

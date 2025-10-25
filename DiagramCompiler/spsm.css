@@ -319,10 +319,15 @@ body.narrow-viewport .window-inner.psm-navigation {
 	align-items: baseline;
 }
 
+.properties-table .info {
+	grid-column: 1 / 4;
+	padding: 4px;
+	font-weight: bold;
+}
+
 .properties-table hr {
 	width: 100%;
-	grid-column-start: 1;
-	grid-column-end: 4;
+	grid-column: 1 / 4;
 }
 
 .properties-table .label {
@@ -475,4 +480,53 @@ body.narrow-viewport .window-inner.psm-navigation {
 
 .nav-list .item .label.selected {
 	border: 2px dashed blue;
+}
+
+.psm-add-object .filters {
+	display: flex;
+	align-items: baseline;
+	width: 100%;
+}
+
+.psm-add-object .filters::before {
+	content: 'Search:';
+}
+
+.psm-add-object .filters .add-filter {
+	position: sticky;
+	height: 1.2em;
+	margin-left: 1ch;
+	flex-grow: 1;
+}
+
+.psm-add-object .add-list {
+	display: grid;
+	align-content: center;
+	align-items: center;
+	grid-template-columns: min-content min-content 1fr;
+}
+
+.psm-add-object .add-list .search-group {
+	margin-top: 0.5em;
+	font-size: 150%;
+	font-weight: bold;
+	grid-column: 1/4;
+}
+
+.psm-add-object .add-list .search-result {
+	display: contents;
+}
+
+.psm-add-object .add-list .search-result .index {
+	margin-inline: 2ch;
+	font-weight: bold;
+}
+
+.psm-add-object .add-list .search-result .icon {
+	width: 32px;
+	height: 32px;
+}
+
+.psm-add-object .add-list .search-result .label {
+	margin-inline: 2ch;
 }

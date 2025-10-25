@@ -65,12 +65,39 @@ const LogicTypeNames = [
 const equipmenttype_db = {
 	'StructureAirlock': {
 		name: 'Airlock',
+		href: 'https://stationeers-wiki.com/Airlock_(Structure)',
+		doorLike: true,
+		logicWrite: ['Open','Mode','Lock','Setting','On',],
+		logicRead: ['Idle',],
+		connections: [{data:1},{power:1},],
+	},
+	'StructureBlastDoor': {
+		name: 'Blast Door',
+		href: 'https://stationeers-wiki.com/Blast_Doors',
+		doorLike: true,
+		logicWrite: ['Open','Mode','Lock','Setting','On',],
+		logicRead: ['Idle',],
+		connections: [{data:1},{power:1},],
+	},
+	'StructureCompositeDoor': {
+		name: 'Composite Door',
+		href: 'https://stationeers-wiki.com/Composite_Door',
+		logicWrite: ['Open','Mode','Lock','Setting','On',],
+		doorLike: true,
+		logicRead: ['Idle',],
+		connections: [{data:1},{power:1},],
+	},
+	'StructureGlassDoor': {
+		name: 'Glass Door',
+		href: 'https://stationeers-wiki.com/Glass_Door',
+		doorLike: true,
 		logicWrite: ['Open','Mode','Lock','Setting','On',],
 		logicRead: ['Idle',],
 		connections: [{data:1},{power:1},],
 	},
 	'StructureWallHeater': {
 		name: 'Wall Heater',
+		href: 'https://stationeers-wiki.com/Wall_Heater',
 		logicWrite: ['Lock','On',],
 		connections: [{data:1,power:1},],
 	},
@@ -86,21 +113,24 @@ const equipmenttype_db = {
 	},
 	'StructureConsoleLED': {
 		name: 'LED Display (various)',
+		ledLike: true,
 		logicWrite: ['On','Mode','Setting','Color'],
 		logicRead: ['Error'],
 		connections: [{data:1,power:1}],
 	},
 	'StructureCircuitHousing': {
 		name: 'IC Housing',
+		href: 'https://stationeers-wiki.com/IC_Housing',
 		logicWrite: ['On','Mode','Setting','LineNumber',],
 		logicRead: ['Error','StackSize'],
 		logicSlots: [
-			['LineNumber',],
+			['LineNumber',], // IC10
 		],
 		connections: [{data:1},{power:1}],
 	},
 	'StructureGasSensor': {
 		name: 'Gas Sensor',
+		href: 'https://stationeers-wiki.com/Sensors',
 		logicRead: [
 			'Pressure','Temperature','TotalMoles','Combustion',
 			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioNitrousOxide',
@@ -110,6 +140,7 @@ const equipmenttype_db = {
 	},
 	'StructureFiltration': {
 		name: 'Filtration Unit',
+		href: 'https://stationeers-wiki.com/Filtration',
 		logicWrite: ['On','Mode','Lock','Setting'],
 		logicRead: [
 			'Pressure','Temperature','TotalMoles','Combustion',
@@ -117,9 +148,9 @@ const equipmenttype_db = {
 			'RatioLiquidNitrogen','RatioLiquidOxygen','RatioLiquidVolatiles','RatioSteam','RatioLiquidCarbonDioxide','RatioLiquidPollutant','RatioLiquidNitrousOxide',
 		].flatMap(L=>['Input'+L,'Output'+L,'Output2'+L]),
 		logicSlots: [
-			['FilterType',],
-			['FilterType',],
-			[],
+			['FilterType',], // Filter A
+			['FilterType',], // Filter B
+			[], // IC10
 		],
 		connections: [{data:1},{power:1},{gas:'Input'},{gas:'Filtered'},{gas:'Unfiltered'}],
 	}
@@ -479,6 +510,8 @@ const functiondef_db = {
 
 const OnFieldSpec = {type:'constant', subtype:'boolean',};
 
+const LockFieldSpec = {type:'constant', subtype:'boolean',};
+
 const ColorFieldSpec = {type:'constant', subtype:'list', options:[
 	{name: 0, label: 'Blue'},   {name: 1, label: 'Gray'},   {name: 2, label: 'Green'},
 	{name: 3, label: 'Orange'}, {name: 4, label: 'Red'},    {name: 5, label: 'Yellow'},
@@ -504,6 +537,16 @@ const LEDModeFieldSpec = {type:'constant', subtype:'list', options:[
 	{name: 14, label: 'Pascals'},
 ]};
 
+const OpenFieldSpec = {type: 'constant', subtype: 'list', options: [
+	{name: 0, label: 'Closed'},
+	{name: 1, label: 'Open'},
+]};
+
+const DoorModeFieldSpec = {type:'constant', subtype:'list', options: [
+	{name: 0, label: 'Local Operation'},
+	{name: 1, label: 'Remote Operation'},
+]};
+
 function ValuesForEquipmentInitialize(object, key) {
 	if( key === 'On' ) {
 		return OnFieldSpec;
@@ -511,7 +554,16 @@ function ValuesForEquipmentInitialize(object, key) {
 	} else if( key === 'Color' ) {
 		return ColorFieldSpec;
 
-	} else if( key === 'Mode' && object.kind === 'StructureConsoleLED' ) {
+	} else if( key === 'Lock' ) {
+		return LockFieldSpec;
+
+	} else if( key === 'Open' ) {
+		return OpenFieldSpec;
+
+	} else if( key === 'Mode' && object.doorLike === true ) {
+		return DoorModeFieldSpec;
+
+	} else if( key === 'Mode' && object.ledLike === true ) {
 		return LEDModeFieldSpec;
 
 	} else {
@@ -525,11 +577,18 @@ const StdSlotLogic = ['Occupied','OccupantHash','Quantity','MaxQuantity','Damage
 // Metanode Definitions
 const metanode_db = {
 	'function': {
+		// Generate info block for properties pane
+		Info(obj) {
+			const def = functiondef_db[obj.kind];
+			if( def.info ) return $("div", "="+def.info);
+		},
+
 		// Title for navigation item or functional node
 		Name(obj) {
 			const def = functiondef_db[obj.kind];
 			return `[${obj.kind}] ${obj.properties.Name ?? obj.id}`;
 		},
+
 		// Generate list of {name:,array:,type:,subtype?:} pins this node exposes for Relations.
 		Pins(obj) {
 			const def = functiondef_db[obj.kind];
@@ -573,6 +632,8 @@ const metanode_db = {
 	},
 
 	'data': {
+		Info(obj) {},
+
 		Name(obj) {
 			return obj.properties?.name
 				?? (obj.properties.addr && obj.properties.node && `[RAM] ${obj.properties.node}:\$${obj.properties.addr.toString(16)}`)
@@ -603,6 +664,15 @@ const metanode_db = {
 	},
 
 	'equipment': {
+		// Generate info block for properties pane
+		Info(obj) {
+			const def = equipmenttype_db[obj.kind];
+			var lb = $("span", "="+(def.name ?? obj.kind));
+			if( def.href) lb = $("a", {href:def.href, target:"_blank", noreferrer:true}, [lb]);
+			//TODO: icon
+			return lb;
+		},
+
 		Name(obj) {
 			const def = equipmenttype_db[obj.kind];
 			return (obj.properties?.Name ?? def.name) + (obj.properties?.ReferenceId ? ` (#${obj.properties.ReferenceId})` : '');
@@ -670,6 +740,7 @@ const metanode_db = {
 
 	//TODO:
 	'metafunction': {
+		Info(obj) {},
 		Name(obj) { 
 			return obj.properties?.Name ?? `Metafunction ${obj.id}`;
 		},
@@ -689,6 +760,7 @@ const metanode_db = {
 
 	//TODO:
 	'zone': {
+		Info(obj) {},
 		Name(obj) {
 			return obj.properties?.Name ?? `Zone ${obj.id}`;
 		},
@@ -712,6 +784,7 @@ const metanode_db = {
 
 	//TODO:
 	'network': {
+		Info(obj) {},
 		Name(obj) {
 			return obj.properties?.Name ?? `Network ${obj.id}`;
 		},
@@ -731,6 +804,7 @@ const metanode_db = {
 
 	//TODO:
 	'drawing': {
+		Info(obj) {},
 		Name(obj) {
 			return obj.properties?.Name ?? `Drawing ${obj.id}`;
 		},

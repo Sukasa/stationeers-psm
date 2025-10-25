@@ -11,6 +11,14 @@ function renderProperties(D, S) {
 	const E = $("div", { className:'properties-table', });
 
 	const MF = meta.Fields(editing) ?? [], MP = meta.Pins(editing) ?? [];
+
+	const info = meta.Info?.(editing);
+	if( info ) {
+		$(E, [
+			["div", {className:'info'}, info],
+			["hr"]
+		]);
+	}
 	
 	MF.forEach(f => {
 		if( f.hidden && !opts.ShowAll ) return;
@@ -32,7 +40,7 @@ function renderProperties(D, S) {
 		}
 	});
 
-	if( MF.length + MP.length > 0 ) $(E, "hr");
+	if( MF.length ) $(E, "hr");
 
 	function rm(rel) {
 		D.RemoveRel(rel);
