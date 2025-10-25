@@ -308,7 +308,15 @@ function stringSequentialMatch(query, candidate) {
 }
 
 function AddCommit(D,S,recipe) {
-	//TODO:
+	const objid = D.NewId();
+	const obj = recipe.ctor(objid);
+	obj.id = objid;
+
+	D.AddObject(obj);
+	if( !(S.selection instanceof Array) ) S.selection = [];
+	S.selection.length = 0;
+	S.selection.push(objid);
+	
 	rerender();
 }
 
@@ -335,9 +343,9 @@ function AddProcess(D,S) {
 			return rerender();
 		}
 
-		if( evt.key >= '1' && evt.key <= '9' && evt.ctrlKey ) {
+		if( evt.key.length === 1 && evt.key >= '1' && evt.key <= '9' && evt.ctrlKey ) {
 			// Create nth search result immediately!
-			var idx = evt.key.charCodeAt(0) - 49;
+			var idx = evt.key.charCodeAt(0) - '1'.charCodeAt(0);
 			if( resList.length > idx ) {
 				evt.preventDefault();
 				AddCommit(D,S,resList[idx]);

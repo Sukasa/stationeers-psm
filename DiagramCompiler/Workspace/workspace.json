@@ -255,6 +255,59 @@
     }
   },
   {
+    "type": "data",
+    "properties": {},
+    "id": "68lo.buoqxe7"
+  },
+  {
+    "type": "function",
+    "kind": "IL",
+    "properties": {
+      "Name": "3vjyj.03ftwm"
+    },
+    "id": "3vjyj.03ftwm"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureActiveVent",
+    "properties": {
+      "Name": "Active Vent 29yf.kf7nwyu"
+    },
+    "id": "29yf.kf7nwyu"
+  },
+  {
+    "type": "function",
+    "kind": "AT",
+    "properties": {
+      "Name": "TI-401 HH level alarm"
+    },
+    "id": "4p81w.uijg1t"
+  },
+  {
+    "type": "function",
+    "kind": "AS",
+    "properties": {
+      "Name": "TI-401 HH level alarm"
+    },
+    "id": "i4a1.825wx6q"
+  },
+  {
+    "type": "function",
+    "kind": "AA",
+    "properties": {
+      "Name": "TI-401 HH level alarm"
+    },
+    "id": "2oszt.1bi6rn"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "jo0n.airungd"
+    },
+    "id": "jo0n.airungd"
+  },
+  {
     "type": "rel",
     "fromNode": "ZHab1",
     "fromPin": "Processor",
@@ -532,7 +585,7 @@
     "toNode": "TW818194",
     "properties": {
       "x": -250,
-      "y": -72,
+      "y": 90,
       "as": "functional"
     }
   },
@@ -592,7 +645,7 @@
     "properties": {
       "as": "functional",
       "x": 150,
-      "y": -108
+      "y": 54
     },
     "type": "rel"
   },
@@ -676,7 +729,7 @@
     "properties": {
       "as": "functional",
       "x": -250,
-      "y": -18
+      "y": 144
     },
     "type": "rel"
   },
@@ -708,11 +761,59 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 19,
-    "toNode": "HL13014",
+    "toNode": "29yf.kf7nwyu",
     "properties": {
       "as": "functional",
-      "x": -400,
-      "y": -198
+      "x": 250,
+      "y": 234
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 20,
+    "toNode": "4p81w.uijg1t",
+    "properties": {
+      "as": "functional",
+      "x": 150,
+      "y": -162
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 21,
+    "toNode": "i4a1.825wx6q",
+    "properties": {
+      "as": "functional",
+      "x": 500,
+      "y": -162
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 22,
+    "toNode": "2oszt.1bi6rn",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": -162
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 23,
+    "toNode": "jo0n.airungd",
+    "properties": {
+      "as": "functional",
+      "x": 550,
+      "y": 36
     },
     "type": "rel"
   }

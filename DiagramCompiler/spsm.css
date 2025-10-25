@@ -325,6 +325,11 @@ body.narrow-viewport .window-inner.psm-navigation {
 	font-weight: bold;
 }
 
+.properties-table .info p {
+	font-weight: normal;
+	margin: 0.1ch;
+}
+
 .properties-table hr {
 	width: 100%;
 	grid-column: 1 / 4;
@@ -390,7 +395,7 @@ body.narrow-viewport .window-inner.psm-navigation {
 
 .nav-list {
 	display: grid;
-	grid-template-columns: 1fr min-content;
+	grid-template-columns: 1fr auto;
 }
 
 .nav-options {

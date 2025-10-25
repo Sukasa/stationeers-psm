@@ -95,6 +95,13 @@ const equipmenttype_db = {
 		logicRead: ['Idle',],
 		connections: [{data:1},{power:1},],
 	},
+	'StructureActiveVent': {
+		name: 'Active Vent',
+		href: 'https://stationeers-wiki.com/Active_Vent',
+		logicWrite: ['Mode','Lock','On','PressureExternal','PressureInternal',],
+		logicRead: ['Error','PressureOutput','TemperatureOutput','RatioOxygenOutput','RatioNitrogenOutput','RatioPollutantOutput','RatioPollutantOutput','RatioVolatilesOutput','RatioWaterOutput','RatioNitrousOxideOutput','TotalMolesOutput','CombustionOutput'],
+		connections: [{data:1,power:1},{gas:1}],
+	},
 	'StructureWallHeater': {
 		name: 'Wall Heater',
 		href: 'https://stationeers-wiki.com/Wall_Heater',
@@ -160,6 +167,7 @@ const equipmenttype_db = {
 const functiondef_db = {
 	"IR": {
 		name: 'Input Router',
+		info: 'Reads device logic values for processing.',
 		rels: [
 			{name: 'Source', type: 'equipment', subtype: 'logic', },
 			{name: 'Destination', type: 'data', allocate: true, },
@@ -183,6 +191,7 @@ const functiondef_db = {
 
 	"XR": {
 		name: 'Interrupt Router',
+		info: 'Reads device `Setting` values for processing, at a high priority.',
 		rels: [
 			{name: 'Source', type: 'equipment', subtype: null, },
 			{name: 'Destination', type: 'data', allocate: true, },
@@ -208,9 +217,10 @@ const functiondef_db = {
 
 	"OR": {
 		name: 'Output Router',
+		info: 'Writes processing and I/O results to device\'s control logic.',
 		rels: [
 			{name: 'Source', type: 'data' },
-			{name: 'Destination', array:true, type: 'equipment', subtype: 'logic', },
+			{name: 'Destination', array:true, type: 'equipment', subtype: 'logic', write:true, },
 		],
 		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
@@ -236,6 +246,7 @@ const functiondef_db = {
 
 	"EI": {
 		name: 'Equipment Initialization',
+		info: 'Writes constant values to device\'s control logic, but just once each time the controllers are reset.',
 		notAddable: true,
 		rels: [
 			{name: 'Destination', type: 'equipment', subtype: 'logic'},
@@ -255,6 +266,7 @@ const functiondef_db = {
 
 	"AT": {
 		name: 'Alarm Test',
+		info: 'Tests a value for some condition, and stores that boolean result.',
 		rels: [
 			{name: 'Input', type: 'function', functiontype:['IR','SR'], },
 			{name: 'Destination', type: 'data', allocate: true, },
@@ -303,6 +315,7 @@ const functiondef_db = {
 
 	"AS": {
 		name: 'Alarm State',
+		info: 'Manages an acknowledgeable alarm status based on a test result.',
 		rels: [
 			{name: 'Input', type: 'function', functiontype: ['AT']},
 			{name: 'State', type: 'data', allocate: true, },
@@ -364,6 +377,7 @@ const functiondef_db = {
 
 	"AA": {
 		name: 'Alarm Annunciator',
+		info: 'Turns alarm-indication equipment on or off based on an alarm status.',
 		rels: [
 			{name: 'Input', type: 'function', functiontype: ['AS'], },
 			{name: 'Display', type: 'equipment',  },
@@ -420,6 +434,7 @@ const functiondef_db = {
 		// e.g. if you have Set as Temp > 30 and Hold as Temp > 20, and the trigger controls a cooling system,
 		// then it turns on when the temp goes above 30 and off when the temp falls to 20.
 		name: 'Schmitt Trigger',
+		info: 'Implements a Set-Hold Schmitt trigger, activating an output when a Set signal becomes true, and deactivating it when the Hold signal becomes false.',
 		rels: [
 			{name: 'State', type: 'data', allocate: true, },
 			{name: 'Raise', type: 'data',},
@@ -455,6 +470,7 @@ const functiondef_db = {
 
 	"IL": {
 		name: "Interlock",
+		info: 'Continuously copies a source value to an output value, except when at least one listed barrier condition is true.',
 		rels: [
 			{name: 'Source', type: 'data',},
 			{name: 'Output', type: 'data', allocate: true, },
@@ -505,7 +521,7 @@ const functiondef_db = {
 				]
 			}
 		]
-	}
+	},
 }
 
 const OnFieldSpec = {type:'constant', subtype:'boolean',};
@@ -542,6 +558,11 @@ const OpenFieldSpec = {type: 'constant', subtype: 'list', options: [
 	{name: 1, label: 'Open'},
 ]};
 
+const ActiveVentModeFieldSpec = {type: 'constant', subtype: 'list', options: [
+	{name: 0, label: 'Outward / Blow'},
+	{name: 1, label: 'Inward / Suck'},
+]};
+
 const DoorModeFieldSpec = {type:'constant', subtype:'list', options: [
 	{name: 0, label: 'Local Operation'},
 	{name: 1, label: 'Remote Operation'},
@@ -566,6 +587,9 @@ function ValuesForEquipmentInitialize(object, key) {
 	} else if( key === 'Mode' && object.ledLike === true ) {
 		return LEDModeFieldSpec;
 
+	} else if( key === 'Mode' && object === equipmenttype_db.StructureActiveVent ) {
+		return ActiveVentModeFieldSpec;
+
 	} else {
 		return {type:'constant', subtype:'number'};
 	}
@@ -580,7 +604,9 @@ const metanode_db = {
 		// Generate info block for properties pane
 		Info(obj) {
 			const def = functiondef_db[obj.kind];
-			if( def.info ) return $("div", "="+def.info);
+			return $("div", "="+def.name, [
+				def.info && ["p", "="+def.info],
+			]);
 		},
 
 		// Title for navigation item or functional node
@@ -689,13 +715,13 @@ const metanode_db = {
 				// Generate and cache pins by equipment type.
 				const res = [{name:'Zone', type:'zone'}];
 
+				def.logicWrite?.forEach(L => res.push({name:L, passive:true, type:'logic', writable:true,}));
+
 				if( def.logicRead ) {
 					const AddRO = L => res.push({name:L, passive:true, type:'logic', writable:false,});
 					def.logicRead.forEach(AddRO);
 					StdLogic.forEach(AddRO);
 				}
-
-				def.logicWrite?.forEach(L => res.push({name:L, passive:true, type:'logic', writable:true,}));
 
 				def.logicSlots?.forEach((S,si) => {
 					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, passive:true, type:'logic', writable:false});
@@ -919,13 +945,14 @@ class GraphLayer {
 	AddObject(def) {
 		if( this.ro )
 			throw new Error("cannot add to read-only graph layer");
-		if( !def || !def.id || !def.type || def.type === 'rel' )
+		if( !def || !def.id || !def.type )
 			throw new Error("incomplete object; requires {id:,type:}");
-		if( this.Objs[def.id] ) {
-			console.warn(`replacing object "${def.id}"`);
-		} else if( this.parent?.FindObject(def.id) ) {
-			console.warn(`shadowing object "${def.id}"`);
-		}
+		if( def.type === 'rel' )
+			throw new Error("bad object type; must use AddRel for relations, AddObject for objects!");
+		if( this.Objs[def.id] )
+			throw new Error(`cannot implicitly replace existing object "${def.id}"`);
+		if( this.parent?.FindObject(def.id) )
+			throw new Error(`cannot shadow existing object "${def.id}"`);
 
 		this.Objs[def.id] = def;
 	}
@@ -940,7 +967,7 @@ class GraphLayer {
 		this.Rels[def.id]?.forEach(rel => {
 			// Delete this relation from each list it participates in.
 			this._unregister_rel(rel, rel.fromNode);
-			this._unregister_rel(rel, rel.toNode);
+			if( rel.toNode ) this._unregister_rel(rel, rel.toNode);
 			if( rel.viaNode ) this._unregister_rel(rel, rel.viaNode);
 		});
 	}
@@ -950,11 +977,11 @@ class GraphLayer {
 			throw new Error("cannot add to read-only graph layer");
 		if( !def || !def.fromNode )
 			throw new Error("incomplete relation; requires {fromNode:}");		
-		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0) )
-			throw new Error("illegal index relation number; must be undefined or else >= 0");
-
-		if( def.type === undefined )
-			def.type = 'rel';
+		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0 || def.fromIndex !== Math.trunc(def.fromIndex)) )
+			throw new Error("illegal index relation number; must be undefined or a non-negative integer");
+		if( def.type && def.type !== 'rel' )
+			throw new Error("bad object type; must use AddRel for relations, AddObject for objects!");
+		def.type = 'rel';
 
 		if( !this.FindObject(def.fromNode)
 			|| (def.toNode && !this.FindObject(def.toNode))

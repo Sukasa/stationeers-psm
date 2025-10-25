@@ -307,10 +307,16 @@ function renderDiagramView(D, S) {
 				if( ! selected.includes(rel.toNode) ) return a;
 				D.RemoveRel(rel);
 				selected.splice(selected.indexOf(rel.toNode), 1);
+				if( evt.ctrlKey ) {
+					// Ctrl? ALSO delete it from the whole system!
+					const o = D.FindObject(rel.toNode);
+					if( o ) D.RemoveObject(o);
+				}
 				return a+1;
 			}, 0) ) {
 				rerender();
 			}
+			
 		} else if( evt.key === 'Escape' ) {
 			//TODO: cancel active tools (e.g. draw relation, add object, etc)
 			rerender();

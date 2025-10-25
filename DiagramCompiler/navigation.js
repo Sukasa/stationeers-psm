@@ -1,4 +1,27 @@
 
+function DeleteButton(D, S, obj) {
+	return ["button", "=X", {
+		"?click": () => {
+			D.RemoveObject(obj);
+			const i = S.selection.indexOf(obj.id);
+			if( i > -1 ) S.selection.splice(i, 1);
+			rerender();
+		}
+	}];
+}
+
+function ViewButton(D, S, obj) {
+	return false;
+	/*
+	["button", "=V", {"?click": () => {
+
+		//TODO: enumerate drawings mentioning this equipment,
+		// find the one after the active one, make it the active one,
+		// and center the view on an instance in that drawing.
+	}}];
+	*/
+}
+
 const categories = [
 	{
 		name:"Zones",
@@ -8,7 +31,9 @@ const categories = [
 				.sort((a,b) => (a.properties?.Name ?? a.id) < (b.properties?.Name ?? b.id) ? -1 : +1);
 		},
 		actions(tgt,obj,D,S) {
-			//TODO: 
+			$(tgt, [
+				DeleteButton(D, S, obj),
+			]);
 		},
 	},
 	{
@@ -25,7 +50,8 @@ const categories = [
 					S.diagram.view = {drawing:obj.id, zoom:1};
 					rerender();
 				}}],
-			])
+				DeleteButton(D, S, obj),
+			]);
 		},
 	},
 	{
@@ -38,12 +64,9 @@ const categories = [
 		},
 		actions(tgt, obj, D, S) {
 			$(tgt, [
-				["button", "=V", {"?click": () => {
-					//TODO: enumerate drawings mentioning this equipment,
-					// find the one after the active one, make it the active one,
-					// and center the view on an instance in that drawing.
-				}}],
-			])
+				ViewButton(D, S, obj),
+				DeleteButton(D, S, obj),
+			]);
 		},
 	},
 	{
@@ -56,7 +79,10 @@ const categories = [
 							   (a.kind < b.kind) ? -1 : +1);
 		},
 		actions(tgt, obj, D, S) {
-			//TODO:
+			$(tgt, [
+				ViewButton(D, S, obj),
+				DeleteButton(D, S, obj),
+			]);
 		},
 	}
 ];
@@ -135,8 +161,8 @@ function renderNavigation(D, S) {
 			}
 
 			//TODO: configurable grouping
-
 			//TODO: category/group/tree indent
+
 			const lhs = $(navRoot, "div", {className:"item"});
 
 			$(lhs, "div", {className: 'icon object ' + cat.iconClass});
