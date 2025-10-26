@@ -125,15 +125,28 @@ const equipmenttype_db = {
 		logicRead: ['Error'],
 		connections: [{data:1,power:1}],
 	},
-	'StructureCircuitHousing': {
-		name: 'IC Housing',
+	'StructureCircuitHousing+IC10': {
+		name: 'Circuit Housing + IC10 chip',
 		href: 'https://stationeers-wiki.com/IC_Housing',
-		logicWrite: ['On','Mode','Setting','LineNumber',],
-		logicRead: ['Error','StackSize'],
-		logicSlots: [
-			['LineNumber',], // IC10
-		],
+		logicWrite: ['On'],
+		logicRead: ['Error','StackSize','LineNumber'],
+		//logicSlots: [['LineNumber',], // IC10],
 		connections: [{data:1},{power:1}],
+		attributes: {
+			"LoCPerTick": 128,
+			"Lines": 128,
+			"Memory": 512,
+		},
+	},
+	'StructureUtilitySocket+UtilityMemory': {
+		name: 'Utility Socket + Memory chip',
+		href: 'https://steamcommunity.com/sharedfiles/filedetails/?id=3465059322',
+		logicRead: ['Error','StackSize'],
+		connections: [{data:1},{power:1}],
+		attributes: {
+			"Lines": 0,
+			"Memory": 8192,
+		},
 	},
 	'StructureGasSensor': {
 		name: 'Gas Sensor',
@@ -888,7 +901,12 @@ const metanode_db = {
 		Name(obj) {
 			return obj.properties?.Name ?? `Zone ${obj.id}`;
 		},
-		Pins(obj) { return []; },
+		Pins(obj) {
+			return [
+				{name:'Processor', array:true, type:'equipment', equipmenttype:['StructureCircuitHousing+IC10'], },
+				{name:'RAM', type:'equipment', equipmenttype:['StructureCircuitHousing+IC10','StructureUtilitySocket+UtilityMemory'], },
+			];
+		},
 		Fields(obj) {
 			return [
 				{name:'Name', type: 'constant', subtype:'string'},
@@ -1080,6 +1098,12 @@ class GraphLayer {
 		if( def.type && def.type !== 'rel' )
 			throw new Error("bad object type; must use AddRel for relations, AddObject for objects!");
 		def.type = 'rel';
+
+		// Normalize false/null/undefined/0 all to undefined.
+		if( !def.toNode ) def.toNode = undefined;
+		if( !def.toPin ) def.toPin = undefined;
+		if( !def.viaNode ) def.viaNode = undefined;
+		if( !def.viaPin ) def.viaPin = undefined;
 
 		if( !this.FindObject(def.fromNode)
 			|| (def.toNode && !this.FindObject(def.toNode))

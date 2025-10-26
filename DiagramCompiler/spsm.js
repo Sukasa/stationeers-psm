@@ -340,7 +340,7 @@ function CompleteDrawRelation(D, S, toObj, toPin, viaObj, viaPin) {
 	const {fromNode,fromPin,fromIndex,drawFromPin} = DrawRelationState(D,S);
 
 	delete S.drawingRel;
-	rerender();
+	rerender(); // Remember, this only schedules it, not executes.
 	if( ! drawFromPin ) return;
 
 	var old = D.RelationsOf(fromNode, fromPin).find(r => r.fromIndex === fromIndex);
@@ -351,8 +351,16 @@ function CompleteDrawRelation(D, S, toObj, toPin, viaObj, viaPin) {
 		idx = D.RelationsOf(fromNode, fromPin).reduce((a,r) => Math.max(a, r.fromIndex === undefined ? a : (r.fromIndex+1)), 0);
 	}
 
-	//TODO: make one last assertion of validity
-	//TODO: fix up "To" if "Via" is currently valid
+	if( viaObj && viaPin && !toObj ) {
+		// Read the relation in question, and update `to` if it is valid.
+		const val = D.RelationsOf(viaObj, viaPin);
+		if( val.length > 1 ) {
+			return;
+		} else if( val.length === 1 ) {
+			toObj = val[0].toNode;
+			toPin = val[0].toPin;
+		}
+	}
 
 	D.AddRel({
 		fromNode:fromNode||undefined,
@@ -363,7 +371,6 @@ function CompleteDrawRelation(D, S, toObj, toPin, viaObj, viaPin) {
 		viaNode: viaObj||undefined,
 		viaPin: viaPin||undefined
 	});
-	rerender();
 }
 
 function AddCommit(D,S,recipe) {

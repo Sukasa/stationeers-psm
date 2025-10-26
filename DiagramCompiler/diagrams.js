@@ -239,11 +239,13 @@ function renderDiagramView(D, S) {
 					CheckActionablePin(true, refComp, pin, pi, v?.fromIndex);
 				}
 
-				pass_anchors[`R/${refComp.id}:${pin.name}`] = po;
-				CheckActionablePin(false, refComp, pin, po);
+				if( !pin.array ) {
+					pass_anchors[`R/${refComp.id}:${pin.name}`] = po;
+					CheckActionablePin(false, refComp, pin, po);
+				}
 
 				return $(e, "div", {className: 'pin'}, [
-					(pin.passive?null:pi), po, ["div", {className: 'label'}, '=' + pin.name + (pin.array?` [${v?.fromIndex??'+'}]`:'')],
+					(pin.passive?null:pi), (pin.array?null:po), ["div", {className: 'label'}, '=' + pin.name + (pin.array?` [${v?.fromIndex??'+'}]`:'')],
 				]);
 			};
 
@@ -300,7 +302,7 @@ function renderDiagramView(D, S) {
 
 	// Render relations between all nodes for which both ends are present.
 	rels.sort((a,b) => a.toNode === b.toNode
-		? (a.toPin < b.toPin ? -1 : +1)
+		? (a.toPin === b.toPin ? 0 : a.toPin < b.toPin ? -1 : +1)
 		: (a.toNode < b.toNode ? -1 : +1)
 	);
 

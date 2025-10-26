@@ -57,18 +57,17 @@ function renderProperties(D, S) {
 			const to = rel.toNode && D.FindObject(rel.toNode);
 			const via = rel.viaNode && D.FindObject(rel.viaNode);
 
-			if( to ) {
-				$(E, "div", {className:'value'}, [
-					["button", "=X", {'?click': () => rm(rel)}],
-					["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : ''), {
+			$(E, "div", {className:'value'}, [
+				["button", "=X", {'?click': () => rm(rel)}],
+				to && ["span", "=" + metanode_db[to.type].Name(to) + (rel.toPin ? ` (${rel.toPin})` : ''), {
 						className: 'link',
 						'?click': () => {
 							selected.length = 0; selected.push(to.id);
 							rerender();
 						},
-					}],
-				]);
-			}
+					}
+				] || ["span", "=(pending connection)"],
+			]);
 
 			if( via ) {
 				$(E, "div", {className:'value via'}, [
@@ -86,7 +85,7 @@ function renderProperties(D, S) {
 		});
 
 		if( Vs.length === 0 ) {
-			$(E, "div", {className:'value'}, "=(unconnected)");
+			$(E, "div", {className:'value'}, "=(empty)");
 		}
 	});
 

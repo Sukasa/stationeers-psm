@@ -212,11 +212,12 @@ function ZoneCodeCompile(def, rc, cc) {
 		assets.forEach(ar => {
 			const n = def.FindObject(ar.toNode);
 			if( ar.fromPin === 'Processor' ) {
-				const LoCPerTick = n?.properties?.LoCPerTick ?? 128;
-				const maxLines = n?.properties?.Lines ?? 128;
+				const LoCPerTick = n?.properties?.LoCPerTick ?? equipmenttype_db[n?.kind]?.attributes?.LoCPerTick ?? 128;
+				const maxLines = n?.properties?.Lines ?? equipmenttype_db[n?.kind]?.attributes?.Lines ?? 128;
 				const avail = [];
 				for(var i = 0, m = n?.properties?.Registers ?? 16; i < m; ++i)
 					avail.push(i);
+				
 				processors.push({
 					node: ar.toNode,
 					blocks: [],
@@ -225,9 +226,15 @@ function ZoneCodeCompile(def, rc, cc) {
 					capacity: maxLines, free: maxLines,
 					LoCPerTick: LoCPerTick,
 				});
+
 			} else if( ar.fromPin === 'RAM' ) {
-				const maxSlots = n?.properties?.Memory ?? 512;
-				storages.push({node: ar.toNode, buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', addr:0, size:1}], capacity: maxSlots, free: maxSlots - 1});
+				const maxSlots = n?.properties?.Memory ?? equipmenttype_db[n?.kind]?.attributes?.Lines ?? 512;
+				storages.push({
+					node: ar.toNode,
+					buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', addr:0, size:1}],
+					capacity: maxSlots,
+					free: maxSlots - 1
+				});
 			}
 		});
 	}
