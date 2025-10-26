@@ -6,7 +6,7 @@
     "properties": {
       "Name": "Foyer Gas Sensor",
       "ReferenceId": 4108,
-      "HideUnused": false
+      "HideUnused": true
     }
   },
   {
@@ -599,8 +599,8 @@
     "fromIndex": 1,
     "toNode": "EK419931",
     "properties": {
-      "x": -550,
-      "y": -252,
+      "x": -400,
+      "y": -198,
       "as": "functional"
     }
   },
@@ -893,6 +893,12 @@
     "type": "rel"
   },
   {
+    "fromNode": "4p81w.uijg1t",
+    "fromPin": "Input",
+    "toNode": "bit0.qgoan2",
+    "type": "rel"
+  },
+  {
     "fromNode": "i4a1.825wx6q",
     "fromPin": "Processor",
     "toNode": "RG3123",
@@ -912,18 +918,24 @@
   },
   {
     "fromNode": "2oszt.1bi6rn",
-    "fromPin": "Input",
-    "toNode": "i4a1.825wx6q",
-    "type": "rel"
-  },
-  {
-    "fromNode": "2oszt.1bi6rn",
     "fromPin": "Display",
     "toNode": "2ui9h.icui6z",
     "type": "rel"
   },
   {
     "fromNode": "2oszt.1bi6rn",
+    "fromPin": "Input",
+    "toNode": "i4a1.825wx6q",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2oszt.1bi6rn",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2oszt.1bi6rn",
     "fromPin": "Zone",
     "toNode": "ZHab1",
     "type": "rel"
@@ -941,6 +953,21 @@
     "type": "rel"
   },
   {
+    "fromNode": "jo0n.airungd",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "5u0je.ho4jv",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "jo0n.airungd",
+    "fromPin": "Source",
+    "viaNode": "4p81w.uijg1t",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
     "fromNode": "bit0.qgoan2",
     "fromPin": "Zone",
     "toNode": "ZHab1",
@@ -950,6 +977,13 @@
     "fromNode": "bit0.qgoan2",
     "fromPin": "Processor",
     "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Source",
+    "toNode": "EK419931",
+    "toPin": "Pressure",
     "type": "rel"
   },
   {

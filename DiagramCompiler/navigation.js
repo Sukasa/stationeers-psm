@@ -1,24 +1,10 @@
 
 function LinkButton(D, S, obj) {
-	const {fromNode,fromPin,fromIndex} = S.drawingRel ?? {};
-	const drawFromObj = D.FindObject(fromNode);
-	const drawFromMeta = metanode_db[drawFromObj?.type];
-	const drawFromPin = drawFromMeta?.Pins(drawFromObj)?.find(p => p.name === fromPin);
+	const {drawFromPin} = DrawRelationState(D,S);
 
 	if( drawFromPin && ObjectValidForPin(obj, drawFromPin) ) {
 		return ["button", "=L", {
-			'?click': () => {
-				delete S.drawingRel;
-				var old = D.RelationsOf(fromNode, fromPin).find(r => r.fromIndex === fromIndex);
-				if( old ) D.RemoveRel(old);
-				
-				var idx = undefined;
-				if( drawFromPin.array ) {
-					idx = D.RelationsOf(fromNode, fromPin).reduce((a,r) => Math.max(a, r.fromIndex === undefined ? a : (r.fromIndex+1)), 0);
-				}
-				D.AddRel({fromNode, fromPin, fromIndex:idx, toNode: obj.id});
-				rerender();
-			}
+			'?click': () => CompleteDrawRelation(D, S, obj.id, null, null, null),
 		}];
 	}
 

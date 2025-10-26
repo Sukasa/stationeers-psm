@@ -129,13 +129,9 @@ function renderDiagramView(D, S) {
 
 	const pass_anchors = {};
 	
-	const {fromNode,fromPin,fromIndex} = S.drawingRel ?? {};
-	const drawFromObj = D.FindObject(fromNode);
-	const drawFromMeta = metanode_db[drawFromObj?.type];
-	const drawFromPin = drawFromMeta?.Pins(drawFromObj)?.find(p => p.name === fromPin);
-
+	const {drawFromObj,drawFromPin} = DrawRelationState(D,S);
 	function CheckActionablePin(isActive, object, pin, element, index) {
-		if( fromNode === undefined ) {
+		if( drawFromObj === undefined ) {
 			// Not drawing. If this is an active pin, add start-drawing listener...
 			if( isActive && pin ) {
 				element.classList.add('drawable');
@@ -158,7 +154,7 @@ function renderDiagramView(D, S) {
 			if( drawFromObj.id === object.id ) {
 				// Never legal to draw to same object, but we do want to indicate
 				// the source pin.
-				if( pin && pin.name === fromPin && isActive ) {
+				if( pin && pin.name === drawFromPin.name && isActive ) {
 					element.classList.add('drawing-connection');
 				} else {
 					element.classList.add('fail-filter');
@@ -167,7 +163,7 @@ function renderDiagramView(D, S) {
 				// This is an object pin.
 				if( ObjectValidForPin(object, drawFromPin) ) {
 					element.classList.add('pass-filter');
-					//TODO: add click listener
+					element.addEventListener('click', () => CompleteDrawRelation(D,S, object.id, null));
 				} else {
 					element.classList.add('fail-filter');
 				}
@@ -179,12 +175,20 @@ function renderDiagramView(D, S) {
 
 					if( isActive ) {
 						element.classList.add('copy-or-via');
+						element.addEventListener('click', () => {
+							const existing = D.RelationsOf(object.id, pin.name).find(r => r.fromIndex === index);
+							if( existing ) {
+								CompleteDrawRelation(D,S, existing.toNode, existing.toPin, existing.viaNode, existing.viaPin);
+							} else {
+								CancelDrawRelation(S);
+							}
+						});
 						//TODO: add click listener for left side ('copy relation')
 					} else if( !pin.passive ) {
 						element.classList.add('copy-or-via');
-						//TODO: add click listener for right side active ('target via')
+						element.addEventListener('click', () => CompleteDrawRelation(D,S, null, null, object.id, pin.name));
 					} else {
-						//TODO: add click listener for right side ('target this pin')
+						element.addEventListener('click', () => CompleteDrawRelation(D,S, object.id, pin.name));
 					}
 				} else {
 					element.classList.add('fail-filter');
@@ -228,8 +232,8 @@ function renderDiagramView(D, S) {
 			const vals = D.RelationsOf(refComp.id, pin.name);
 			
 			const MakePin = (v) => {
-				const pi = $("div", {className: 'pin-input'});
-				const po = $("div", {className: 'pin-output'});
+				const pi = $("div", {className: 'pin-input no-connection'});
+				const po = $("div", {className: 'pin-output no-connection'});
 				if( !pin.passive ) {
 					pass_anchors[`L/${refComp.id}:${pin.name}:${v?.fromIndex ?? '-'}`] = pi;
 					CheckActionablePin(true, refComp, pin, pi, v?.fromIndex);
@@ -274,8 +278,10 @@ function renderDiagramView(D, S) {
 		const cr = diagram.getBoundingClientRect();
 		const x1 = Math.round(ar.x - cr.x + ar.width/2), y1 = Math.round(ar.y - cr.y + ar.height / 2);
 		const x2 = Math.round(br.x - cr.x + br.width/2), y2 = Math.round(br.y - cr.y + br.height / 2);
-		const xM = Math.round((x1 + x2) / 2 + (Math.abs(y2) % 9 - 4) * 4);
+		const xM = Math.round((x1 + x2) / 2 + (Math.abs(y2) % 7 - 3) * 3);
 
+		a.classList.remove('no-connection');
+		b.classList.remove('no-connection');
 		a.classList.add('on-page');
 		b.classList.add('on-page');
 		if( selected ) {
@@ -331,17 +337,20 @@ function renderDiagramView(D, S) {
 
 		} else if( o && !v && !f ) {
 			// FromNode needs off-page icon
+			o.classList.remove('no-connection');
 			o.classList.add(`off-page`);
 			if( fS || vS ) o.classList.add('selected');
 
 		} else {
 			if( v ) {
 				// V needs off-page icon
+				v.classList.remove('no-connection');
 				v.classList.add(`off-page`);
 				if( oS || fS ) v.classList.add('selected');
 			}
 			if( f ) {
 				// F needs off-page icon
+				f.classList.remove('no-connection');
 				f.classList.add(`off-page`);
 				if( oS || vS ) f.classList.add('selected');
 			}
@@ -402,8 +411,7 @@ function renderDiagramView(D, S) {
 
 		} else if( evt.key === 'Escape' ) {
 			//TODO: cancel active tools (e.g. draw relation, add object, etc)
-			delete S.drawingRel;
-			rerender();
+			CancelDrawRelation(S);
 
 		} else if( evt.key === 'h' ) {
 			selected.forEach(id => {

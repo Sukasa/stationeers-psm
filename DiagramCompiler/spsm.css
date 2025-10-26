@@ -299,11 +299,12 @@ body.narrow-viewport .window-inner.psm-navigation {
 	background: radial-gradient(circle at center, black 0px, transparent 6px) no-repeat;
 }
 
+.drawing-node.functional-node .pin-input.pass-filter.no-connection,
 .drawing-node.functional-node .pin-output.fail-filter,
 .drawing-node.functional-node .pin-output.fail-filter,
 .drawing-node.functional-node .pin-input.fail-filter {
 	background: radial-gradient(circle at center, #aaa 6px, transparent 6px) no-repeat !important;
-	cursor: not-allowed;
+	pointer-events: none !important;
 }
 
 .drawing-node.functional-node .pin-output.pass-filter,

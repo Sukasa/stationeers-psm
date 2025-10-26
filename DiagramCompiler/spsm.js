@@ -128,8 +128,8 @@ function rerender() {
 		_postrender_setups.forEach(cb => {try{cb()} catch(e) { console.error("During post-render callback:", e);}});
 		_postrender_setups.length = 0;
 
-		const _e = performance.now();
-		console.debug(`Rerender took ~${Math.round((_e - _s)*1000)/1000}ms`);
+		const _d = performance.now() - _s;
+		if( _d > 33.33 ) console.warn(`Rerender took ~${Math.round(_d*1000)/1000}ms`);
 	});
 }
 
@@ -315,6 +315,55 @@ function stringSequentialMatch(query, candidate) {
 		j = p + 1;
 	}
 	return true;
+}
+
+var cachedDRState = null;
+function DrawRelationState(D, S) {
+	if( ! cachedDRState ) {
+		const {fromNode,fromPin,fromIndex} = S.drawingRel ?? {};
+		const drawFromObj = D.FindObject(fromNode);
+		const drawFromMeta = metanode_db[drawFromObj?.type];
+		const drawFromPin = drawFromMeta?.Pins(drawFromObj)?.find(p => p.name === fromPin);
+
+		cachedDRState = {fromNode,fromPin,fromIndex,drawFromObj,drawFromPin};
+		preRerender(() => cachedDRState = null);
+	}
+	return cachedDRState;
+}
+
+function CancelDrawRelation(S) {
+	delete S.drawingRel;
+	rerender();
+}
+
+function CompleteDrawRelation(D, S, toObj, toPin, viaObj, viaPin) {
+	const {fromNode,fromPin,fromIndex,drawFromPin} = DrawRelationState(D,S);
+
+	delete S.drawingRel;
+	rerender();
+	if( ! drawFromPin ) return;
+
+	var old = D.RelationsOf(fromNode, fromPin).find(r => r.fromIndex === fromIndex);
+	if( old ) D.RemoveRel(old);
+
+	var idx = undefined;
+	if( drawFromPin.array ) {
+		idx = D.RelationsOf(fromNode, fromPin).reduce((a,r) => Math.max(a, r.fromIndex === undefined ? a : (r.fromIndex+1)), 0);
+	}
+
+	//TODO: make one last assertion of validity
+	//TODO: fix up "To" if "Via" is currently valid
+
+	D.AddRel({
+		fromNode:fromNode||undefined,
+		fromPin:fromPin||undefined,
+		fromIndex:idx??undefined,
+		toNode: toObj||undefined,
+		toPin: toPin||undefined,
+		viaNode: viaObj||undefined,
+		viaPin: viaPin||undefined
+	});
+	rerender();
 }
 
 function AddCommit(D,S,recipe) {
