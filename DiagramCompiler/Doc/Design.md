@@ -110,7 +110,13 @@ Each Code Block can have optional constraints...
 - Array is Singular (Length = 1) (by Relation or Property name)
 - Array is Plural   (Length > 1) (by Relation or Property name)
 
-Each Code Block has an optional "group name"; if it has a group name, then for each group, no constraint error will be raised so long as at least one block passes its constraints. When multiple pass, only one will be compiled, and it will be a member of the group with a maximal number of constraints. This is how you can have a function which depends on another function, and have it generate different code varying by e.g. whether it is placed in the same Processor as that other function or not.
+Each Code Block has an optional "group name"; if it has a group name, then no constraint error will be raised so long as AT LEAST ONE block in that group passes its constraints. When multiple pass, only one of them will be included in the output, and it will be some member of the group with a maximal number of constraints. This is how you can have a function which depends on another function, and have it generate different code varying by e.g. whether it is placed in the same Processor as that other function or not.
+
+Array Code Blocks can have an optional 'indices' field, containing some subset of the strings 'first', 'mid', 'last', 'even', and 'odd'. If present, that block will only output if the current element of the array satisfies at least one of the listed constraints. 'mid' means neither the first nor last.
+ - Array Length 0: none output
+ - Array Length 1: only 'first' or 'even' output
+ - Array Length 2: only 'first' and 'last' output
+ - Array Length 3: 'first', 'mid', and 'last' output, per their separate blocks.
 
 Each Configuration Variable comes in a variety of types:
 - Constant: some user-filled constant, with optional default and with constraints including 'numeric', 'text', 'logic'

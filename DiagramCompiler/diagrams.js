@@ -45,6 +45,11 @@ function renderDiagramView(D, S) {
 		minY = Math.min(minY, y); maxY = Math.max(maxY, y+sz);
 	});
 
+	if( ! isFinite(minX) ) minX = 0;
+	if( ! isFinite(maxX) ) maxX = 0;
+	if( ! isFinite(minY) ) minY = 0;
+	if( ! isFinite(maxY) ) maxY = 0;
+
 	const pad = Math.max(window.innerWidth, window.innerHeight) / 6;
 	const totalWidth = pad*2 + maxX - minX, totalHeight = pad*2 + maxY - minY;
 	$(diagram, "div", {
@@ -123,6 +128,70 @@ function renderDiagramView(D, S) {
 	};
 
 	const pass_anchors = {};
+	
+	const {fromNode,fromPin,fromIndex} = S.drawingRel ?? {};
+	const drawFromObj = D.FindObject(fromNode);
+	const drawFromMeta = metanode_db[drawFromObj?.type];
+	const drawFromPin = drawFromMeta?.Pins(drawFromObj)?.find(p => p.name === fromPin);
+
+	function CheckActionablePin(isActive, object, pin, element, index) {
+		if( fromNode === undefined ) {
+			// Not drawing. If this is an active pin, add start-drawing listener...
+			if( isActive && pin ) {
+				element.classList.add('drawable');
+				element.addEventListener('click', evt => {
+					if( evt.ctrlKey ) {
+						// Delete existing relation!
+						const e = D.RelationsOf(object.id, pin.name).find(r => r.fromIndex === index);
+						if( e ) D.RemoveRel(e);
+					} else {
+						// Start drawing relation!
+						S.drawingRel = {fromNode:object.id, fromPin:pin.name, fromIndex:index};
+					}
+					rerender();
+				});
+			}
+		
+		} else if( drawFromPin ) {
+			// Drawing. Add 'pass-filter' or 'fail-filter' to element based on whether
+			// this is a legal destination for the active verb.
+			if( drawFromObj.id === object.id ) {
+				// Never legal to draw to same object, but we do want to indicate
+				// the source pin.
+				if( pin && pin.name === fromPin && isActive ) {
+					element.classList.add('drawing-connection');
+				} else {
+					element.classList.add('fail-filter');
+				}
+			} else if( pin === null ) {
+				// This is an object pin.
+				if( ObjectValidForPin(object, drawFromPin) ) {
+					element.classList.add('pass-filter');
+					//TODO: add click listener
+				} else {
+					element.classList.add('fail-filter');
+				}
+
+			} else {
+				// This is a rel or output pin.
+				if( PinValidForPin(drawFromPin, pin) && (!pin.array || index !== undefined) ) {
+					element.classList.add('pass-filter');
+
+					if( isActive ) {
+						element.classList.add('copy-or-via');
+						//TODO: add click listener for left side ('copy relation')
+					} else if( !pin.passive ) {
+						element.classList.add('copy-or-via');
+						//TODO: add click listener for right side active ('target via')
+					} else {
+						//TODO: add click listener for right side ('target this pin')
+					}
+				} else {
+					element.classList.add('fail-filter');
+				}
+			}
+		}
+	}
 
 	function renderFunctionalComponent(target, comp) {
 		var refComp = D.FindObject(comp.toNode);
@@ -135,6 +204,8 @@ function renderDiagramView(D, S) {
 
 		const ni = $("div", {className: 'pin-output'});
 		pass_anchors[`N/${refComp.id}`] = ni;
+		CheckActionablePin(false, refComp, null, ni);
+
 		$(e, "div", {className: `title`,}, [
 			ni,
 			["div", {
@@ -159,8 +230,14 @@ function renderDiagramView(D, S) {
 			const MakePin = (v) => {
 				const pi = $("div", {className: 'pin-input'});
 				const po = $("div", {className: 'pin-output'});
-				if( !pin.passive ) pass_anchors[`L/${refComp.id}:${pin.name}:${v?.fromIndex ?? '-'}`] = pi;
+				if( !pin.passive ) {
+					pass_anchors[`L/${refComp.id}:${pin.name}:${v?.fromIndex ?? '-'}`] = pi;
+					CheckActionablePin(true, refComp, pin, pi, v?.fromIndex);
+				}
+
 				pass_anchors[`R/${refComp.id}:${pin.name}`] = po;
+				CheckActionablePin(false, refComp, pin, po);
+
 				return $(e, "div", {className: 'pin'}, [
 					(pin.passive?null:pi), po, ["div", {className: 'label'}, '=' + pin.name + (pin.array?` [${v?.fromIndex??'+'}]`:'')],
 				]);
@@ -201,6 +278,10 @@ function renderDiagramView(D, S) {
 
 		a.classList.add('on-page');
 		b.classList.add('on-page');
+		if( selected ) {
+			a.classList.add('selected');
+			b.classList.add('selected');
+		}
 		
 		if( underlay ) {
 			$(svg, document.createElementNS(SVGNS, "path"),
@@ -212,7 +293,6 @@ function renderDiagramView(D, S) {
 	});
 
 	// Render relations between all nodes for which both ends are present.
-	//DEBUG: console.log(`Routing ${rels.length} potential connections`);
 	rels.sort((a,b) => a.toNode === b.toNode
 		? (a.toPin < b.toPin ? -1 : +1)
 		: (a.toNode < b.toNode ? -1 : +1)
@@ -224,7 +304,7 @@ function renderDiagramView(D, S) {
 		if( rel.fromPin === 'Component' && rel.properties ) return;
 
 		// Insert an underlay between lines to different destinations.
-		var thisDest = `${rel.toNode}:${rel.toPin??'-'}`;
+		const thisDest = `${rel.toNode}:${rel.toPin??'-'}`;
 		const underlay = thisDest !== lastDest;
 		lastDest = thisDest;
 
@@ -252,15 +332,18 @@ function renderDiagramView(D, S) {
 		} else if( o && !v && !f ) {
 			// FromNode needs off-page icon
 			o.classList.add(`off-page`);
+			if( fS || vS ) o.classList.add('selected');
 
 		} else {
 			if( v ) {
 				// V needs off-page icon
 				v.classList.add(`off-page`);
+				if( oS || fS ) v.classList.add('selected');
 			}
 			if( f ) {
 				// F needs off-page icon
 				f.classList.add(`off-page`);
+				if( oS || vS ) f.classList.add('selected');
 			}
 		}
 	});
@@ -316,9 +399,10 @@ function renderDiagramView(D, S) {
 			}, 0) ) {
 				rerender();
 			}
-			
+
 		} else if( evt.key === 'Escape' ) {
 			//TODO: cancel active tools (e.g. draw relation, add object, etc)
+			delete S.drawingRel;
 			rerender();
 
 		} else if( evt.key === 'h' ) {

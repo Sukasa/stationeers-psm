@@ -252,7 +252,7 @@ body.narrow-viewport .window-inner.psm-navigation {
 	white-space: nowrap;
 	padding: 0px 4px;
 	height: 18px;
-	font: 16px;
+	font-size: 16px;
 }
 
 .drawing-node.functional-node .pin-input {
@@ -260,6 +260,10 @@ body.narrow-viewport .window-inner.psm-navigation {
 	position: absolute;
 	left: calc(-1em - 3px);
 	width: 18px; height: 18px;
+}
+
+.drawing-node.functional-node .pin-input.drawable {
+	cursor: copy;
 }
 
 .drawing-node.functional-node .pin-output {
@@ -278,6 +282,13 @@ body.narrow-viewport .window-inner.psm-navigation {
 	background: radial-gradient(circle at center, transparent 0px, white 6px, transparent 0px) no-repeat;
 }
 
+.drawing-node.functional-node .title .pin-input.selected,
+.drawing-node.functional-node .title .pin-output.selected,
+.drawing-node.functional-node .pin .pin-input.selected,
+.drawing-node.functional-node .pin .pin-output.selected {
+	background: radial-gradient(circle at center, #0f0 0px, white 6px, transparent 0px) no-repeat;
+}
+
 .drawing-node.functional-node .pin-input.off-page,
 .drawing-node.functional-node .pin-output.off-page {
 	background: radial-gradient(circle at center, #060 0px, transparent 8px) no-repeat;
@@ -286,6 +297,28 @@ body.narrow-viewport .window-inner.psm-navigation {
 .drawing-node.functional-node .pin-input.on-page,
 .drawing-node.functional-node .pin-output.on-page {
 	background: radial-gradient(circle at center, black 0px, transparent 6px) no-repeat;
+}
+
+.drawing-node.functional-node .pin-output.fail-filter,
+.drawing-node.functional-node .pin-output.fail-filter,
+.drawing-node.functional-node .pin-input.fail-filter {
+	background: radial-gradient(circle at center, #aaa 6px, transparent 6px) no-repeat !important;
+	cursor: not-allowed;
+}
+
+.drawing-node.functional-node .pin-output.pass-filter,
+.drawing-node.functional-node .pin-input.pass-filter {
+	background: radial-gradient(circle at center, #0ff 0px, #fff 6px, transparent 0px) no-repeat !important;
+	cursor: copy;
+}
+
+.drawing-node.functional-node .pin .pass-filter.copy-or-via {
+	cursor: alias;
+}
+
+.drawing-node.functional-node .pin-input.drawing-connection {
+	background: radial-gradient(circle at center, transparent 0px, #ff0 6px, transparent 0px) no-repeat !important;
+	cursor: not-allowed;
 }
 
 .diagram-root svg.zigzag {

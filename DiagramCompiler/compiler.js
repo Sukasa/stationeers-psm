@@ -708,12 +708,20 @@ function ZoneCodeCompile(def, rc, cc) {
 								ln = rpad(32,ln) + next_comment;
 								next_comment = null;
 							}
-							all_lines.push(ln);
+
+							if( ln.trim().length > 0 ) all_lines.push(ln);
 						});
 					}
 
 					if( block.scope === 'array' ) {
-						for(var repl of o_vars[block.target]) {
+						const a = o_vars[block.target];
+						for(var i = 0; i < a.length; ++i) {
+							const repl = a[i];
+							const byPos = i === 0 ? 'first' : i === a.length-1 ? 'last' : 'mid';
+							const byIdx = (i&1)===0? 'even' : 'odd';
+							if( block.indices && !(block.indices.includes(byPos) || block.indices.includes(byIdx)) )
+								continue;
+
 							generate({...o_vars, ...repl}, block.code);
 						}
 					} else {

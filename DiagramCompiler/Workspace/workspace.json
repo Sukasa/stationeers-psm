@@ -6,7 +6,7 @@
     "properties": {
       "Name": "Foyer Gas Sensor",
       "ReferenceId": 4108,
-      "HideUnused": true
+      "HideUnused": false
     }
   },
   {
@@ -16,7 +16,7 @@
     "properties": {
       "Name": "Foyer Wall Heater",
       "ReferenceId": 1320,
-      "HideUnused": true
+      "HideUnused": false
     }
   },
   {
@@ -98,7 +98,8 @@
       "Name": "Foyer Controller",
       "ReferenceId": 4118,
       "Lines": 128,
-      "Memory": 512
+      "Memory": 512,
+      "HideUnused": true
     }
   },
   {
@@ -255,31 +256,13 @@
     }
   },
   {
-    "type": "data",
-    "properties": {},
-    "id": "68lo.buoqxe7"
-  },
-  {
-    "type": "function",
-    "kind": "IL",
-    "properties": {
-      "Name": "3vjyj.03ftwm"
-    },
-    "id": "3vjyj.03ftwm"
-  },
-  {
-    "type": "equipment",
-    "kind": "StructureActiveVent",
-    "properties": {
-      "Name": "Active Vent 29yf.kf7nwyu"
-    },
-    "id": "29yf.kf7nwyu"
-  },
-  {
     "type": "function",
     "kind": "AT",
     "properties": {
-      "Name": "TI-401 HH level alarm"
+      "Name": "PI-401 overpressure alarm",
+      "Threshold": 105,
+      "Test": "sgt",
+      "HideUnused": false
     },
     "id": "4p81w.uijg1t"
   },
@@ -287,7 +270,7 @@
     "type": "function",
     "kind": "AS",
     "properties": {
-      "Name": "TI-401 HH level alarm"
+      "Name": "PI-401 overpressure alarm"
     },
     "id": "i4a1.825wx6q"
   },
@@ -295,7 +278,7 @@
     "type": "function",
     "kind": "AA",
     "properties": {
-      "Name": "TI-401 HH level alarm"
+      "Name": "PI-401 overpressure alarm"
     },
     "id": "2oszt.1bi6rn"
   },
@@ -303,9 +286,53 @@
     "type": "function",
     "kind": "OR",
     "properties": {
-      "Name": "jo0n.airungd"
+      "Name": "Emergency Exhaust"
     },
     "id": "jo0n.airungd"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "PI-401 PV"
+    },
+    "id": "bit0.qgoan2"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureActiveVent",
+    "properties": {
+      "Name": "Active Vent 5u0je.ho4jv",
+      "ReferenceId": 0,
+      "Initialize": {
+        "Mode": "1",
+        "On": ""
+      }
+    },
+    "id": "5u0je.ho4jv"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "High Pressure Alarm Lamp",
+      "ReferenceId": 0,
+      "HideUnused": false
+    },
+    "id": "2ui9h.icui6z"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "Emergency Heating"
+    },
+    "id": "5v9cz.9b3ql5"
+  },
+  {
+    "type": "drawing",
+    "properties": {},
+    "id": "3wdi2.b1nwxc"
   },
   {
     "type": "rel",
@@ -372,12 +399,6 @@
   {
     "type": "rel",
     "fromNode": "EQ818293",
-    "fromPin": "Zone",
-    "toNode": "ZHab1"
-  },
-  {
-    "type": "rel",
-    "fromNode": "EQ818293",
     "fromPin": "Processor",
     "toNode": "RG3123"
   },
@@ -406,6 +427,12 @@
     "toPin": "Setting"
   },
   {
+    "fromNode": "EQ818293",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
     "type": "rel",
     "fromNode": "UG82030",
     "fromPin": "Zone",
@@ -432,12 +459,6 @@
   {
     "type": "rel",
     "fromNode": "UG7364",
-    "fromPin": "Zone",
-    "toNode": "ZHab1"
-  },
-  {
-    "type": "rel",
-    "fromNode": "UG7364",
     "fromPin": "Processor",
     "toNode": "RG3123"
   },
@@ -460,6 +481,12 @@
     "toNode": "HL94912",
     "viaNode": "UV8201",
     "viaPin": "Destination"
+  },
+  {
+    "fromNode": "UG7364",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
   },
   {
     "type": "rel",
@@ -572,7 +599,7 @@
     "fromIndex": 1,
     "toNode": "EK419931",
     "properties": {
-      "x": -400,
+      "x": -550,
       "y": -252,
       "as": "functional"
     }
@@ -593,10 +620,10 @@
     "type": "rel",
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 18,
+    "fromIndex": 17,
     "toNode": "RI39151",
     "properties": {
-      "x": -100,
+      "x": 50,
       "y": -558,
       "as": "functional"
     }
@@ -621,7 +648,7 @@
     "properties": {
       "as": "functional",
       "x": -100,
-      "y": -270
+      "y": -306
     },
     "type": "rel"
   },
@@ -629,18 +656,6 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 6,
-    "toNode": "UV8201",
-    "properties": {
-      "as": "functional",
-      "x": 150,
-      "y": -612
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "366ad.m3q4t6",
-    "fromPin": "Component",
-    "fromIndex": 7,
     "toNode": "EQ818293",
     "properties": {
       "as": "functional",
@@ -652,7 +667,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 8,
+    "fromIndex": 7,
     "toNode": "UG82030",
     "properties": {
       "as": "functional",
@@ -664,7 +679,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 9,
+    "fromIndex": 8,
     "toNode": "UG7364",
     "properties": {
       "as": "functional",
@@ -676,7 +691,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 10,
+    "fromIndex": 9,
     "toNode": "UG175689",
     "properties": {
       "as": "functional",
@@ -688,19 +703,19 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 11,
+    "fromIndex": 10,
     "toNode": "ZG7188",
     "properties": {
       "as": "functional",
       "x": 150,
-      "y": -306
+      "y": -324
     },
     "type": "rel"
   },
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 12,
+    "fromIndex": 11,
     "toNode": "UG2022",
     "properties": {
       "as": "functional",
@@ -712,7 +727,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 13,
+    "fromIndex": 12,
     "toNode": "UG497710",
     "properties": {
       "as": "functional",
@@ -724,7 +739,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 14,
+    "fromIndex": 13,
     "toNode": "TW37182",
     "properties": {
       "as": "functional",
@@ -736,7 +751,7 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 15,
+    "fromIndex": 14,
     "toNode": "TW7191",
     "properties": {
       "as": "functional",
@@ -748,12 +763,24 @@
   {
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
-    "fromIndex": 16,
+    "fromIndex": 15,
     "toNode": "LC183102",
     "properties": {
       "as": "functional",
-      "x": -300,
-      "y": -666
+      "x": 100,
+      "y": -738
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 18,
+    "toNode": "4p81w.uijg1t",
+    "properties": {
+      "as": "functional",
+      "x": 150,
+      "y": -126
     },
     "type": "rel"
   },
@@ -761,11 +788,11 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 19,
-    "toNode": "29yf.kf7nwyu",
+    "toNode": "i4a1.825wx6q",
     "properties": {
       "as": "functional",
-      "x": 250,
-      "y": 234
+      "x": 500,
+      "y": -180
     },
     "type": "rel"
   },
@@ -773,11 +800,11 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 20,
-    "toNode": "4p81w.uijg1t",
+    "toNode": "2oszt.1bi6rn",
     "properties": {
       "as": "functional",
-      "x": 150,
-      "y": -162
+      "x": 800,
+      "y": -180
     },
     "type": "rel"
   },
@@ -785,11 +812,11 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 21,
-    "toNode": "i4a1.825wx6q",
+    "toNode": "jo0n.airungd",
     "properties": {
       "as": "functional",
       "x": 500,
-      "y": -162
+      "y": 72
     },
     "type": "rel"
   },
@@ -797,11 +824,11 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 22,
-    "toNode": "2oszt.1bi6rn",
+    "toNode": "bit0.qgoan2",
     "properties": {
       "as": "functional",
-      "x": 800,
-      "y": -162
+      "x": -100,
+      "y": -126
     },
     "type": "rel"
   },
@@ -809,11 +836,335 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 23,
-    "toNode": "jo0n.airungd",
+    "toNode": "5u0je.ho4jv",
+    "properties": {
+      "as": "functional",
+      "x": 150,
+      "y": 216
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 24,
+    "toNode": "2ui9h.icui6z",
     "properties": {
       "as": "functional",
       "x": 550,
-      "y": 36
+      "y": -54
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 25,
+    "toNode": "5v9cz.9b3ql5",
+    "properties": {
+      "as": "functional",
+      "x": 500,
+      "y": -720
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 26,
+    "toNode": "UV8201",
+    "properties": {
+      "as": "functional",
+      "x": 250,
+      "y": -612
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "4p81w.uijg1t",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4p81w.uijg1t",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "i4a1.825wx6q",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "i4a1.825wx6q",
+    "fromPin": "Input",
+    "toNode": "4p81w.uijg1t",
+    "type": "rel"
+  },
+  {
+    "fromNode": "i4a1.825wx6q",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2oszt.1bi6rn",
+    "fromPin": "Input",
+    "toNode": "i4a1.825wx6q",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2oszt.1bi6rn",
+    "fromPin": "Display",
+    "toNode": "2ui9h.icui6z",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2oszt.1bi6rn",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "jo0n.airungd",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "jo0n.airungd",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5v9cz.9b3ql5",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5v9cz.9b3ql5",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 0,
+    "toNode": "UV8201",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": -144
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 1,
+    "toNode": "RG3123",
+    "properties": {
+      "as": "functional",
+      "x": -500,
+      "y": 630
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 2,
+    "toNode": "ZHab1",
+    "properties": {
+      "as": "functional",
+      "x": -400,
+      "y": 594
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 3,
+    "toNode": "jo0n.airungd",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": -36
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 4,
+    "toNode": "5v9cz.9b3ql5",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 72
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 5,
+    "toNode": "bit0.qgoan2",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 180
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 6,
+    "toNode": "2oszt.1bi6rn",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 288
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 7,
+    "toNode": "i4a1.825wx6q",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 396
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 8,
+    "toNode": "4p81w.uijg1t",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 522
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 9,
+    "toNode": "UK381091",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 630
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 10,
+    "toNode": "EQ818293",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 738
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 11,
+    "toNode": "UG497710",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 882
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 12,
+    "toNode": "UG2022",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 990
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 13,
+    "toNode": "ZG7188",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 1116
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 14,
+    "toNode": "UG175689",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 1224
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 15,
+    "toNode": "UG7364",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 1332
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wdi2.b1nwxc",
+    "fromPin": "Component",
+    "fromIndex": 16,
+    "toNode": "UG82030",
+    "properties": {
+      "as": "functional",
+      "x": 100,
+      "y": 1458
     },
     "type": "rel"
   }

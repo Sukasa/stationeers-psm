@@ -285,6 +285,16 @@ function render() {
 	}
 };
 
+document.addEventListener('keydown', evt => {
+	if( evt.key === 'Control' ) document.body.classList.add('ctrl-held');
+	else if( evt.key === 'Shift' ) document.body.classList.add('shift-held');
+	else if( evt.key === 'Alternate' ) document.body.classList.add('alt-held');
+});
+document.addEventListener('keyup', evt => {
+	if( evt.key === 'Control' ) document.body.classList.remove('ctrl-held');
+	else if( evt.key === 'Shift' ) document.body.classList.remove('shift-held');
+	else if( evt.key === 'Alternate' ) document.body.classList.remove('alt-held');
+})
 
 function renderWorkspace(target, workspace) {
 	const activeDiagram = workspace.data.FindObject(workspace.state?.diagram?.view?.drawing);
@@ -394,7 +404,7 @@ function AddProcess(D,S) {
 				className: 'search-result',
 				'?click': () => AddCommit(D,S,r)
 			}, [
-				["div", {className:'index'}, "=" + (i < 9 ? (i+1) : '')],
+				["div", {className:'index'}, "=" + (i < 9 ? '^' + (i+1) : '')],
 				["div", {className:'icon' }], //TODO: icon
 				["div", {className:'label'}, "="+r.label],
 			]);

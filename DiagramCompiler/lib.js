@@ -220,7 +220,7 @@ const functiondef_db = {
 		info: 'Writes processing and I/O results to device\'s control logic.',
 		rels: [
 			{name: 'Source', type: 'data' },
-			{name: 'Destination', array:true, type: 'equipment', subtype: 'logic', write:true, },
+			{name: 'Destination', array:true, type: 'equipment', subtype: 'logic', writable:true, },
 		],
 		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
@@ -264,6 +264,93 @@ const functiondef_db = {
 		]
 	},
 
+	"CT": {
+		name: 'Condition Test',
+		info: 'Tests a value for some condition, and stores that boolean result.',
+		rels: [
+			{name: 'Input', type: 'data', },
+			{name: 'Destination', type: 'data', allocate: true, },
+		],
+		properties: [
+			{name: 'Threshold', type: 'constant', subtype: 'number'},
+			{name: 'Test', type: 'constant', subtype: 'list', options: [
+				{name: "sgt", label: "Input > Threshold"},
+				{name: "sge", label: "Input >= Threshold"},
+				{name: "sle", label: "Input <= Threshold"},
+				{name: "slt", label: "Input < Threshold"},
+				{name: "seq", label: "Input == Threshold (exact)"},
+				{name: "sne", label: "Input != Threshold (exact)"},
+				{name: "sapz", label: "Abs(Input) <= Threshold * Input"},
+				{name: "snaz", label: "Abs(Input) > Threshold * Input"},
+			]},
+			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
+		],
+		validate(report, workspace) {
+			//TODO:
+		},
+		blocks: [
+			{
+				scope: 'instance',
+				code: [
+					'get %R1% %Input.RAM% %Input.Addr%',
+					'%Test% %R1% %R1% %Threshold%',
+					'put %Destination.RAM% %Destination.Addr% %R1%',
+				]
+			}
+		]
+	},
+
+	"MR": {
+		name: 'Math Reduction',
+		info: 'Perform some accumulative math on a series of data, and store the result.',
+		rels: [
+			{name: 'Input', array:true, type:'data'},
+			{name: 'Output', type:'data', allocate: true, },
+		],
+		properties: [
+			{name: 'Operation', type: 'constant', subtype: 'list', value: 'add %R1% %R1% %R2%', options: [
+				{name: 'select %R1% %R2% %R2% %R1%', label: 'Logical AND'},
+				{name: 'or %R1% %R1% %R2%', label: 'Logical OR'},
+				{name: 'add %R1% %R1% %R2%', label: 'Sum'},
+				{name: 'mul %R1% %R1% %R2%', label: 'Product'},
+			]},
+			{name: 'Postprocess', type: 'constant', subtype: 'list', value: ' ', options: [
+				{name: ' ', label: 'None'},
+				{name: 'select %R1% %R1% 1 0', label: 'Cast to boolean'},
+				{name: 'select %R1% %R1% 0 1', label: 'Invert boolean'},
+				{name: 'div %R1% 1 %R1%', label: 'Reciprocal (1/value)'},
+				{name: 'sub %R1% 0 %R1%', label: 'Inverse (0-value)'},
+			]},
+			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
+			{name: 'R2', type: 'register', allocate: true, hidden: true, scope: 'instance', },
+		],
+		validate(report, workspace) {
+
+		},
+		blocks: [
+			{
+				scope: 'array', target: 'Input', indices:['first'],
+				code: [
+					'get %R1% %Input.RAM% %Input.Addr%',
+				],
+			},
+			{
+				scope: 'array', target: 'Input', indices:['mid','last'],
+				code: [
+					'get %R2% %Input.RAM% %Input.Addr%',
+					'%Operation%'
+				],
+			},
+			{
+				scope: 'instance',
+				code: [
+					'%Postprocess%',
+					'put %Output.RAM% %Output.Addr% %R1%',
+				],
+			},
+		],
+	},
+
 	"AT": {
 		name: 'Alarm Test',
 		info: 'Tests a value for some condition, and stores that boolean result.',
@@ -278,6 +365,10 @@ const functiondef_db = {
 				{name: "sge", label: "Input >= Threshold"},
 				{name: "sle", label: "Input <= Threshold"},
 				{name: "slt", label: "Input < Threshold"},
+				{name: "seq", label: "Input == Threshold (exact)"},
+				{name: "sne", label: "Input != Threshold (exact)"},
+				{name: "sapz", label: "Abs(Input) <= Threshold * Input"},
+				{name: "snaz", label: "Abs(Input) > Threshold * Input"},
 			]},
 			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
@@ -380,7 +471,7 @@ const functiondef_db = {
 		info: 'Turns alarm-indication equipment on or off based on an alarm status.',
 		rels: [
 			{name: 'Input', type: 'function', functiontype: ['AS'], },
-			{name: 'Display', type: 'equipment',  },
+			{name: 'Display', type: 'equipment', },
 		],
 		requiredPriority: 1,
 		properties: [
@@ -532,7 +623,7 @@ const ColorFieldSpec = {type:'constant', subtype:'list', options:[
 	{name: 0, label: 'Blue'},   {name: 1, label: 'Gray'},   {name: 2, label: 'Green'},
 	{name: 3, label: 'Orange'}, {name: 4, label: 'Red'},    {name: 5, label: 'Yellow'},
 	{name: 6, label: 'White'},  {name: 7, label: 'Black'},  {name: 8, label: 'Brown'},
-	{name: 9, label: 'Khako'},  {name: 10, label: 'Pink'},  {name: 11, label: 'Purple'},
+	{name: 9, label: 'Khaki'},  {name: 10, label: 'Pink'},  {name: 11, label: 'Purple'},
 ]};
 
 const LEDModeFieldSpec = {type:'constant', subtype:'list', options:[
@@ -581,13 +672,13 @@ function ValuesForEquipmentInitialize(object, key) {
 	} else if( key === 'Open' ) {
 		return OpenFieldSpec;
 
-	} else if( key === 'Mode' && object.doorLike === true ) {
+	} else if( key === 'Mode' && equipmenttype_db[object.kind].doorLike === true ) {
 		return DoorModeFieldSpec;
 
-	} else if( key === 'Mode' && object.ledLike === true ) {
+	} else if( key === 'Mode' && equipmenttype_db[object.kind].ledLike === true ) {
 		return LEDModeFieldSpec;
 
-	} else if( key === 'Mode' && object === equipmenttype_db.StructureActiveVent ) {
+	} else if( key === 'Mode' && object.kind === 'StructureActiveVent' ) {
 		return ActiveVentModeFieldSpec;
 
 	} else {
@@ -595,8 +686,8 @@ function ValuesForEquipmentInitialize(object, key) {
 	}
 }
 
-const StdLogic = ['Power','RequiredPower','ReferenceId','PrefabHash','NameHash'];
-const StdSlotLogic = ['Occupied','OccupantHash','Quantity','MaxQuantity','Damage','ReferenceId','PrefabHash','NameHash'];
+const UniversalLogic = ['Power','RequiredPower','ReferenceId','PrefabHash','NameHash'];
+const UniversalSlotLogic = ['Occupied','OccupantHash','Quantity','MaxQuantity','Damage','ReferenceId','PrefabHash','NameHash'];
 
 // Metanode Definitions
 const metanode_db = {
@@ -720,13 +811,13 @@ const metanode_db = {
 				if( def.logicRead ) {
 					const AddRO = L => res.push({name:L, passive:true, type:'logic', writable:false,});
 					def.logicRead.forEach(AddRO);
-					StdLogic.forEach(AddRO);
+					UniversalLogic.forEach(AddRO);
 				}
 
 				def.logicSlots?.forEach((S,si) => {
 					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, passive:true, type:'logic', writable:false});
 					S.forEach(addSlot);
-					StdSlotLogic.forEach(addSlot);
+					UniversalSlotLogic.forEach(addSlot);
 				});
 
 				def._cache_pins = res;
@@ -759,7 +850,14 @@ const metanode_db = {
 				group: 'Equipment',
 				priority: 1,
 				label: equipmenttype_db[key].name,
-				ctor: id => ({type: 'equipment', kind: key, properties:{Name: `${equipmenttype_db[key].name} ${id}`,}}),
+				ctor: id => ({
+					type: 'equipment',
+					kind: key,
+					properties:{
+						Name: `${equipmenttype_db[key].name} ${id}`,
+						ReferenceId: 0,
+					},
+				}),
 			}));
 		},
 	},
@@ -1061,16 +1159,38 @@ class ReportReceiver {
 }
 
 function ObjectValidForPin(obj, pin) {
-	if( pin.type === 'logic' && obj.type === 'equipment' ) return true;
-	if( pin.type === 'function' && (pin.functiontype === undefined || pin.functiontype.includes(obj.type)) ) return true;
-	if( pin.type === 'equipment' && (pin.equipmenttype === undefined || pin.equipmenttype.includes(obj.type)) ) return true;
-	if( metanode_db[obj.type]?.Pins(obj)?.find(p => p.type === pin.type && !p.passive) ) return true;
+	// Function pins: check the additional constraint if any.
+	if( pin.type === 'function' && obj.type === 'function' ) {
+		return pin.functiontype === undefined || pin.functiontype.includes(obj.kind);
+	}
+
+	if( pin.type === 'equipment' ) {
+		// Equipment pins with no subtype; check the additional constraint for being present or irrelevant.
+		if( !pin.subtype && obj.type === 'equipment' && (pin.equipmenttype === undefined || pin.equipmenttype.includes(obj.kind)) )
+			return true;
+		
+		// Otherwise, no.
+		return false;
+	}
+
 	//TODO: other conditions?
 	return pin.type === obj.type;
 }
 
+function match(a, b) {
+	if( a === b ) return true;
+	if( !(a instanceof Array) || !(b instanceof Array) || a.length !== b.length ) return false;
+	return !a.find(i => !b.includes(i));
+}
+
 function PinValidForPin(from, to) {
-	if( from.type === to.type ) return true;
+	// Logic pins want to connect to logic pins
+	if( from.type === 'equipment' && from.subtype === 'logic' && to.type === 'logic' && (!from.writable || to.writable) )
+		return true;
+
+	if( from.type === to.type && from.subtype === to.subtype && match(from.equipmenttype, to.equipmenttype) && match(from.functiontype, to.functiontype) )
+		return true;
+
 	//TODO: other conditions?
 	return false;
 }

@@ -1,4 +1,32 @@
 
+function LinkButton(D, S, obj) {
+	const {fromNode,fromPin,fromIndex} = S.drawingRel ?? {};
+	const drawFromObj = D.FindObject(fromNode);
+	const drawFromMeta = metanode_db[drawFromObj?.type];
+	const drawFromPin = drawFromMeta?.Pins(drawFromObj)?.find(p => p.name === fromPin);
+
+	if( drawFromPin && ObjectValidForPin(obj, drawFromPin) ) {
+		return ["button", "=L", {
+			'?click': () => {
+				delete S.drawingRel;
+				var old = D.RelationsOf(fromNode, fromPin).find(r => r.fromIndex === fromIndex);
+				if( old ) D.RemoveRel(old);
+				
+				var idx = undefined;
+				if( drawFromPin.array ) {
+					idx = D.RelationsOf(fromNode, fromPin).reduce((a,r) => Math.max(a, r.fromIndex === undefined ? a : (r.fromIndex+1)), 0);
+				}
+				D.AddRel({fromNode, fromPin, fromIndex:idx, toNode: obj.id});
+				rerender();
+			}
+		}];
+	}
+
+	//TODO: if we are in a relation-drawing state, and this object qualifies as a destination of that link,
+	// return a button which completes that linking action!
+	return false;
+}
+
 function DeleteButton(D, S, obj) {
 	return ["button", "=X", {
 		"?click": () => {
@@ -33,6 +61,7 @@ const categories = [
 		actions(tgt,obj,D,S) {
 			$(tgt, [
 				DeleteButton(D, S, obj),
+				LinkButton(D, S, obj),
 			]);
 		},
 	},
@@ -51,6 +80,7 @@ const categories = [
 					rerender();
 				}}],
 				DeleteButton(D, S, obj),
+				LinkButton(D, S, obj),
 			]);
 		},
 	},
@@ -66,6 +96,7 @@ const categories = [
 			$(tgt, [
 				ViewButton(D, S, obj),
 				DeleteButton(D, S, obj),
+				LinkButton(D, S, obj),
 			]);
 		},
 	},
@@ -82,6 +113,7 @@ const categories = [
 			$(tgt, [
 				ViewButton(D, S, obj),
 				DeleteButton(D, S, obj),
+				LinkButton(D, S, obj),
 			]);
 		},
 	}
