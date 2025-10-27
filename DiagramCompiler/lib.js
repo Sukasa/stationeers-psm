@@ -1079,10 +1079,13 @@ class GraphLayer {
 		if( this.ro )
 			throw new Error("cannot delete from read-only graph layer");
 		if( def !== this.Objs[def.id] ) return;
-		delete this.Objs[def.id];
-		this.Rels[def.id]?.forEach(rel => {
-			// Delete this relation from each list it participates in.
-			this._unregister_rel(rel, rel.fromNode);
+		const a = this.Rels[def.id]; // Set aside the 'fromNode' rel list
+		delete this.Objs[def.id]; // Delete the object completely
+		delete this.Rels[def.id]; // Delete the 'fromNode' edge completely.
+
+		a?.forEach(rel => {
+			// Delete this relation from each other list it participates in.
+			if( def.id !== rel.fromNode ) this._unregister_rel(rel, rel.fromNode);
 			if( rel.toNode ) this._unregister_rel(rel, rel.toNode);
 			if( rel.viaNode ) this._unregister_rel(rel, rel.viaNode);
 		});
@@ -1109,7 +1112,7 @@ class GraphLayer {
 			|| (def.toNode && !this.FindObject(def.toNode))
 			|| (def.viaNode && !this.FindObject(def.viaNode))
 		)
-			throw new Error("cannot create relation; all referenced objects must exist");
+			throw new Error(`failed to create relation "${JSON.stringify(def)}"; missing some referenced object`);
 
 		this._register_rel(def, def.fromNode);
 		if( def.toNode ) this._register_rel(def, def.toNode);
@@ -1145,7 +1148,7 @@ class GraphLayer {
 		if( i !== -1 ) a.splice(i, 1);
 		if( a.length === 0 ) {
 			delete this.Rels[n];
-		} else if( d.index !== null ) {
+		} else if( d.fromIndex !== null ) {
 			// Renumber array-pin relations with higher indices.
 			this.Rels[n].forEach(r => {
 				if( r.fromNode === d.fromNode && r.fromPin === d.fromPin && r.fromIndex !== undefined && r.fromIndex > d.fromIndex )

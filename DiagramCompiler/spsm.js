@@ -168,26 +168,36 @@ async function loadWorkspace(w) {
 	if( 'granted' !== await w.handle.queryPermission(opt) && 'granted' !== await w.handle.requestPermission(opt) )
 		return forgetWorkspace(w);
 
+	var errors = false;
 	try {
 		const fh = await w.handle.getFileHandle("workspace.json", {create:true});
 		const rd = await fh.getFile();
 		w.data = new GraphLayer();
 		w.data.Deserialize(await rd.text());
-	} catch {
+	} catch(e) {
+		console.error(`Error during workspace deserialize:`, e);
 		w.data = new GraphLayer();
+		errors = true;
 	}
 
 	try {
 		const fh = await w.handle.getFileHandle("state.json", {create:true});
 		const rd = await fh.getFile();
 		w.state = JSON.parse(await rd.text());
-	} catch {
+	} catch(e) {
+		console.error(`Error during state deserialize:`, e);
 		w.state = {diagram:{}, navigation:{}, properties:{}};
+		errors = true;
 	}
 
 	active_workspace = w;
 	active_workspace.update = rerender;
 	active_workspace.save = async function() {
+		if( errors ) {
+			errors = false;
+			console.warn(`Errors were seen during load: skipping first save.`);
+			return;
+		}
 		try {
 			const fh = await w.handle.getFileHandle("workspace.json", {create:true});
 			const wt = await fh.createWritable();
