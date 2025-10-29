@@ -85,7 +85,12 @@ function renderProperties(D, S) {
 		});
 
 		if( Vs.length === 0 ) {
-			$(E, "div", {className:'value'}, "=(empty)");
+			$(E, "div", {className:'value'}, "=(empty)", pin.allocate && [
+				["button", '=Allocate', {'?click': () => {
+					AllocateFunctionRel(D, editing.id, pin);
+					rerender();
+				}}],
+			]);
 		}
 	});
 

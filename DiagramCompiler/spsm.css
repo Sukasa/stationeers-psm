@@ -128,7 +128,7 @@ canvas                     { pointer-events: none; }
 body.narrow-viewport .window-inner.psm-diagram {
 	left: 0.5vw;
 	width: 99vw;
-	height: 49.5vh;
+	height: 59.5vh;
 }
 
 body.narrow-viewport .window-inner.psm-properties {
@@ -143,8 +143,8 @@ body.narrow-viewport .window-inner.psm-navigation {
 
 body.narrow-viewport .window-inner.psm-properties,
 body.narrow-viewport .window-inner.psm-navigation {
-	top: 50.5vh;
-	height: 49.0vh;
+	top: 60.5vh;
+	height: 39.0vh;
 }
 
 .window-inner.psm-diagram .window-body,

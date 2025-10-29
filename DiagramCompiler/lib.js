@@ -188,6 +188,10 @@ const functiondef_db = {
 		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
+		InitNew(def) {
+			// None required
+			return def;
+		},
 		validate(report, workspace) {
 			// Nothing to check. All configuration is required, and that's pre-validated.
 		},
@@ -213,6 +217,10 @@ const functiondef_db = {
 			{name: 'Signal', type: 'constant', subtype: 'number', },
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
+		InitNew(def) {
+			def.properties.Signal = 1;
+			return def;
+		},
 		validate(report, workspace) {
 			// Nothing to check. All configuration is required, and that's pre-validated.
 		},
@@ -238,6 +246,10 @@ const functiondef_db = {
 		properties: [
 			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
+		InitNew(def) {
+			// None required
+			return def;
+		},
 		validate(report, workspace) {
 			// Nothing to check. All configuration is required, and that's pre-validated.
 		},
@@ -267,6 +279,10 @@ const functiondef_db = {
 		properties: [
 			{name: 'Value', type: 'constant', subtype: 'number',},
 		],
+		InitNew(def) {
+			def.properties.Value = 0;
+			return def;
+		},
 		blocks: [
 			{
 				scope: 'zone-init',
@@ -298,6 +314,11 @@ const functiondef_db = {
 			]},
 			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
+		InitNew(def) {
+			def.properties.Threshold = 0;
+			def.properties.Test = 'sgt';
+			return def;
+		},
 		validate(report, workspace) {
 			//TODO:
 		},
@@ -337,6 +358,11 @@ const functiondef_db = {
 			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 			{name: 'R2', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
+		InitNew(def) {
+			def.properties.Operation = 'add %R1% %R1% %R2%';
+			def.properties.PostProcess = ' ';
+			return def;
+		},
 		validate(report, workspace) {
 
 		},
@@ -385,6 +411,11 @@ const functiondef_db = {
 			]},
 			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 		],
+		InitNew(def) {
+			def.properties.Threshold = '0';
+			def.properties.Condition = 'sgt';
+			return def;
+		},
 		validate(report, workspace) {
 			// Check the specific type of the input function.
 			if( -1 === ['IR','SR'].indexOf(workspace.ReadRelation(this, 'Input')?.kind) )
@@ -432,6 +463,10 @@ const functiondef_db = {
 			{name: 'AckOn', type: 'buffer', hidden:true, value: [0,0,0,1,2,2], scope: 'zone'},
 			{name: 'AckNo', type: 'buffer', hidden:true, value: [0,1,0,1,1,2], scope: 'zone'},
 		],
+		InitNew(def) {
+			// None required.
+			return def;
+		},
 		validate(report, workspace) {
 			//TODO: validate that all `AS` nodes assigned to the same processor use the same AckSignal,
 			//TODO: and that no two processors have `AS` nodes which use the same AckSignal
@@ -493,6 +528,10 @@ const functiondef_db = {
 			{name: 'r2', type: 'register', scope: 'processor', value: 2, hidden: true, },
 			{name: 'RX', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 		],
+		InitNew(def) {
+			// None required.
+			return def;
+		},
 		validate(report, workspace) {
 			// Check the logic support of the selected device.
 			const target = workspace.ReadRelation(this, 'Display');
@@ -548,6 +587,10 @@ const functiondef_db = {
 			{name: 'R0', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 			{name: 'R1', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 		],
+		InitNew(def) {
+			// None required.
+			return def;
+		},
 		validate(report, workspace) {
 
 		},
@@ -584,6 +627,10 @@ const functiondef_db = {
 			{name: 'R0', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 			{name: 'R1', type: 'register', scope: 'instance', allocate: true, hidden: true, },
 		],
+		InitNew(def) {
+			// None required.
+			return def;
+		},
 		validate(report,workspace) {
 
 		},
@@ -755,7 +802,7 @@ const metanode_db = {
 					group: 'Functional',
 					priority: 2,
 					label: def.name,
-					ctor: id => ({type: 'function', kind: key, properties:{Name: id},}),
+					ctor: id => def.InitNew({type: 'function', kind: key, properties:{Name: id}}),
 				}
 			}).filter(x => x);
 		},

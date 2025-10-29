@@ -138,8 +138,7 @@ function renderDiagramView(D, S) {
 				element.addEventListener('click', evt => {
 					if( evt.ctrlKey ) {
 						// Delete existing relation!
-						const e = D.RelationsOf(object.id, pin.name).find(r => r.fromIndex === index);
-						if( e ) D.RemoveRel(e);
+						BreakRelation(D, object.id, pin.name, index);
 					} else {
 						// Start drawing relation!
 						S.drawingRel = {fromNode:object.id, fromPin:pin.name, fromIndex:index};

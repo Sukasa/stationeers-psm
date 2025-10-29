@@ -827,6 +827,23 @@ function SortByIndex(a, b) {
 	return av - bv;
 }
 
+function AllocateFunctionRel(layer, objId, reldef) {
+	var toObj = layer.NewId();
+	if( 'data' === reldef.type ) {
+		layer.AddObject({
+			type: 'data',
+			id: toObj,
+			transient: true,
+			properties: {},
+		});
+
+	} else {
+		throw new Error(`Unrecognized allocate relation data type "${reldef.type}"!`);
+	}
+
+	CreateRelation(layer, objId, reldef.name, undefined, toObj);
+}
+
 function ValidateFunction(report, fnObj, layer) {
 	const fdef = functiondef_db[fnObj.kind];
 	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
@@ -834,8 +851,18 @@ function ValidateFunction(report, fnObj, layer) {
 	// Validate relations
 	const actualRels = layer.FindRelations(fnObj.id);
 	fdef.rels.forEach(reldef => {
+		if( reldef.allocate && reldef.array ) {
+			return report('error', `Mutually exclusive relation flags on function "${fnObj.kind}" pin "${reldef.name}": 'array' and 'allocate'!`);
+		}
+
 		const applicable = actualRels.filter(r => r.fromNode === fnObj.id && r.fromPin === reldef.name);
 		applicable.sort(SortByIndex);
+
+		// For allocatable relations with no bound value, allocate one!
+		if( reldef.allocate && applicable.length === 0 ) {
+			applicable.push(AllocateFunctionRel(layer, fnObj.id, reldef));
+		}
+
 		ValidateFunctionRel(reldef, applicable, fnObj, report, layer);
 	});
 

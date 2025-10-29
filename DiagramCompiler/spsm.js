@@ -361,26 +361,56 @@ function CompleteDrawRelation(D, S, toObj, toPin, viaObj, viaPin) {
 		idx = D.RelationsOf(fromNode, fromPin).reduce((a,r) => Math.max(a, r.fromIndex === undefined ? a : (r.fromIndex+1)), 0);
 	}
 
-	if( viaObj && viaPin && !toObj ) {
+	CreateRelation(D, fromNode, fromPin, idx, toObj, toPin, viaObj, viaPin);
+}
+
+function CreateRelation(D, fromNode, fromPin, fromIndex, toObj, toPin, viaObj, viaPin) {
+	if (viaObj && viaPin && !toObj) {
 		// Read the relation in question, and update `to` if it is valid.
 		const val = D.RelationsOf(viaObj, viaPin);
-		if( val.length > 1 ) {
-			return;
-		} else if( val.length === 1 ) {
+		if (val.length > 1) {
+			throw new Error(`Failed to create 'via' connection; existing pin "${viaPin}" of "${viaObj}" has plural existing connections?!`);
+		} else if (val.length === 1) {
 			toObj = val[0].toNode;
 			toPin = val[0].toPin;
 		}
 	}
 
 	D.AddRel({
-		fromNode:fromNode||undefined,
-		fromPin:fromPin||undefined,
-		fromIndex:idx??undefined,
-		toNode: toObj||undefined,
-		toPin: toPin||undefined,
-		viaNode: viaObj||undefined,
-		viaPin: viaPin||undefined
+		fromNode: fromNode || undefined,
+		fromPin: fromPin || undefined,
+		fromIndex: fromIndex ?? undefined,
+		toNode: toObj || undefined,
+		toPin: toPin || undefined,
+		viaNode: viaObj || undefined,
+		viaPin: viaPin || undefined
 	});
+
+	// Update 'via' relations leading into the node just connected...
+	D.FindRelations(fromNode)
+		.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
+		.forEach(r => {
+			r.toNode = toObj;
+			r.toPin = toPin;
+		});
+}
+
+function BreakRelation(D, fromNode, fromPin, fromIndex) {
+	const rel = D
+		.RelationsOf(fromNode, fromPin)
+		.filter(r => r.fromIndex === fromIndex)
+		[0];
+	if( ! rel ) return;
+	D.RemoveRel(rel);
+
+	if( fromIndex === undefined ) {
+		D.FindRelations(fromNode)
+			.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
+			.forEach(r => {
+				r.toNode = undefined;
+				r.toPin = undefined;
+			});
+	}
 }
 
 function AddCommit(D,S,recipe) {

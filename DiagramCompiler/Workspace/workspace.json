@@ -329,6 +329,24 @@
     "id": "5v9cz.9b3ql5"
   },
   {
+    "type": "data",
+    "id": "1poxw.xtbwv3",
+    "transient": true,
+    "properties": {}
+  },
+  {
+    "type": "data",
+    "id": "1brzw.yawu3v",
+    "transient": true,
+    "properties": {}
+  },
+  {
+    "type": "data",
+    "id": "xyds.9i071h",
+    "transient": true,
+    "properties": {}
+  },
+  {
     "type": "rel",
     "fromNode": "UK381091",
     "fromPin": "Zone",
@@ -385,10 +403,10 @@
     "toNode": "RI39151"
   },
   {
-    "type": "rel",
     "fromNode": "UV8201",
     "fromPin": "Destination",
-    "toNode": "HL94912"
+    "toNode": "HL94912",
+    "type": "rel"
   },
   {
     "type": "rel",
@@ -875,6 +893,18 @@
     "type": "rel"
   },
   {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 27,
+    "toNode": "HL94912",
+    "properties": {
+      "as": "functional",
+      "x": -150,
+      "y": -540
+    },
+    "type": "rel"
+  },
+  {
     "fromNode": "4p81w.uijg1t",
     "fromPin": "Zone",
     "toNode": "ZHab1",
@@ -893,6 +923,12 @@
     "type": "rel"
   },
   {
+    "fromNode": "4p81w.uijg1t",
+    "fromPin": "Destination",
+    "toNode": "1poxw.xtbwv3",
+    "type": "rel"
+  },
+  {
     "fromNode": "i4a1.825wx6q",
     "fromPin": "Processor",
     "toNode": "RG3123",
@@ -908,6 +944,18 @@
     "fromNode": "i4a1.825wx6q",
     "fromPin": "Zone",
     "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "i4a1.825wx6q",
+    "fromPin": "AckSignal",
+    "toNode": "1brzw.yawu3v",
+    "type": "rel"
+  },
+  {
+    "fromNode": "i4a1.825wx6q",
+    "fromPin": "State",
+    "toNode": "xyds.9i071h",
     "type": "rel"
   },
   {
@@ -959,7 +1007,8 @@
     "fromPin": "Source",
     "viaNode": "4p81w.uijg1t",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "1poxw.xtbwv3"
   },
   {
     "fromNode": "bit0.qgoan2",
