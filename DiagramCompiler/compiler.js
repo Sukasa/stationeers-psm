@@ -10,12 +10,12 @@ const test_workspace = [
 		'Name': 'Foyer Wall Heater',
 		'ReferenceId': 1320,
 	}},
-	{type: 'equipment', kind: 'LED Display', id: 'TW818194', properties: {
+	{type: 'equipment', kind: 'StructureConsoleLED', id: 'TW818194', properties: {
 		'Name': 'Temp Wall Display (North)',
 		'Initialize': {Color:2, On:1, Mode:4},
 		'ReferenceId': 4102,
 	}},
-	{type: 'equipment', kind: 'LED Display', id: 'TW37182', properties: {
+	{type: 'equipment', kind: 'StructureConsoleLED', id: 'TW37182', properties: {
 		'Name': 'Temp Wall Display (South)',
 		'Initialize': {Color:2, On:1, Mode:4},
 		'ReferenceId': 4261,
@@ -25,29 +25,29 @@ const test_workspace = [
 		'Initialize': {Color:5},
 		'ReferenceId': 4120,
 	}},
-	{type: 'equipment', kind: 'LED Panel', id: 'TW3716', properties: {
+	{type: 'equipment', kind: 'ModularDeviceLight', id: 'TW3716', properties: {
 		'Name': 'Low Temp Alarm Lamp',
 		'Initialize': {Color:5, On:1},
 		'ReferenceId': 4127,
 	}},
-	{type: 'equipment', kind: 'LED Panel', id: 'TW7191', properties: {
+	{type: 'equipment', kind: 'ModularDeviceLight', id: 'TW7191', properties: {
 		'Name': 'High Temp Alarm Lamp',
 		'Initialize': {Color:4, On:1},
 		'ReferenceId': 4243,
 	}},
-	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3123', properties: {
+	{type: 'equipment', kind: 'StructureCircuitHousing+IC10', id: 'RG3123', properties: {
 		'Name': 'Foyer Control A',
 		'ReferenceId': 4118,
 		'Lines': 128,
 		'Memory': 512,
 	}},
-	{type: 'equipment', kind: 'IC10 Socket', id: 'RG3124', properties: {
+	{type: 'equipment', kind: 'StructureCircuitHousing+IC10', id: 'RG3124', properties: {
 		'Name': 'Foyer Control B',
 		'ReferenceId': 5423,
 		'Lines': 128,
 		'Memory': 512,
 	}},
-	{type: 'equipment', kind: 'Utility Socket', id: 'UC48', properties: {
+	{type: 'equipment', kind: 'StructureUtilitySocket+UtilityMemory', id: 'UC48', properties: {
 		'Name': 'Foyer Control RAM',
 		'ReferenceId': 5766,
 		'Lines': 0,
@@ -163,7 +163,7 @@ const test_workspace = [
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:0, y:0, as:'schematic'}},
 	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:0, y:1, as:'schematic'}},
 ];
-*/
+/* */
 
 function ZoneCodeCompile(def, rc, cc) {
 	// Gather function-related assets in Zone.
@@ -172,7 +172,8 @@ function ZoneCodeCompile(def, rc, cc) {
 			&& (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
 
 	// Gather Functions in Zone
-	const funcs = def.RelationsOf('ZHab1', 'Zone')
+	const funcs = def.FindRelations('ZHab1')
+		.filter(r => r.toNode === 'ZHab1' && r.fromPin === 'Zone')
 		.map(rel => def.FindObject(rel.fromNode))
 		.filter(o => o.type === 'function');
 
@@ -181,9 +182,14 @@ function ZoneCodeCompile(def, rc, cc) {
 		.map(rel => def.FindObject(rel.toNode))
 		.filter(o => o.type === 'equipment' && o.properties?.Initialize);
 	
+	// Add Equipment Initialization functions for each
 	initEquip.forEach(eq => {
-		// Add Equipment Initialization functions for each 
-		for(var initKey in eq.properties.Initialize) {
+		// Initialize in canonical logic field order!
+		const keys = Object.keys(eq.properties.Initialize)
+			.map(k => [k, LogicTypeNames.indexOf(k)])
+			.sort(([an,ai],[bn,bi]) => ai - bi);
+
+		keys.forEach(([initKey,_]) => {
 			const f = {
 				id: def.NewId(),
 				type: 'function',
@@ -195,7 +201,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			def.AddObject(f);
 			def.AddRel({fromNode:f.id, fromPin:'Destination', toNode:eq.id, toPin:initKey});
 			funcs.push(f);
-		}
+		});
 	});
 
 	// Validate Functions
@@ -1075,4 +1081,4 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 		console.log(cc[proc]);
 	}
 })();
-*/
+/* */

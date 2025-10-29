@@ -417,9 +417,6 @@ const functiondef_db = {
 			return def;
 		},
 		validate(report, workspace) {
-			// Check the specific type of the input function.
-			if( -1 === ['IR','SR'].indexOf(workspace.ReadRelation(this, 'Input')?.kind) )
-				report('error', 'Alarm Test function depends on an Input or Slot Input function');
 		},
 		blocks: [
 			{
@@ -534,9 +531,9 @@ const functiondef_db = {
 		},
 		validate(report, workspace) {
 			// Check the logic support of the selected device.
-			const target = workspace.ReadRelation(this, 'Display');
-			if( !target || !equipmenttype_db[target.kind]?.Pins(target).find(p => p.name === 'On' && p.type === 'logic') )
-				report('error', 'selected Display does not support "On" logic');
+			const target = workspace.ReadRelation(this.id, 'Display');
+			if( !target || !metanode_db[target.type]?.Pins(target).find(p => p.name === 'On' && p.type === 'logic') )
+				report('error', `selected Display of type "${target.kind}" does not support "On" logic`);
 		},
 		blocks: [
 			{
