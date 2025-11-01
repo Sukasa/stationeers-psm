@@ -135,7 +135,6 @@ function renderNavigation(D, S) {
 			className: `action action-compile`,
 			'?click': () => {
 				//TODO: compile, and pop-up the results
-				
 
 				// Make a sublayer upon the original graph.
 				const timeStart = performance.now();
@@ -151,7 +150,8 @@ function renderNavigation(D, S) {
 						console.log(`[${e.category}] ${e.severity}: ${e.message}`);
 					}
 				});
-				console.log(`Done 1st prototype compile (${timeEnd - timeStart}ms)`);
+
+				console.log(`Done compile (${timeEnd - timeStart}ms)`);
 				for(var proc in cc) {
 					console.log(`Processor "${proc}" Code:`);
 					console.log(cc[proc]);

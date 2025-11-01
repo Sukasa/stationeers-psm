@@ -364,59 +364,6 @@ function CompleteDrawRelation(D, S, toObj, toPin, viaObj, viaPin) {
 	CreateRelation(D, fromNode, fromPin, idx, toObj, toPin, viaObj, viaPin);
 }
 
-function CreateRelation(D, fromNode, fromPin, fromIndex, toObj, toPin, viaObj, viaPin) {
-	if (viaObj && viaPin && !toObj) {
-		// Read the relation in question, and update `to` if it is valid.
-		const val = D.RelationsOf(viaObj, viaPin);
-		if (val.length > 1) {
-			throw new Error(`Failed to create 'via' connection; existing pin "${viaPin}" of "${viaObj}" has plural existing connections?!`);
-		} else if (val.length === 1) {
-			toObj = val[0].toNode;
-			toPin = val[0].toPin;
-		}
-	}
-
-	const r = {
-		fromNode: fromNode || undefined,
-		fromPin: fromPin || undefined,
-		fromIndex: fromIndex ?? undefined,
-		toNode: toObj || undefined,
-		toPin: toPin || undefined,
-		viaNode: viaObj || undefined,
-		viaPin: viaPin || undefined
-	};
-	D.AddRel(r);
-
-	// Update 'via' relations leading into the node just connected...
-	D.FindRelations(fromNode)
-		.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
-		.forEach(r => {
-			// Revise a local relation
-			r.toNode = toObj;
-			r.toPin = toPin;
-		});
-	
-	return r;
-}
-
-function BreakRelation(D, fromNode, fromPin, fromIndex) {
-	const rel = D
-		.RelationsOf(fromNode, fromPin)
-		.filter(r => r.fromIndex === fromIndex)
-		[0];
-	if( ! rel ) return;
-	D.RemoveRel(rel);
-
-	if( fromIndex === undefined ) {
-		D.FindRelations(fromNode)
-			.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
-			.forEach(r => {
-				r.toNode = undefined;
-				r.toPin = undefined;
-			});
-	}
-}
-
 function AddCommit(D,S,recipe) {
 	const objid = D.NewId();
 	const obj = recipe.ctor(objid);

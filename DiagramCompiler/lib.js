@@ -769,7 +769,7 @@ const metanode_db = {
 			if( ! def ) return [];
 			if( def._cache_pins === undefined ) {
 				// Generate and cache pins
-				const res = [{name: 'Zone', type: 'zone'}, {name: 'Processor', type: 'equipment', equipmenttype: ['StructureCircuitHousing'],}];
+				const res = [{name: 'Zone', type: 'zone'}, {name: 'Processor', type: 'equipment', equipmenttype: ['StructureCircuitHousing+IC10'],}];
 				def.rels?.forEach(rel => res.push(rel));
 				def._cache_pins = res;
 			}
@@ -1167,8 +1167,12 @@ class GraphLayer {
 			throw new Error(`failed to create relation "${JSON.stringify(def)}"; missing some referenced object`);
 
 		this._register_rel(def, def.fromNode);
-		if( def.toNode ) this._register_rel(def, def.toNode);
 		if( def.viaNode ) this._register_rel(def, def.viaNode);
+		if( def.toNode && this.FindObject(def.toNode) ) {
+			this._register_rel(def, def.toNode);
+		} else {
+			def.toNode = undefined;
+		}
 	}
 
 	// Remove a relation ONLY if it actually exists in this layer.
@@ -1207,6 +1211,58 @@ class GraphLayer {
 					r.fromIndex--;
 			})
 		}
+	}
+}
+
+function CreateRelation(D, fromNode, fromPin, fromIndex, toObj, toPin, viaObj, viaPin) {
+	if (viaObj && viaPin && !toObj) {
+		// Read the relation in question, and update `to` if it is valid.
+		const val = D.RelationsOf(viaObj, viaPin);
+		if (val.length > 1) {
+			throw new Error(`Failed to create 'via' connection; existing pin "${viaPin}" of "${viaObj}" has plural existing connections?!`);
+		} else if (val.length === 1) {
+			toObj = val[0].toNode;
+			toPin = val[0].toPin;
+		}
+	}
+
+	const r = {
+		fromNode: fromNode || undefined,
+		fromPin: fromPin || undefined,
+		fromIndex: fromIndex ?? undefined,
+		toNode: toObj || undefined,
+		toPin: toPin || undefined,
+		viaNode: viaObj || undefined,
+		viaPin: viaPin || undefined
+	};
+	D.AddRel(r);
+
+	// Update 'via' relations leading into the node just connected...
+	D.FindRelations(fromNode)
+		.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
+		.forEach(r => {
+			r.toNode = toObj;
+			r.toPin = toPin;
+		});
+	
+	return r;
+}
+
+function BreakRelation(D, fromNode, fromPin, fromIndex) {
+	const rel = D
+		.RelationsOf(fromNode, fromPin)
+		.filter(r => r.fromIndex === fromIndex)
+		[0];
+	if( ! rel ) return;
+	D.RemoveRel(rel);
+
+	if( fromIndex === undefined ) {
+		D.FindRelations(fromNode)
+			.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
+			.forEach(r => {
+				r.toNode = undefined;
+				r.toPin = undefined;
+			});
 	}
 }
 

@@ -194,7 +194,10 @@ function ZoneCodeCompile(def, rc, cc) {
 				id: def.NewId(),
 				type: 'function',
 				kind: 'EI',
-				properties:{Name: `Init ${eq.id} ${initKey}`, Value: eq.properties.Initialize[initKey]},
+				properties:{
+					Name: `Init "${metanode_db.equipment.Name(eq)}" ${initKey}`,
+					Value: eq.properties.Initialize[initKey] ?? 0
+				},
 				transient: true,
 			};
 
@@ -203,10 +206,16 @@ function ZoneCodeCompile(def, rc, cc) {
 			funcs.push(f);
 		});
 	});
+	
+	// Allocate any `allocate`-able and allocate-needed pins of functions.
+	rc.setCategory('Pre-Allocation');
+	funcs.forEach(f => {
+		PreallocateFunction(rc.report, f, def);
+	})
 
 	// Validate Functions
+	rc.setCategory('Function Validation');
 	funcs.forEach(f => {
-		rc.setCategory(f.id);
 		ValidateFunction(rc.report, f, def);
 	});
 
@@ -604,8 +613,17 @@ function ZoneCodeCompile(def, rc, cc) {
 				case 'data':
 					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
 						const dataNode = def.FindObject(rel.toNode);
-						set(`${rel.fromPin}.RAM`, def.FindObject(dataNode?.properties?.node)?.properties?.ReferenceId);
-						set(`${rel.fromPin}.Addr`, dataNode?.properties?.addr)
+						const ram = def.FindObject(dataNode?.properties?.node);
+						if( !dataNode || !ram ) {
+							report('error', `Failed to look up RAM storage device for "${fnObj.id}" pin "${rel.fromPin}"`);
+						} else if( 'number' !== typeof ram.properties.ReferenceId ) {
+							report('error', `Data node "${rel.toNode}" RAM Device has no Reference ID!`);
+						} else if( 'number' !== typeof dataNode?.properties?.addr ) {
+							report('error', `Data node "${rel.toNode}" has no address allocated!`);
+						} else {
+							set(`${rel.fromPin}.RAM`, ram.properties.ReferenceId);
+							set(`${rel.fromPin}.Addr`, '$' + dataNode.properties.addr.toString(16))
+						}
 					});
 					break;
 				
@@ -850,6 +868,25 @@ function AllocateFunctionRel(layer, objId, reldef) {
 	return CreateRelation(layer, objId, reldef.name, undefined, toObj);
 }
 
+function PreallocateFunction(report, fnObj, layer) {
+	const fdef = functiondef_db[fnObj.kind];
+	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
+
+	// Preallocate relations
+	const actualRels = layer.FindRelations(fnObj.id);
+	fdef.rels.forEach(reldef => {
+		const applicable = actualRels.filter(r => r.fromNode === fnObj.id
+			&& r.fromPin === reldef.name
+			&& r.toNode && layer.FindObject(r.toNode));
+
+		// For allocatable relations with no bound value, allocate one!
+		if( reldef.allocate && applicable.length === 0 ) {
+			report('info', `Allocating associated value for "${fnObj.id}" pin "${reldef.name}"`)
+			AllocateFunctionRel(layer, fnObj.id, reldef);
+		}
+	});
+}
+
 function ValidateFunction(report, fnObj, layer) {
 	const fdef = functiondef_db[fnObj.kind];
 	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
@@ -861,13 +898,10 @@ function ValidateFunction(report, fnObj, layer) {
 			return report('error', `Mutually exclusive relation flags on function "${fnObj.kind}" pin "${reldef.name}": 'array' and 'allocate'!`);
 		}
 
-		const applicable = actualRels.filter(r => r.fromNode === fnObj.id && r.fromPin === reldef.name);
+		const applicable = actualRels.filter(r => r.fromNode === fnObj.id
+			&& r.fromPin === reldef.name
+			&& r.toNode && layer.FindObject(r.toNode));
 		applicable.sort(SortByIndex);
-
-		// For allocatable relations with no bound value, allocate one!
-		if( reldef.allocate && applicable.length === 0 ) {
-			applicable.push(AllocateFunctionRel(layer, fnObj.id, reldef));
-		}
 
 		ValidateFunctionRel(reldef, applicable, fnObj, report, layer);
 	});
