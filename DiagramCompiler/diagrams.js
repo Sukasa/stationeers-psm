@@ -464,7 +464,7 @@ function renderDiagramView(D, S) {
 
 	postRender(() => {
 		document.addEventListener('keyup', OnKey);
-		diagram.parentNode.addEventListener('mousewheel', ScrollAction)
+		diagram.parentNode.addEventListener('mousewheel', ScrollAction, {passive:true});
 		diagram.parentNode.scrollLeft = S.scrollX;
 		diagram.parentNode.scrollTop = S.scrollY;
 

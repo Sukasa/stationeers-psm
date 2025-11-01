@@ -269,42 +269,6 @@
     "id": "5v9cz.9b3ql5"
   },
   {
-    "type": "data",
-    "id": "1poxw.xtbwv3",
-    "transient": true,
-    "properties": {
-      "addr": 103,
-      "node": "RG3123"
-    }
-  },
-  {
-    "type": "data",
-    "id": "1brzw.yawu3v",
-    "transient": true,
-    "properties": {
-      "addr": 101,
-      "node": "RG3123"
-    }
-  },
-  {
-    "type": "data",
-    "id": "xyds.9i071h",
-    "transient": true,
-    "properties": {
-      "addr": 100,
-      "node": "RG3123"
-    }
-  },
-  {
-    "type": "data",
-    "id": "2mpiu.yi4qu3",
-    "transient": true,
-    "properties": {
-      "addr": 102,
-      "node": "RG3123"
-    }
-  },
-  {
     "type": "drawing",
     "properties": {
       "Name": "Habitat 1 - Zone Processing"
@@ -313,9 +277,12 @@
   },
   {
     "type": "data",
-    "id": "1d75o.aoatqa",
+    "id": "32nue.4yct3l",
     "transient": true,
-    "properties": {}
+    "properties": {
+      "addr": 97,
+      "node": "RG3123"
+    }
   },
   {
     "type": "rel",
@@ -368,12 +335,6 @@
     "toNode": "RI39151"
   },
   {
-    "fromNode": "UV8201",
-    "fromPin": "Destination",
-    "toNode": "1d75o.aoatqa",
-    "type": "rel"
-  },
-  {
     "type": "rel",
     "fromNode": "EQ818293",
     "fromPin": "Processor",
@@ -404,9 +365,34 @@
   {
     "fromNode": "EQ818293",
     "fromPin": "Source",
-    "toNode": "2mpiu.yi4qu3",
+    "toNode": "32nue.4yct3l",
     "viaNode": "bit0.qgoan2",
     "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Processor",
+    "toNode": "RG3123",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Source",
+    "toNode": "EK419931",
+    "toPin": "Pressure",
+    "type": "rel"
+  },
+  {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Destination",
+    "toNode": "32nue.4yct3l",
     "type": "rel"
   },
   {
@@ -448,10 +434,10 @@
   {
     "fromNode": "UG7364",
     "fromPin": "AckSignal",
-    "toNode": "1d75o.aoatqa",
     "viaNode": "UV8201",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "2qv72.eu6y1q"
   },
   {
     "type": "rel",
@@ -516,10 +502,10 @@
   {
     "fromNode": "UG2022",
     "fromPin": "AckSignal",
-    "toNode": "1d75o.aoatqa",
     "viaNode": "UV8201",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "2qv72.eu6y1q"
   },
   {
     "type": "rel",
@@ -661,7 +647,7 @@
     "properties": {
       "as": "functional",
       "x": 150,
-      "y": -324
+      "y": -306
     },
     "type": "rel"
   },
@@ -837,7 +823,7 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 27,
-    "toNode": "2mpiu.yi4qu3",
+    "toNode": "32nue.4yct3l",
     "properties": {
       "as": "functional",
       "x": -450,
@@ -864,12 +850,6 @@
     "type": "rel"
   },
   {
-    "fromNode": "4p81w.uijg1t",
-    "fromPin": "Destination",
-    "toNode": "1poxw.xtbwv3",
-    "type": "rel"
-  },
-  {
     "fromNode": "i4a1.825wx6q",
     "fromPin": "Processor",
     "toNode": "RG3123",
@@ -889,17 +869,11 @@
   },
   {
     "fromNode": "i4a1.825wx6q",
-    "fromPin": "State",
-    "toNode": "xyds.9i071h",
-    "type": "rel"
-  },
-  {
-    "fromNode": "i4a1.825wx6q",
     "fromPin": "AckSignal",
-    "toNode": "1d75o.aoatqa",
     "viaNode": "UV8201",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "2qv72.eu6y1q"
   },
   {
     "fromNode": "2oszt.1bi6rn",
@@ -951,32 +925,7 @@
     "viaNode": "4p81w.uijg1t",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "1poxw.xtbwv3"
-  },
-  {
-    "fromNode": "bit0.qgoan2",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "bit0.qgoan2",
-    "fromPin": "Processor",
-    "toNode": "RG3123",
-    "type": "rel"
-  },
-  {
-    "fromNode": "bit0.qgoan2",
-    "fromPin": "Source",
-    "toNode": "EK419931",
-    "toPin": "Pressure",
-    "type": "rel"
-  },
-  {
-    "fromNode": "bit0.qgoan2",
-    "fromPin": "Destination",
-    "toNode": "2mpiu.yi4qu3",
-    "type": "rel"
+    "toNode": "2d1y4.a28eb7"
   },
   {
     "fromNode": "5v9cz.9b3ql5",
@@ -1001,10 +950,10 @@
   {
     "fromNode": "5v9cz.9b3ql5",
     "fromPin": "Source",
-    "toNode": "2lxxu.k51el8",
     "viaNode": "UG82030",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "2m2zq.jhdfjr"
   },
   {
     "fromNode": "32wb5.al2to9",

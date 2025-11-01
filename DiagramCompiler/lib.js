@@ -1128,10 +1128,16 @@ class GraphLayer {
 		delete this.Rels[def.id]; // Delete the 'fromNode' edge completely.
 
 		a?.forEach(rel => {
-			// Delete this relation from each other list it participates in.
-			if( def.id !== rel.fromNode ) this._unregister_rel(rel, rel.fromNode);
-			if( rel.toNode ) this._unregister_rel(rel, rel.toNode);
-			if( rel.viaNode ) this._unregister_rel(rel, rel.viaNode);
+			if( rel.toNode === def.id && rel.viaNode ) {
+				// This is the to-node in a Via relationship; just erase it.
+				rel.toNode = undefined;
+			} else {
+				this._unregister_rel(rel, rel.toNode);
+			}
+
+			if( def.id !== rel.fromNode ) {
+				this._unregister_rel(rel, rel.fromNode);
+			}
 		});
 	}
 
@@ -1141,7 +1147,7 @@ class GraphLayer {
 		if( !def || !def.fromNode )
 			throw new Error("incomplete relation; requires {fromNode:}");		
 		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0 || def.fromIndex !== Math.trunc(def.fromIndex)) )
-			throw new Error("illegal index relation number; must be undefined or a non-negative integer");
+			throw new Error("illegal index relation number; must be undefined or else a non-negative integer");
 		if( def.type && def.type !== 'rel' )
 			throw new Error("bad object type; must use AddRel for relations, AddObject for objects!");
 		def.type = 'rel';
@@ -1153,8 +1159,10 @@ class GraphLayer {
 		if( !def.viaPin ) def.viaPin = undefined;
 
 		if( !this.FindObject(def.fromNode)
-			|| (def.toNode && !this.FindObject(def.toNode))
+			// Missing 'via' node is only an error if there is a defined 'via' connection
 			|| (def.viaNode && !this.FindObject(def.viaNode))
+			// Missing 'to' node is only an error if there is no 'via' node
+			|| (def.toNode && !def.viaNode && !this.FindObject(def.toNode))
 		)
 			throw new Error(`failed to create relation "${JSON.stringify(def)}"; missing some referenced object`);
 

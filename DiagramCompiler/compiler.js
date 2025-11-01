@@ -302,7 +302,7 @@ function ZoneCodeCompile(def, rc, cc) {
 
 			} else if( !fproc && processors[0] ) {
 				rc.report('info', `Assigning Zone processor "${processors[0].node}" to function "${f.id}"`);
-				def.AddRel({fromNode:f.id, fromPin:'Processor', toNode:processors[0].node});
+				CreateRelation(def, f.id, 'Processor', 0, processors[0].node);
 				fproc = def.FindObject(processors[0].node);
 			}
 
@@ -818,7 +818,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 				// This is already the allocation we're looking for, found by another path.
 				return;
 			} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
-				rc.report('error', `Datum "${d.id}" allocation overlaps with memory allocated for "${st.buffers[i].id ?? st.buffers[i].name}"`);
+				rc.report('error', `Datum "${d.id}" allocation (${da}+${sz}) overlaps with memory allocated for "${st.buffers[i].id ?? st.buffers[i].name}" (${ba}+${bz})`);
 				return;
 			}
 		}
@@ -1007,7 +1007,7 @@ function ValidateFunctionRel(reldef, rels, fnObj, report, layer)
 	if( rels.length > 1 && !reldef.array ) {
 		report('error', `Non-array pin "${reldef.name}" has more than one connection!`);
 	} else if( rels.length === 0 && !reldef.optional ) {
-		report('error', `Non-optional pin "${reldef.name}" has no connections!`);
+		report('error', `Non-optional pin "${reldef.name}" of "${fnObj.id}" has no connections!`);
 	} else {
 		rels.forEach(re => ValidateFunctionLink(reldef, re, fnObj, report, layer));
 	}

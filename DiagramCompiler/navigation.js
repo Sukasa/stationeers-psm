@@ -135,16 +135,22 @@ function renderNavigation(D, S) {
 			className: `action action-compile`,
 			'?click': () => {
 				//TODO: compile, and pop-up the results
+				
 
 				// Make a sublayer upon the original graph.
 				const timeStart = performance.now();
-				const def = new GraphLayer(D);
 				const rc = new ReportReceiver();
 				const cc = {};
-				ZoneCodeCompile(def, rc, cc);
+				ZoneCodeCompile(new GraphLayer(D), rc, cc);
 				const timeEnd = performance.now();
 
-				rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
+				rc.reports.forEach(e => {
+					if( e.severity === 'error' ) {
+						console.error(`[${e.category}] ${e.severity}: ${e.message}`);
+					} else {
+						console.log(`[${e.category}] ${e.severity}: ${e.message}`);
+					}
+				});
 				console.log(`Done 1st prototype compile (${timeEnd - timeStart}ms)`);
 				for(var proc in cc) {
 					console.log(`Processor "${proc}" Code:`);

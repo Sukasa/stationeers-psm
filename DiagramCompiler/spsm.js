@@ -385,12 +385,13 @@ function CreateRelation(D, fromNode, fromPin, fromIndex, toObj, toPin, viaObj, v
 		viaNode: viaObj || undefined,
 		viaPin: viaPin || undefined
 	};
+	D.AddRel(r);
 
 	// Update 'via' relations leading into the node just connected...
-	D.AddRel(r);
 	D.FindRelations(fromNode)
 		.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
 		.forEach(r => {
+			// Revise a local relation
 			r.toNode = toObj;
 			r.toPin = toPin;
 		});
