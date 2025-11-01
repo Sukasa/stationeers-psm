@@ -546,7 +546,7 @@ const functiondef_db = {
 			{
 				scope: 'cycle-init',
 				code: [
-					'select r1 0 1',
+					'select r1 r1 0 1',
 				]
 			},
 			{
