@@ -180,7 +180,7 @@ function ZoneCodeCompile(def, rc, cc) {
 	// Gather Equipment in Zone which need Initialization code.
 	const initEquip = funcs.flatMap(f => def.RelationsOf(f.id))
 		.map(rel => def.FindObject(rel.toNode))
-		.filter(o => o.type === 'equipment' && o.properties?.Initialize);
+		.filter(o => o?.type === 'equipment' && o.properties?.Initialize);
 	
 	// Add Equipment Initialization functions for each
 	initEquip.forEach(eq => {
@@ -847,7 +847,7 @@ function AllocateFunctionRel(layer, objId, reldef) {
 		throw new Error(`Unrecognized allocate relation data type "${reldef.type}"!`);
 	}
 
-	CreateRelation(layer, objId, reldef.name, undefined, toObj);
+	return CreateRelation(layer, objId, reldef.name, undefined, toObj);
 }
 
 function ValidateFunction(report, fnObj, layer) {
@@ -1066,8 +1066,8 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 	const db = new GraphLayer();
 	db.Deserialize(JSON.stringify(test_workspace));
 
-	const timeStart = performance.now();
 	// Make a sublayer upon the original graph.
+	const timeStart = performance.now();
 	const def = new GraphLayer(db);
 	const rc = new ReportReceiver();
 	const cc = {};

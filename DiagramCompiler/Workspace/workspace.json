@@ -187,66 +187,6 @@
     }
   },
   {
-    "type": "data",
-    "id": "HL94912",
-    "name": "ACK GROUP 1 TRIGGER",
-    "transient": true,
-    "properties": {
-      "addr": 8188,
-      "node": "UC48"
-    }
-  },
-  {
-    "type": "data",
-    "id": "HL13014",
-    "name": "TI-401 PV",
-    "transient": true,
-    "properties": {
-      "addr": 8191,
-      "node": "UC48"
-    }
-  },
-  {
-    "type": "data",
-    "id": "HL83018",
-    "name": "TI-401 LO ALARM TRIGGER",
-    "transient": true,
-    "properties": {
-      "addr": 8175,
-      "node": "UC48"
-    }
-  },
-  {
-    "type": "data",
-    "id": "HL92103",
-    "name": "TI-401 LO ALARM STATE",
-    "transient": true,
-    "properties": {
-      "addr": 8174,
-      "node": "UC48"
-    }
-  },
-  {
-    "type": "data",
-    "id": "HH42018",
-    "name": "TI-401 HI ALARM TRIGGER",
-    "transient": true,
-    "properties": {
-      "addr": 8190,
-      "node": "UC48"
-    }
-  },
-  {
-    "type": "data",
-    "id": "HL19371",
-    "name": "TI-401 HI ALARM STATE",
-    "transient": true,
-    "properties": {
-      "addr": 8189,
-      "node": "UC48"
-    }
-  },
-  {
     "type": "drawing",
     "id": "366ad.m3q4t6",
     "properties": {
@@ -301,7 +241,7 @@
     "kind": "StructureActiveVent",
     "properties": {
       "Name": "Active Vent 5u0je.ho4jv",
-      "ReferenceId": 0,
+      "ReferenceId": 4417,
       "Initialize": {
         "Mode": "1",
         "On": ""
@@ -315,7 +255,7 @@
     "kind": "ModularDeviceLight",
     "properties": {
       "Name": "High Pressure Alarm Lamp",
-      "ReferenceId": 0,
+      "ReferenceId": 718,
       "HideUnused": true
     },
     "id": "2ui9h.icui6z"
@@ -332,17 +272,48 @@
     "type": "data",
     "id": "1poxw.xtbwv3",
     "transient": true,
-    "properties": {}
+    "properties": {
+      "addr": 103,
+      "node": "RG3123"
+    }
   },
   {
     "type": "data",
     "id": "1brzw.yawu3v",
     "transient": true,
-    "properties": {}
+    "properties": {
+      "addr": 101,
+      "node": "RG3123"
+    }
   },
   {
     "type": "data",
     "id": "xyds.9i071h",
+    "transient": true,
+    "properties": {
+      "addr": 100,
+      "node": "RG3123"
+    }
+  },
+  {
+    "type": "data",
+    "id": "2mpiu.yi4qu3",
+    "transient": true,
+    "properties": {
+      "addr": 102,
+      "node": "RG3123"
+    }
+  },
+  {
+    "type": "drawing",
+    "properties": {
+      "Name": "Habitat 1 - Zone Processing"
+    },
+    "id": "32wb5.al2to9"
+  },
+  {
+    "type": "data",
+    "id": "1d75o.aoatqa",
     "transient": true,
     "properties": {}
   },
@@ -364,12 +335,6 @@
     "fromPin": "Source",
     "toNode": "EK419931",
     "toPin": "Temperature"
-  },
-  {
-    "type": "rel",
-    "fromNode": "UK381091",
-    "fromPin": "Destination",
-    "toNode": "HL13014"
   },
   {
     "fromNode": "ZHab1",
@@ -405,7 +370,7 @@
   {
     "fromNode": "UV8201",
     "fromPin": "Destination",
-    "toNode": "HL94912",
+    "toNode": "1d75o.aoatqa",
     "type": "rel"
   },
   {
@@ -413,14 +378,6 @@
     "fromNode": "EQ818293",
     "fromPin": "Processor",
     "toNode": "RG3123"
-  },
-  {
-    "type": "rel",
-    "fromNode": "EQ818293",
-    "fromPin": "Source",
-    "toNode": "HL13014",
-    "viaNode": "UK381091",
-    "viaPin": "Destination"
   },
   {
     "type": "rel",
@@ -445,6 +402,14 @@
     "type": "rel"
   },
   {
+    "fromNode": "EQ818293",
+    "fromPin": "Source",
+    "toNode": "2mpiu.yi4qu3",
+    "viaNode": "bit0.qgoan2",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
     "type": "rel",
     "fromNode": "UG82030",
     "fromPin": "Zone",
@@ -464,12 +429,6 @@
   },
   {
     "type": "rel",
-    "fromNode": "UG82030",
-    "fromPin": "Destination",
-    "toNode": "HL83018"
-  },
-  {
-    "type": "rel",
     "fromNode": "UG7364",
     "fromPin": "Processor",
     "toNode": "RG3123"
@@ -481,23 +440,17 @@
     "toNode": "UG82030"
   },
   {
-    "type": "rel",
-    "fromNode": "UG7364",
-    "fromPin": "State",
-    "toNode": "HL92103"
-  },
-  {
-    "type": "rel",
-    "fromNode": "UG7364",
-    "fromPin": "AckSignal",
-    "toNode": "HL94912",
-    "viaNode": "UV8201",
-    "viaPin": "Destination"
-  },
-  {
     "fromNode": "UG7364",
     "fromPin": "Zone",
     "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "UG7364",
+    "fromPin": "AckSignal",
+    "toNode": "1d75o.aoatqa",
+    "viaNode": "UV8201",
+    "viaPin": "Destination",
     "type": "rel"
   },
   {
@@ -544,12 +497,6 @@
   },
   {
     "type": "rel",
-    "fromNode": "ZG7188",
-    "fromPin": "Destination",
-    "toNode": "HH42018"
-  },
-  {
-    "type": "rel",
     "fromNode": "UG2022",
     "fromPin": "Zone",
     "toNode": "ZHab1"
@@ -567,18 +514,12 @@
     "toNode": "ZG7188"
   },
   {
-    "type": "rel",
-    "fromNode": "UG2022",
-    "fromPin": "State",
-    "toNode": "HL19371"
-  },
-  {
-    "type": "rel",
     "fromNode": "UG2022",
     "fromPin": "AckSignal",
-    "toNode": "HL94912",
+    "toNode": "1d75o.aoatqa",
     "viaNode": "UV8201",
-    "viaPin": "Destination"
+    "viaPin": "Destination",
+    "type": "rel"
   },
   {
     "type": "rel",
@@ -611,8 +552,8 @@
     "fromIndex": 1,
     "toNode": "EK419931",
     "properties": {
-      "x": -400,
-      "y": -198,
+      "x": -450,
+      "y": -162,
       "as": "functional"
     }
   },
@@ -791,7 +732,7 @@
     "toNode": "4p81w.uijg1t",
     "properties": {
       "as": "functional",
-      "x": 150,
+      "x": 200,
       "y": -126
     },
     "type": "rel"
@@ -863,7 +804,7 @@
     "toNode": "2ui9h.icui6z",
     "properties": {
       "as": "functional",
-      "x": 550,
+      "x": 500,
       "y": -54
     },
     "type": "rel"
@@ -896,11 +837,11 @@
     "fromNode": "366ad.m3q4t6",
     "fromPin": "Component",
     "fromIndex": 27,
-    "toNode": "HL94912",
+    "toNode": "2mpiu.yi4qu3",
     "properties": {
       "as": "functional",
-      "x": -150,
-      "y": -540
+      "x": -450,
+      "y": -36
     },
     "type": "rel"
   },
@@ -948,14 +889,16 @@
   },
   {
     "fromNode": "i4a1.825wx6q",
-    "fromPin": "AckSignal",
-    "toNode": "1brzw.yawu3v",
+    "fromPin": "State",
+    "toNode": "xyds.9i071h",
     "type": "rel"
   },
   {
     "fromNode": "i4a1.825wx6q",
-    "fromPin": "State",
-    "toNode": "xyds.9i071h",
+    "fromPin": "AckSignal",
+    "toNode": "1d75o.aoatqa",
+    "viaNode": "UV8201",
+    "viaPin": "Destination",
     "type": "rel"
   },
   {
@@ -1030,6 +973,12 @@
     "type": "rel"
   },
   {
+    "fromNode": "bit0.qgoan2",
+    "fromPin": "Destination",
+    "toNode": "2mpiu.yi4qu3",
+    "type": "rel"
+  },
+  {
     "fromNode": "5v9cz.9b3ql5",
     "fromPin": "Zone",
     "toNode": "ZHab1",
@@ -1043,18 +992,42 @@
   },
   {
     "fromNode": "5v9cz.9b3ql5",
-    "fromPin": "Source",
-    "toNode": "HL94912",
-    "viaNode": "UV8201",
-    "viaPin": "Destination",
-    "type": "rel"
-  },
-  {
-    "fromNode": "5v9cz.9b3ql5",
     "fromPin": "Destination",
     "fromIndex": 0,
     "toNode": "LC183102",
     "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5v9cz.9b3ql5",
+    "fromPin": "Source",
+    "toNode": "2lxxu.k51el8",
+    "viaNode": "UG82030",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "32wb5.al2to9",
+    "fromPin": "Component",
+    "fromIndex": 0,
+    "toNode": "RG3123",
+    "properties": {
+      "as": "functional",
+      "x": -400,
+      "y": -144
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "32wb5.al2to9",
+    "fromPin": "Component",
+    "fromIndex": 1,
+    "toNode": "ZHab1",
+    "properties": {
+      "as": "functional",
+      "x": -100,
+      "y": -162
+    },
     "type": "rel"
   }
 ]

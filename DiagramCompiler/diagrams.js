@@ -274,12 +274,14 @@ function renderDiagramView(D, S) {
 	const SVGNS = 'http://www.w3.org/2000/svg';
 	const svg = $(document.createElementNS(SVGNS, 'svg'), { class: 'zigzag' });
 
-	const ZigZag = (a,b,selected, underlay) => postRender(() => {
+	const ZigZag = (a,b,selected,underlay) => postRender(() => {
 		const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
 		const cr = diagram.getBoundingClientRect();
-		const x1 = Math.round(ar.x - cr.x + ar.width/2), y1 = Math.round(ar.y - cr.y + ar.height / 2);
-		const x2 = Math.round(br.x - cr.x + br.width/2), y2 = Math.round(br.y - cr.y + br.height / 2);
-		const xM = Math.round((x1 + x2) / 2 + (Math.abs(y2) % 7 - 3) * 3);
+		const x1 = Math.round(ar.x - cr.x + ar.width / 2) / S.diagram.view.zoom;
+		const y1 = Math.round(ar.y - cr.y + ar.height / 2) / S.diagram.view.zoom;
+		const x2 = Math.round(br.x - cr.x + br.width / 2) / S.diagram.view.zoom;
+		const y2 = Math.round(br.y - cr.y + br.height / 2) / S.diagram.view.zoom;
+		const xM = Math.round((x1 + x2) / 2 + (Math.abs(br.y) % 7 - 3) * 3);
 
 		a.classList.remove('no-connection');
 		b.classList.remove('no-connection');
@@ -450,8 +452,19 @@ function renderDiagramView(D, S) {
 		}
 	}
 
+	diagram.style = `transform:scale(${S.diagram.view.zoom});`;
+	function ScrollAction(evt) {
+		if( evt.ctrlKey ) {
+			evt.preventDefault();
+			const delta = Math.sign(evt.wheelDelta) * -0.1;
+			S.diagram.view.zoom = Math.max(0.3, Math.min(1.5, S.diagram.view.zoom - delta));
+			diagram.style = `transform:scale(${S.diagram.view.zoom});`;
+		}
+	}
+
 	postRender(() => {
 		document.addEventListener('keyup', OnKey);
+		diagram.parentNode.addEventListener('mousewheel', ScrollAction)
 		diagram.parentNode.scrollLeft = S.scrollX;
 		diagram.parentNode.scrollTop = S.scrollY;
 
@@ -464,6 +477,7 @@ function renderDiagramView(D, S) {
 	return preRerender(diagram, () => {
 		document.removeEventListener('keyup', OnKey);
 		diagram.parentNode.removeEventListener('click', AddAction);
+		diagram.parentNode.removeEventListener('mousewheel', ScrollAction)
 		S.scrollX = diagram.parentNode.scrollLeft;
 		S.scrollY = diagram.parentNode.scrollTop;
 	});

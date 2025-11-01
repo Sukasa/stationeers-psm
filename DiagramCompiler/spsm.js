@@ -376,7 +376,7 @@ function CreateRelation(D, fromNode, fromPin, fromIndex, toObj, toPin, viaObj, v
 		}
 	}
 
-	D.AddRel({
+	const r = {
 		fromNode: fromNode || undefined,
 		fromPin: fromPin || undefined,
 		fromIndex: fromIndex ?? undefined,
@@ -384,15 +384,18 @@ function CreateRelation(D, fromNode, fromPin, fromIndex, toObj, toPin, viaObj, v
 		toPin: toPin || undefined,
 		viaNode: viaObj || undefined,
 		viaPin: viaPin || undefined
-	});
+	};
 
 	// Update 'via' relations leading into the node just connected...
+	D.AddRel(r);
 	D.FindRelations(fromNode)
 		.filter(r => r.viaNode === fromNode && r.viaPin === fromPin)
 		.forEach(r => {
 			r.toNode = toObj;
 			r.toPin = toPin;
 		});
+	
+	return r;
 }
 
 function BreakRelation(D, fromNode, fromPin, fromIndex) {

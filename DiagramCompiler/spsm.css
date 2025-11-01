@@ -155,6 +155,7 @@ body.narrow-viewport .window-inner.psm-navigation {
 
 .diagram-root {
 	position: relative;
+	transform-origin: center;
 }
 
 .window-body.addable {
