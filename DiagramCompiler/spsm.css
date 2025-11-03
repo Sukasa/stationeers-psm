@@ -97,27 +97,6 @@ canvas                     { pointer-events: none; }
 	max-height: calc(100vh - 6em);
 }
 
-.window-inner.psm-diagram {
-	top: 0.5vh;
-	left: 25.0vw;
-	width: 74.5vw;
-	height: 99.0vh
-}
-
-.window-inner.psm-properties {
-	top: 50.5vh;
-	left: 0.5vw;
-	width: 24vw;
-	height: 49vh;
-}
-
-.window-inner.psm-navigation {
-	top: 0.5vh;
-	left: 0.5vw;
-	width: 24vw;
-	height: 49vh;
-}
-
 .window-inner.psm-add-object {
 	top: 24vh;
 	left: 24vw;
@@ -125,10 +104,55 @@ canvas                     { pointer-events: none; }
 	height: 48vh;
 }
 
+body.wide-viewport .window-inner.psm-compile {
+	top: 0.5vh;
+	left: 75vw;
+	width: 24.5vw;
+	height: 99vh;
+}
+
+body.wide-viewport.showing-compile .window-inner.psm-diagram {
+	width: 49.5vw;
+}
+
+body.narrow-viewport .window-inner.psm-compile {
+	top: 0.5vh;
+	left: 0.5vw;
+	width: 49vw;
+	height: 59vh;
+}
+
+body.narrow-viewport.showing-compile .window-inner.psm-diagram {
+	left: 50.5vw;
+	width: 49vw;
+}
+
+body.wide-viewport .window-inner.psm-diagram {
+	top: 0.5vh;
+	left: 25.0vw;
+	width: 74.5vw;
+	height: 99.0vh
+}
+
+body.wide-viewport .window-inner.psm-properties {
+	top: 50.5vh;
+	left: 0.5vw;
+	width: 24vw;
+	height: 49vh;
+}
+
+body.wide-viewport .window-inner.psm-navigation {
+	top: 0.5vh;
+	left: 0.5vw;
+	width: 24vw;
+	height: 49vh;
+}
+
 body.narrow-viewport .window-inner.psm-diagram {
+	top: 0.5vh;
 	left: 0.5vw;
 	width: 99vw;
-	height: 59.5vh;
+	height: 59vh;
 }
 
 body.narrow-viewport .window-inner.psm-properties {

@@ -87,8 +87,11 @@ window.onload = () => {
 
 window.onresize = onResize;
 function onResize() {
-	document.body.className = window.innerWidth < 1.4 * window.innerHeight
-		? 'narrow-viewport' : 'wide-viewport';
+	const narrow = window.innerWidth < 1.4 * window.innerHeight;
+	document.body.classList.remove('narrow-viewport');
+	document.body.classList.remove('wide-viewport');
+	if( narrow ) document.body.classList.add('narrow-viewport')
+	if(!narrow ) document.body.classList.add('wide-viewport');
 }
 
 const _prerender_teardowns = [];
@@ -312,6 +315,8 @@ function renderWorkspace(target, workspace) {
 	renderWindow(target, { title: dwndTitle, className: 'psm-diagram printable xyscroll', scrollLeft: workspace.state.scrollX??0, scrollTop: workspace.state.scrollY??0 }, renderDiagramView(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Properties', className: 'psm-properties vscroll' }, renderProperties(workspace.data, workspace.state));
 	renderWindow(target, { title: 'Navigation', className: 'psm-navigation vscroll' }, renderNavigation(workspace.data, workspace.state));
+	if( workspace.state.showCompile )
+		renderWindow(target, {title:'Compilation Results', className: 'psm-compile yscroll',}, renderCompile(workspace.data, workspace.state));
 	workspace.save();
 }
 
@@ -473,4 +478,36 @@ function AddProcess(D,S) {
 	preRerender(() => {
 		addInProgress = false;
 	});
+}
+
+function UpdateCompilation(D, S, zoneId)
+{
+	// Make a sublayer upon the original graph.
+	const timeStart = performance.now();
+	const rc = new ReportReceiver();
+	const cc = {};
+	ZoneCodeCompile(zoneId, new GraphLayer(D), rc, cc);
+	const dur = performance.now() - timeStart;
+	rc.report('info', `Compilation completed in ${Math.round(dur * 1000)/1000}ms`, [zoneId]);
+	
+	if( !S.compilations ) S.compilations = {};
+	S.compilations[zoneId] = {
+		reports: rc.reports,
+		code: cc,
+	};
+
+	/*
+	rc.reports.forEach(e => {
+		if( e.severity === 'error' ) {
+			console.error(`[${e.category}] ${e.severity}: ${e.message}`);
+		} else {
+			console.log(`[${e.category}] ${e.severity}: ${e.message}`);
+		}
+	});
+
+	for(var proc in cc) {
+		console.log(`Processor "${proc}" Code:`);
+		console.log(cc[proc]);
+	}
+	*/
 }

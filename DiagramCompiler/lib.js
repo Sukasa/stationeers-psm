@@ -529,11 +529,11 @@ const functiondef_db = {
 			// None required.
 			return def;
 		},
-		validate(report, workspace) {
+		validate(def, report, workspace) {
 			// Check the logic support of the selected device.
-			const target = workspace.ReadRelation(this.id, 'Display');
+			const target = workspace.ReadRelation(def.id, 'Display');
 			if( !target || !metanode_db[target.type]?.Pins(target).find(p => p.name === 'On' && p.type === 'logic') )
-				report('error', `selected Display of type "${target.kind}" does not support "On" logic`);
+				report('error', `selected Display of type "${target.kind}" does not support "On" logic`, [def.id]);
 		},
 		blocks: [
 			{
@@ -1280,7 +1280,7 @@ class ReportReceiver {
 		this.category = cat;
 	}
 
-	_report(sev, msg) {
+	_report(sev, msg, topics) {
 		if( msg === undefined && typeof sev === 'string' ) {
 			msg = sev;
 			sev = 'info';
@@ -1288,7 +1288,13 @@ class ReportReceiver {
 			throw new Error('illegal arguments to report function');
 		}
 
-		this.reports.push({severity:sev, order:++this.ordinal, category:this.category, message:msg});
+		this.reports.push({
+			severity: sev,
+			order: ++this.ordinal,
+			category: this.category,
+			message: msg,
+			topics: topics??[]
+		});
 		if( sev === 'error' ) this.fatal = true;
 	}
 }

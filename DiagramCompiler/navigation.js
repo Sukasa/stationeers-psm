@@ -129,34 +129,45 @@ function renderNavigation(D, S) {
 		'?click': () => {togs[id]=!togs[id]; rerender()},
 	}];
 
+	const zoneSelect = $("select",
+		{
+			length: 1,
+			'?change': evt => {
+				if( S.activeZone !== evt.target.value ) {
+					S.activeZone = evt.target.value;
+					rerender();
+				}
+			}
+		},
+		D.Objects(o => o.type === 'zone').map(z =>
+			["option", "="+metanode_db.zone.Name(z), {value:z.id, selected: z.id === S.activeZone}]
+		)
+	);
+	if( S.activeZone && zoneSelect.childNodes[0].textContent === '' )
+		zoneSelect.removeChild(zoneSelect.childNodes[0]);
+
 	const navRoot = $("div", { className:'nav-list' });
 	const navMenu = $("div", {className:'nav-options'}, [
-		["div", {
+		zoneSelect,
+		["button", {
+			disabled: !S.activeZone,
 			className: `action action-compile`,
 			'?click': () => {
-				//TODO: compile, and pop-up the results
-
-				// Make a sublayer upon the original graph.
-				const timeStart = performance.now();
-				const rc = new ReportReceiver();
-				const cc = {};
-				ZoneCodeCompile(new GraphLayer(D), rc, cc);
-				const timeEnd = performance.now();
-
-				rc.reports.forEach(e => {
-					if( e.severity === 'error' ) {
-						console.error(`[${e.category}] ${e.severity}: ${e.message}`);
-					} else {
-						console.log(`[${e.category}] ${e.severity}: ${e.message}`);
-					}
-				});
-
-				console.log(`Done compile (${timeEnd - timeStart}ms)`);
-				for(var proc in cc) {
-					console.log(`Processor "${proc}" Code:`);
-					console.log(cc[proc]);
+				UpdateCompilation(D, S, S.activeZone);
+				S.showCompile = S.activeZone;
+				rerender();
+			}
+		}],
+		["button", {
+			disabled: !S.activeZone || !S.compilations || !S.compilations[S.activeZone],
+			className: `action action-viewcompile`,
+			'?click': () => {
+				if( S.showCompile ) {
+					S.showCompile = undefined;
+				} else {
+					S.showCompile = S.activeZone;
 				}
-				
+				rerender();
 			}
 		}],
 		["div", {

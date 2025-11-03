@@ -414,6 +414,7 @@ function renderDiagramView(D, S) {
 
 		} else if( evt.key === 'Escape' ) {
 			//TODO: cancel active tools (e.g. draw relation, add object, etc)
+			S.showCompile = undefined;
 			CancelDrawRelation(S);
 
 		} else if( evt.key === 'h' ) {

@@ -165,15 +165,15 @@ const test_workspace = [
 ];
 /* */
 
-function ZoneCodeCompile(def, rc, cc) {
+function ZoneCodeCompile(zone, def, rc, cc) {
 	// Gather function-related assets in Zone.
-	const assets = def.FindRelations('ZHab1')
-		.filter(rel => rel.fromNode === 'ZHab1'
+	const assets = def.FindRelations(zone)
+		.filter(rel => rel.fromNode === zone
 			&& (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
 
 	// Gather Functions in Zone
-	const funcs = def.FindRelations('ZHab1')
-		.filter(r => r.toNode === 'ZHab1' && r.fromPin === 'Zone')
+	const funcs = def.FindRelations(zone)
+		.filter(r => r.toNode === zone && r.fromPin === 'Zone')
 		.map(rel => def.FindObject(rel.fromNode))
 		.filter(o => o.type === 'function');
 
@@ -269,7 +269,7 @@ function ZoneCodeCompile(def, rc, cc) {
 		while( fQueue.length > 0 ) {
 			fQueue.sort((a,b) => a.refs.length - b.refs.length);
 			if( fQueue[0].refs.length > 0 ) {
-				rc.report('error', `Failed to resolve depenencies of function "${fQueue[0].func.id}" (depends on at least "${fQueue[0].refs[0].id}")`);
+				rc.report('error', `Failed to resolve depenencies of function`, [fQueue[0].func.id, ...fQueue[0].refs]);
 				break;
 			}
 
@@ -281,7 +281,7 @@ function ZoneCodeCompile(def, rc, cc) {
 					const idx = fQueue[i].refs.indexOf(next);
 					if( idx > -1 ) {
 						fQueue[i].refs.splice(idx, 1);
-						rc.report('info', `Resolved "${next.id}" from dependencies of "${fQueue[i].func.id}"`);
+						//rc.report('debug', `Resolved function "${next.id}" from dependencies of "${fQueue[i].func.id}"`, [next.id, fQueue[i].func.id]);
 
 						if( fQueue[i].refs.length === 0 ) {
 							// This node's last dependency was the one we just resolved.
@@ -295,7 +295,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			}
 		}
 
-		rc.report('info', `${rc.fatal ? 'Incompletely sequenced':'Sequenced'} functions as (${funcsByDep.map(f => f.id).join("; ")})`);
+		rc.report('info', `${rc.fatal ? 'Incompletely sequenced':'Sequenced'} functions`, funcsByDep.map(f => f.id));
 	}
 
 	if( ! rc.fatal ) {
@@ -306,11 +306,11 @@ function ZoneCodeCompile(def, rc, cc) {
 		funcsByDep.forEach(f => {
 			var fproc = def.ReadRelation(f.id, 'Processor');
 			if( fproc && !processors.find(p => fproc.id === p.node) ) {
-				rc.report('error', `Processor "${fproc.id}" assigned to function "${f.id}" is not assigned to the same Zone!`);
+				rc.report('error', `Processor assigned to function is not assigned to the same Zone!`, [fproc.id, f.id]);
 				return;
 
 			} else if( !fproc && processors[0] ) {
-				rc.report('info', `Assigning Zone processor "${processors[0].node}" to function "${f.id}"`);
+				rc.report('info', `Assigning Zone processor to function`, [processors[0].node, f.id]);
 				CreateRelation(def, f.id, 'Processor', 0, processors[0].node);
 				fproc = def.FindObject(processors[0].node);
 			}
@@ -334,11 +334,11 @@ function ZoneCodeCompile(def, rc, cc) {
 							if( proc.registersFree.length > 0 ) {
 								nval = proc.registersFree[proc.registersFree.length - 1];
 							} else {
-								rc.report('error', `No registers available in processor "${proc.node}" for use by function type "${f.kind}"`);
+								rc.report('error', `No registers available in processor for use by function type "${f.kind}"`, [proc.node]);
 								return;
 							}
 						} else {
-							rc.report('error', `Function "${f.id}" of kind "${f.kind}" requires manual register allocation for property "${pdef.name}"`);
+							rc.report('error', `Function of kind "${f.kind}" requires manual register allocation for property "${pdef.name}"`, [f.id]);
 							return;
 						}
 					} else {
@@ -347,9 +347,9 @@ function ZoneCodeCompile(def, rc, cc) {
 
 					const idx = proc.registersFree.indexOf(nval);
 					if( -1 === idx ) {
-						rc.report('error', `Register r${nval} is already in use in processor "${proc.node}"; cannot assign it to function type "${f.kind}"`);
+						rc.report('error', `Register r${nval} is already in use in processor; cannot assign it to function type "${f.kind}"`, [proc.node]);
 					} else {
-						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor "${proc.node}"`);
+						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor`, [proc.node]);
 						const reg = proc.registersFree[idx];
 						proc.registersFree.splice(idx, 1);
 						const vlist = proc.varsByFType[f.kind] ?? (proc.varsByFType[f.kind] = {});
@@ -384,14 +384,14 @@ function ZoneCodeCompile(def, rc, cc) {
 				if( c.kind === 'different-processor' ) {
 					const otherFn = def.ReadRelation(fnObj.id, c.target);
 					if( !otherFn || fproc === def.ReadRelation(otherFn, 'Processor') ) {
-						rc.report('warn', `Function "${fnObj.id}" is on same processor as "${c.target}"`);
+						rc.report('warn', `Function is on same processor as "${c.target}"`, [fnObj.id, otherFn?.id]);
 						return false;
 					}
 
 				} else if( c.kind === 'same-processor' ) {
 					const otherFn = def.ReadRelation(fnObj.id, c.target);
 					if( !otherFn || fproc !== def.ReadRelation(otherFn, 'Processor') ) {
-						rc.report('warn', `Function "${fnObj.id}" is on a different processor from "${c.target}"`);
+						rc.report('warn', `Function is on a different processor from "${c.target}"`, [fnObj.id, otherFn?.id]);
 						return false;
 					}
 
@@ -411,7 +411,7 @@ function ZoneCodeCompile(def, rc, cc) {
 							arity = 0;
 						}
 					} else {
-						rc.report('error', `Unable to find Relation or Property matching the constraint target "${c.target}"`);
+						rc.report('error', `Unable to find Relation or Property matching the constraint target "${c.target}"`, [fnObj.id]);
 						return false;
 					}
 
@@ -420,7 +420,7 @@ function ZoneCodeCompile(def, rc, cc) {
 					return false;
 
 				} else {
-					rc.report('error', `Unsupported function code block constraint type "${c.kind}"`);
+					rc.report('error', `Unsupported function code block constraint type "${c.kind}"`, [fnObj.id]);
 				}
 				return true;
 			};
@@ -451,11 +451,11 @@ function ZoneCodeCompile(def, rc, cc) {
 
 					if( gName === '' && goodBlocks.length < groups[gName].length ) {
 						// If the group name is '' and any blocks failed constraints, report error.
-						rc.report('error', `Function "${fnObj.id}" of type "${fnObj.kind}" failed some ungrouped code block constraints; see documentation.`);
+						rc.report('error', `Function "${fnObj.id}" of type "${fnObj.kind}" failed some ungrouped code block constraints; see documentation.`, [fnObj.id]);
 
 					} else if( gName !== '' && goodBlocks.length === 0 ) {
 						// If the gorup name is not '' and all blocks failed constraints, report error.
-						rc.report('error', `Function "${fnObj.id}" of type "${fnObj.kind}" failed all code blocks in group "${gName}"; see documentation.`);
+						rc.report('error', `Function "${fnObj.id}" of type "${fnObj.kind}" failed all code blocks in group "${gName}"; see documentation.`, [fnObj.id]);
 
 					} else if( gName !== '' ) {
 						// If the group name is not '' and at least one block passed constraints, pick one
@@ -475,7 +475,7 @@ function ZoneCodeCompile(def, rc, cc) {
 					// Interpret 'array' scopes as though they were 'instance'; otherwise, use scopes as-is.
 					const list = proc[b.scope === 'array' ? 'instance' : b.scope];
 					if( !(list instanceof Array) ) {
-						rc.report('error', `Unknown code block scope "${b.scope}" in function type "${fnObj.kind}"`);
+						rc.report('error', `Unknown code block scope "${b.scope}" in function type "${fnObj.kind}"`, [fnObj.id]);
 						return;
 					}
 
@@ -488,7 +488,7 @@ function ZoneCodeCompile(def, rc, cc) {
 						} else if( arel.length > 0 && !(acfg instanceof Array) ) {
 							cnt = arel.length;
 						} else {
-							rc.report('error', `Failed to infer arity source for Array scope block on function "${fnObj.id}", target "${b.target}"`);
+							rc.report('error', `Failed to infer arity source for Array scope block on function "${fnObj.id}", target "${b.target}"`, [fnObj.id]);
 							cnt = 0;
 						}
 					}
@@ -522,7 +522,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			// Processor-init; once per function type, once per processor power-up.
 			const piLen = CodeLen(proc['processor-init']);
 			if( ziLen+piLen > 0) {
-				rc.report('info', `Processor "${procid}" has ${ziLen+piLen} LoC of on-powerup init code`);
+				rc.report('info', `Processor "${procid}" has ${ziLen+piLen} LoC of on-powerup init code`, [procid]);
 			}
 
 			// Add yield to start of cycle-init.
@@ -535,7 +535,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			const remLen = ['cycle-init','instance','cycle-outro'].reduce((t,L) => t + CodeLen(proc[L]), 0);
 
 			if( ziLen+piLen+remLen > proc.processor.capacity ) {
-				rc.report('error', `Processor "${proc.processor.node}" is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${remLen} cycle LoC: but this puts it ${ziLen+piLen+remLen - proc.processor.capacity} over its LoC budget!`);
+				rc.report('error', `Processor is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${remLen} cycle LoC: but this puts it ${ziLen+piLen+remLen - proc.processor.capacity} over its LoC budget!`, [proc.processor.node]);
 				continue;
 			}
 
@@ -543,14 +543,14 @@ function ZoneCodeCompile(def, rc, cc) {
 			// in vanilla Stationeers, but we are aware of mods that e.g. increase the LoC limit to 512 without
 			// changing the execution speed; such chips could run down to priority 4.
 			proc.bestPriority = Math.ceil(remLen / proc.processor.LoCPerTick);
-			rc.report('info', `Processor "${procid}" capable of serving Priority "${proc.bestPriority}" or worse, at ${remLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`);
+			rc.report('info', `Processor capable of serving Priority "${proc.bestPriority}" or worse, at ${remLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`, [procid]);
 
 			for(var fnId in proc.instances) {
 				const fnObj = proc.instances[fnId];
 				const fnDef = functiondef_db[fnObj.kind];
 				const pval = (fnDef.requiredPriority ?? fnObj.properties?.Priority) || 0;
 				if( pval > 0 && pval < proc.bestPriority ) {
-					rc.report('error', `Function "${fnId}" demands priority "${pval}" or better, but is assigned to Processor "${procid}" which can serve at best priority "${proc.bestPriority}"`);
+					rc.report('error', `Function demands priority "${pval}" or better, but is assigned to Processor "${procid}" which can serve at best priority "${proc.bestPriority}"`, [fnId]);
 				}
 			}
 		}
@@ -564,15 +564,15 @@ function ZoneCodeCompile(def, rc, cc) {
 			if( tgt[k] === v ) {
 				return;
 			} else if( tgt[k] !== undefined ) {
-				rc.report('warn', `Function "${fnObj.id}" Variable "${k}" was assigned multiple times!`);
+				rc.report('warn', `Function Variable "${k}" was assigned multiple times!`, [fnObj.id]);
 			}
 			
 			if( typeof v === 'string' || typeof v === 'number' ) {
 				tgt[k] = v;
 			} else if( v === undefined ) {
-				rc.report('error', `Function "${fnObj.id}" Variable "${k}" could not be evaluated?`);
+				rc.report('error', `Function Variable "${k}" could not be evaluated?`, [fnObj.id]);
 			} else {
-				rc.report('error', `Function "${fnObj.id}" Variable "${k}" was provided unusable value of type "${typeof v}"`);
+				rc.report('error', `Function Variable "${k}" was provided unusable value of type "${typeof v}"`, [fnObj.id]);
 			}
 		}
 		
@@ -591,10 +591,10 @@ function ZoneCodeCompile(def, rc, cc) {
 
 		function SetRelsVariables(rc, proc, fnObj, vars, relDef, rels) {
 			if( !relDef.array && rels.length > 1 ) {
-				rc.report('error', `Function "${fnObj.id}" Relation "${relDef.name}" has bad relation arity; expected 1, saw ${rels.length}!`);
+				rc.report('error', `Function Relation "${relDef.name}" has bad relation arity; expected 1, saw ${rels.length}!`, [fnObj.id]);
 				return;
 			} else if( !relDef.optional && rels.length === 0 ) {
-				rc.report('error', `Function "${fnObj.id}" Relation "${relDef.name}" missing at least one required value.`);
+				rc.report('error', `Function Relation "${relDef.name}" missing at least one required value.`, [fnObj.id]);
 				return;
 			}
 
@@ -615,11 +615,11 @@ function ZoneCodeCompile(def, rc, cc) {
 						const dataNode = def.FindObject(rel.toNode);
 						const ram = def.FindObject(dataNode?.properties?.node);
 						if( !dataNode || !ram ) {
-							report('error', `Failed to look up RAM storage device for "${fnObj.id}" pin "${rel.fromPin}"`);
+							report('error', `Failed to look up RAM storage device for function pin "${rel.fromPin}"`, [fnObj.id]);
 						} else if( 'number' !== typeof ram.properties.ReferenceId ) {
-							report('error', `Data node "${rel.toNode}" RAM Device has no Reference ID!`);
+							report('error', `Data node "${rel.toNode}" RAM Device has no Reference ID!`, [fnObj.id, rel.toNode]);
 						} else if( 'number' !== typeof dataNode?.properties?.addr ) {
-							report('error', `Data node "${rel.toNode}" has no address allocated!`);
+							report('error', `Data node "${rel.toNode}" has no address allocated!`, [fnObj.id, rel.toNode]);
 						} else {
 							set(`${rel.fromPin}.RAM`, ram.properties.ReferenceId);
 							set(`${rel.fromPin}.Addr`, '$' + dataNode.properties.addr.toString(16))
@@ -631,7 +631,7 @@ function ZoneCodeCompile(def, rc, cc) {
 					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
 						const itsVars = varsByFunc[rel.toNode];
 						if( ! itsVars ) {
-							rc.report('error', `Failed to look up variables of related function "${rel.toNode}"!`);
+							rc.report('error', `Failed to look up variables of related function "${rel.toNode}"!`, [fnObj.id, rel.toNode]);
 						} else {
 							for(var k in itsVars) {
 								const val = itsVars[k];
@@ -649,10 +649,10 @@ function ZoneCodeCompile(def, rc, cc) {
 
 		function SetPropVariables(rc, proc, fnObj, vars, propDef, val) {
 			if( !propDef.array && val instanceof Array ) {
-				rc.report('error', `Function "${fnObj.id}" Property "${propDef.name}" has bad arity; expected single value, saw an array.`);
+				rc.report('error', `Function Property "${propDef.name}" has bad arity; expected single value, saw an array.`, [fnObj.id]);
 				return;
 			} else if( propDef.array && !(val instanceof Array) ) {
-				rc.report('error', `Function "${fnObj.id}" Property "${propDef.name}" has bad arity; expected array, saw a single value.`);
+				rc.report('error', `Function Property "${propDef.name}" has bad arity; expected array, saw a single value.`, [fnObj.id]);
 				return;
 			}
 
@@ -704,7 +704,7 @@ function ZoneCodeCompile(def, rc, cc) {
 			for(var pd of fnDef.properties)
 				SetPropVariables(rc, proc, fnObj, vars, pd, fnObj.properties?.[pd.name]);
 
-			//DEBUG: for(var k in vars) rc.report('debug', `Fn "${fnObj.id}" Variable "${k}" = "${vars[k]}"`);
+			//DEBUG: for(var k in vars) rc.report('debug', `Fn "${fnObj.id}" Variable "${k}" = "${vars[k]}"`, [fnObj.id]);
 		});
 
 		const lpad = (n,s,r) => (r??' ').repeat(Math.max(0, n-String(s).length)) + s;
@@ -785,7 +785,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 		const sz = d.properties?.size ?? 1;
 		const st = storages.find(st => st.free >= sz);
 		if( ! st ) {
-			rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
+			rc.report('error', `Failed to find space in Zone RAM for datum used by function`, [f.id, d.id]);
 			return;
 		}
 
@@ -806,7 +806,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 		}
 
 		if( addr === null ) {
-			rc.report('error', `Failed to find space in Zone RAM for datum "${d.id}" referenced by "${f.id}"`);
+			rc.report('error', `Failed to find space in Zone RAM for datum used by function`, [f.id, d.id]);
 			return;
 		}
 
@@ -816,7 +816,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 		d.properties.addr = addr;
 		d.properties.node = st.node;
 
-		rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`);
+		rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`, [d.id]);
 		st.buffers.push(e);
 		st.buffers.sort((a,b) => a.addr - b.addr);
 
@@ -826,17 +826,17 @@ function CheckAndValidateDatum(d, rc, storages) {
 		const da = d.properties.addr;
 		const st = storages.find(st => st.node === d.properties.node);
 		if( ! st ) {
-			rc.report('error', `Failed to find RAM device "${d.properties.node}" in Zone for datum "${d.id}"`);
+			rc.report('error', `Failed to find RAM device "${d.properties.node}" in Zone for datum "${d.id}"`, [d.id]);
 			return;
 		}
 
 		for(var i = 0; i < st.buffers.length; ++i) {
-			const { addr:ba, size:bz } = st.buffers[i];
-			if( st.buffers[i].id === d.id ) {
+			const { addr:ba, size:bz, id:otherId } = st.buffers[i];
+			if( otherId === d.id ) {
 				// This is already the allocation we're looking for, found by another path.
 				return;
 			} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
-				rc.report('error', `Datum "${d.id}" allocation (${da}+${sz}) overlaps with memory allocated for "${st.buffers[i].id ?? st.buffers[i].name}" (${ba}+${bz})`);
+				rc.report('error', `Datum allocation (${da}+${sz}) overlaps with another memory allocation (${ba}+${bz})`, [d.id, otherId]);
 				return;
 			}
 		}
@@ -870,7 +870,7 @@ function AllocateFunctionRel(layer, objId, reldef) {
 
 function PreallocateFunction(report, fnObj, layer) {
 	const fdef = functiondef_db[fnObj.kind];
-	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
+	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`, [fnObj.id]);
 
 	// Preallocate relations
 	const actualRels = layer.FindRelations(fnObj.id);
@@ -881,7 +881,7 @@ function PreallocateFunction(report, fnObj, layer) {
 
 		// For allocatable relations with no bound value, allocate one!
 		if( reldef.allocate && applicable.length === 0 ) {
-			report('info', `Allocating associated value for "${fnObj.id}" pin "${reldef.name}"`)
+			report('info', `Allocating associated value for "${fnObj.id}" pin "${reldef.name}"`, [fnObj.id])
 			AllocateFunctionRel(layer, fnObj.id, reldef);
 		}
 	});
@@ -889,13 +889,13 @@ function PreallocateFunction(report, fnObj, layer) {
 
 function ValidateFunction(report, fnObj, layer) {
 	const fdef = functiondef_db[fnObj.kind];
-	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`);
+	if( !fdef ) return report('error', `Failed to find function type "${fnObj.kind}"`, [fnObj.id]);
 
 	// Validate relations
 	const actualRels = layer.FindRelations(fnObj.id);
 	fdef.rels.forEach(reldef => {
 		if( reldef.allocate && reldef.array ) {
-			return report('error', `Mutually exclusive relation flags on function "${fnObj.kind}" pin "${reldef.name}": 'array' and 'allocate'!`);
+			return report('error', `Mutually exclusive relation flags on function "${fnObj.kind}" pin "${reldef.name}": 'array' and 'allocate'!`, [fnObj.id]);
 		}
 
 		const applicable = actualRels.filter(r => r.fromNode === fnObj.id
@@ -910,7 +910,7 @@ function ValidateFunction(report, fnObj, layer) {
 	fdef.properties.forEach(propDef => {
 		const value = fnObj.properties[propDef.name];
 		if( value === undefined && !(propDef.allocate || propDef.value !== undefined) ) {
-			report('error', `Configuration value "${propDef.name}" missing required value`);
+			report('error', `Configuration value "${propDef.name}" missing required value`, [fnObj.id]);
 		} else if( value ?? propDef.value ) {
 			if( ! ValidatePropertyValue(propDef, value ?? propDef.value, fnObj, report, layer) )
 				return;
@@ -930,7 +930,7 @@ function ValidateFunction(report, fnObj, layer) {
 			}
 
 			if( ! scopeTarget ) {
-				report('error', `Failed to infer scope level "${scope}" target for function "${fnObj.id}" (you may have to manually assign one)`);
+				report('error', `Failed to infer scope level "${scope}" target for function (you may have to manually assign one)`, [fnObj.id]);
 				return;
 			}
 
@@ -945,23 +945,23 @@ function ValidateFunction(report, fnObj, layer) {
 				const did = buffer = layer.NewId();
 				layer.AddObject({id: did, name: dname, type: 'data', transient:true, properties: {size: v.length}});
 				layer.AddRel({fromNode: did, fromPin: 'Scope', toNode: scopeTarget});
-				report('info', `Allocating new buffer "${buffer}" for scope ${scope}="${scopeTarget}"`);
+				report('info', `Allocating new buffer "${buffer}" for scope ${scope}="${scopeTarget}"`, [fnObj.id]);
 			} else {
 				buffer = dat[0].id;
 			}
 
 			if( buffer !== layer.ReadRelation(fnObj.id, propDef.name)?.id ) {
 				layer.AddRel({fromNode: fnObj.id, fromPin: propDef.name, toNode: buffer});
-				report('info', `Binding "${fnObj.id}:${propDef.name}" to buffer "${buffer}"`);
+				report('info', `Binding "${fnObj.id}:${propDef.name}" to buffer "${buffer}"`, [fnObj.id]);
 			}
 		}
 	});
 
 	if( 'function' === typeof fdef.validate ) {
 		try {
-			fdef.validate.call(fnObj, report, layer);
+			fdef.validate.call(undefined, fnObj, report, layer);
 		} catch( e ) {
-			report('error', `Exception in validation function of function "${fnObj.kind}": ${e}`);
+			report('error', `Exception in validation function of function "${fnObj.kind}": ${e}`, [fnObj.id]);
 		}
 	}
 }
@@ -974,23 +974,23 @@ function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 			if( propDef.subtype === 'number' ) {
 				if( typeof val === 'string' ) val = parseFloat(val);
 				if( typeof val !== 'number' || isNaN(val) ) {
-					report('error', `Register value "${propDef.name}" is not a number`);
+					report('error', `Register value "${propDef.name}" is not a number`, [fnObj.id]);
 					ok = false;
 				}
 			
 			} else if( propDef.subtype === 'integer' ) {
 				if( typeof val === 'string' ) val = parseInt(val);
 				if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
-					report('error', `Register value "${propDef.name}" is not an integer`);
+					report('error', `Register value "${propDef.name}" is not an integer`, [fnObj.id]);
 					ok = false;
 				}
 			
 			} else if( propDef.subtype === 'list' ) {
 				if( !(propDef.options instanceof Array) ) {
-					report('error', `Illegal property definition; subtype "list" implies an array "options" to pick from`);
+					report('error', `Illegal property definition "${propDef.name}"; subtype "list" implies an array "options" to pick from`, [fnObj.id]);
 					ok = false;
 				} else if( ! propDef.options.find(i => i.name === val) ) {
-					report('error', `Value "${val}" not a valid option for property value "${propDef.name}"`);
+					report('error', `Value "${val}" not a valid option for property value "${propDef.name}"`, [fnObj.id]);
 					ok = false;
 				}
 			}
@@ -999,14 +999,14 @@ function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 		case 'register':
 			if( typeof val === 'string' ) val = parseInt(val);
 			if( typeof val !== 'number' || isNaN(val) || Math.floor(val) !== val ) {
-				report('error', `Register value "${propDef.name}" is not an integer`);
+				report('error', `Register value "${propDef.name}" is not an integer`, [fnObj.id]);
 				ok = false;
 			} else if( val < 0 || val > 15 ) {
-				report('error', `Register value "${propDef.name}" is out of valid range (0..15 inclusive)`);
+				report('error', `Register value "${propDef.name}" is out of valid range (0..15 inclusive)`, [fnObj.id]);
 				ok = false;
 			}
 			if( propDef.scope !== 'processor' && propDef.scope !== 'instance' ) {
-				report('error', `Property Definition "${propDef.name}" is invalid: supported scopes are "processor" or "instance"!`);
+				report('error', `Property Definition "${propDef.name}" is invalid: supported scopes are "processor" or "instance"!`, [fnObj.id]);
 				ok = false;
 			}
 			break;
@@ -1015,21 +1015,21 @@ function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 			if( typeof val === 'string' ) {
 				try { val = JSON.parse(val); }
 				catch {
-					report('error', `Buffer value "${propDef.name}" must be an array, or a JSON string encoding an array!`);
+					report('error', `Buffer value "${propDef.name}" must be an array, or a JSON string encoding an array!`, [fnObj.id]);
 					ok = false;
 				}
 			}
 			if( !(val instanceof Array) || val.length < 1 ) {
-				report('error', `Buffer value "${propDef.name}" must be a non-empty array`);
+				report('error', `Buffer value "${propDef.name}" must be a non-empty array`, [fnObj.id]);
 				ok = false;
 			} else if( val.find(i => typeof i !== 'number' || isNaN(i)) ) {
-				report('error', `Buffer value "${propDef.name}" must have only numeric entries`);
+				report('error', `Buffer value "${propDef.name}" must have only numeric entries`, [fnObj.id]);
 				ok = false;
 			}
 			break;
 		
 		default:
-			report('error', `Unhandled property type "${propDef.type}"`);
+			report('error', `Unhandled property type "${propDef.type}"`, [fnObj.id]);
 			ok = false;
 	}
 
@@ -1039,9 +1039,9 @@ function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 function ValidateFunctionRel(reldef, rels, fnObj, report, layer)
 {
 	if( rels.length > 1 && !reldef.array ) {
-		report('error', `Non-array pin "${reldef.name}" has more than one connection!`);
+		report('error', `Non-array pin "${reldef.name}" has more than one connection!`, [fnObj.id]);
 	} else if( rels.length === 0 && !reldef.optional ) {
-		report('error', `Non-optional pin "${reldef.name}" of "${fnObj.id}" has no connections!`);
+		report('error', `Non-optional pin "${reldef.name}" of "${fnObj.id}" has no connections!`, [fnObj.id]);
 	} else {
 		rels.forEach(re => ValidateFunctionLink(reldef, re, fnObj, report, layer));
 	}
@@ -1053,12 +1053,12 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 	switch(reldef.type) {
 		case 'function':
 			if( rel.toPin !== undefined || rel.fromIndex !== undefined )
-				report('error', 'Expected relationship to node, not pin');
+				report('error', 'Expected relationship to node, not pin', [fnObj.id]);
 			if( 'function' !== far?.type )
-				report('error', `Bad connection: expected "function" at far node, found "${far?.type ?? 'nothing'}" instead`);
+				report('error', `Bad connection: expected "function" at far node, found "${far?.type ?? 'nothing'}" instead`, [fnObj.id]);
 			if( reldef.functiontype instanceof Array ) {
 				if( -1 === reldef.functiontype.indexOf(far.kind) ) {
-					report('error', `Bad connection: incompatible function "${far.kind}" at far node`)
+					report('error', `Bad connection: incompatible function "${far.kind}" at far node`, [fnObj.id]);
 					break;
 				}
 			}
@@ -1066,31 +1066,31 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 
 		case 'data':
 			if( rel.toPin !== undefined )
-				report('error', 'Expected relationship to node, not pin');
+				report('error', 'Expected relationship to node, not pin', [fnObj.id]);
 			if( 'data' !== far?.type )
-				report('error', `Bad connection: expected "data" at far node, found "${far?.type ?? 'nothing'}" instead`);
+				report('error', `Bad connection: expected "data" at far node, found "${far?.type ?? 'nothing'}" instead`, [fnObj.id]);
 			break;
 
 		case 'equipment':
 			if( !far ) {
-				report('error', `Bad connection: expected "equipment" at far node, found nothing instead`);
+				report('error', `Bad connection: expected "equipment" at far node, found nothing instead`, [fnObj.id]);
 				break;
 			}
 			if( !reldef.subtype && rel.toPin ) {
-				report('error', `Expected relationship to node, not pin.`);
+				report('error', `Expected relationship to node, not pin.`, [fnObj.id]);
 			} else if( reldef.subtype && !rel.toPin ) {
-				report('error', `Expected relationship to pin, node node.`);
+				report('error', `Expected relationship to pin, node node.`, [fnObj.id]);
 			} else if( reldef.subtype ) {
 				//TODO: validate specific destination pin type selected
 			}
 			if( !far.properties?.ReferenceId ) {
-				report('error', `Missing ReferenceId for equipment "${far.id}"`);
+				report('error', `Missing ReferenceId for equipment "${far.id}"`, [fnObj.id]);
 			}
 
 			break;
 
 		default:
-			report('error', `Undefined function relationship type "${reldef.type}"`);
+			report('error', `Undefined function relationship type "${reldef.type}"`, [fnObj.id]);
 	}
 }
 
@@ -1105,7 +1105,7 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 	const def = new GraphLayer(db);
 	const rc = new ReportReceiver();
 	const cc = {};
-	ZoneCodeCompile(def, rc, cc);
+	ZoneCodeCompile('ZHab1', def, rc, cc);
 	const timeEnd = performance.now();
 
 	rc.reports.forEach(e => console.log(`[${e.category}] ${e.severity}: ${e.message}`));
