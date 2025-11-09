@@ -594,3 +594,23 @@ body.narrow-viewport .window-inner.psm-navigation {
 .psm-add-object .add-list .search-result .label {
 	margin-inline: 2ch;
 }
+
+.psm-compile .window-body {
+	display: grid;
+	height: calc(100% - 2em);
+	grid-template-rows: min-content 1fr min-content 1fr;
+}
+
+.psm-compile .reports,
+.psm-compile .code {
+	overflow: scroll;
+	flex-grow: 1;
+}
+
+.psm-compile .code pre {
+	user-select: all;
+}
+
+.psm-compile .reports {
+	grid-row: 4;
+}
