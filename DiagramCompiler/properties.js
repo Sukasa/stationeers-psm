@@ -125,9 +125,10 @@ function makePicker(D, objId, pin, values, cval) {
 }
 
 
-function commitString(setter) {
+function commitString(setter, field) {
 	return (evt) => {
-		setter(evt.currentTarget.value);
+		const val = evt.currentTarget.value;
+		setter(val === '' && field.optional ? undefined : val);
 	};
 }
 
@@ -137,11 +138,15 @@ function commitCheck(setter) {
 	};
 }
 
-function commitNumber(setter) {
+function commitNumber(setter, field) {
 	return (evt) => {
 		const v = parseFloat(evt.currentTarget.value);
 		if( isNaN(v) ) {
-			evt.currentTarget.value = evt.currentTarget.defaultValue;
+			if( field.optional ) {
+				setter(undefined);
+			} else {
+				evt.currentTarget.value = evt.currentTarget.defaultValue;
+			}
 		} else {
 			setter(v);
 		}
@@ -168,11 +173,12 @@ function EditorFor(tgt, field, object, val, setter)
 function ConstantEditor(tgt, field, val, setter)
 {
 	if( field.subtype === 'string' ) {
+		const apparentVal = val === undefined ? '' : String(val);
 		const S = $(tgt, "input", {
 			type: 'text',
-			defaultValue:String(val),
-			value: String(val),
-			'?blur': commitString(setter),
+			defaultValue: apparentVal,
+			value: apparentVal,
+			'?blur': commitString(setter, field),
 		});
 
 		function PickMe(evt) {
@@ -186,15 +192,21 @@ function ConstantEditor(tgt, field, val, setter)
 		postRender(() => window.addEventListener('keyup', PickMe));
 	
 	} else if( field.subtype === 'number' ) {
-		$(tgt, "input", {type: 'text', defaultValue:String(val), value: String(val), '?blur': commitNumber(setter),});
+		const apparentVal = val === undefined ? '' : String(val);
+		$(tgt, "input", {
+			type: 'text',
+			defaultValue: field.optional ? undefined : apparentVal,
+			value: apparentVal,
+			'?blur': commitNumber(setter, field),
+		});
 		if( field.unit ) $(tgt, "span", {className:'unit', }, "="+field.unit);
 
 	} else if( field.subtype === 'list' ) {
-		const S = $(tgt, "select", {'?change': commitString(setter)}, field.options.map(opt => ["option", {value:opt.name}, "="+opt.label]));
+		const S = $(tgt, "select", {'?change': commitString(setter, field)}, field.options.map(opt => ["option", {value:opt.name}, "="+opt.label]));
 		S.value = val;
 
 	} else if( field.subtype === 'boolean' ) {
-		$(tgt, "input", {type: 'checkbox', value:1, checked: !!val, '?change': commitCheck(setter),});
+		$(tgt, "input", {type: 'checkbox', value:1, checked: !!val, '?change': commitCheck(setter, field),});
 
 	} else {
 		$(tgt, "pre", "= ??" + field.subtype);

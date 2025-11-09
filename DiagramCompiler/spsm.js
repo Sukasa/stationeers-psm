@@ -373,8 +373,16 @@ function AddCommit(D,S,recipe) {
 	const objid = D.NewId();
 	const obj = recipe.ctor(objid);
 	obj.id = objid;
-
 	D.AddObject(obj);
+
+	if( S.activeZone && metanode_db[obj.type]?.Pins(obj).find(p => p.name === 'Zone' && p.type === 'zone') ) {
+		D.AddRel({
+			fromNode: obj.id,
+			fromPin: 'Zone',
+			toNode: S.activeZone,
+		});
+	}
+
 	if( !(S.selection instanceof Array) ) S.selection = [];
 	S.selection.length = 0;
 	S.selection.push(objid);
@@ -494,6 +502,7 @@ function UpdateCompilation(D, S, zoneId)
 	S.compilations[zoneId] = {
 		reports: rc.reports,
 		code: cc,
+		when: Date.now(),
 	};
 
 	/*

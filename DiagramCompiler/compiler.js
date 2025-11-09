@@ -1,188 +1,29 @@
 
-/* TEST DATA
-const test_workspace = [
-	// Equipment
-	{type: 'equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
-		'Name': 'Foyer Gas Sensor',
-		'ReferenceId': 4108,
-	}},
-	{type: 'equipment', kind: 'Wall Heater', id: 'LC183102', properties: {
-		'Name': 'Foyer Wall Heater',
-		'ReferenceId': 1320,
-	}},
-	{type: 'equipment', kind: 'StructureConsoleLED', id: 'TW818194', properties: {
-		'Name': 'Temp Wall Display (North)',
-		'Initialize': {Color:2, On:1, Mode:4},
-		'ReferenceId': 4102,
-	}},
-	{type: 'equipment', kind: 'StructureConsoleLED', id: 'TW37182', properties: {
-		'Name': 'Temp Wall Display (South)',
-		'Initialize': {Color:2, On:1, Mode:4},
-		'ReferenceId': 4261,
-	}},
-	{type: 'equipment', kind: 'Button', id: 'RI39151', properties: {
-		'Name': 'ACK button',
-		'Initialize': {Color:5},
-		'ReferenceId': 4120,
-	}},
-	{type: 'equipment', kind: 'ModularDeviceLight', id: 'TW3716', properties: {
-		'Name': 'Low Temp Alarm Lamp',
-		'Initialize': {Color:5, On:1},
-		'ReferenceId': 4127,
-	}},
-	{type: 'equipment', kind: 'ModularDeviceLight', id: 'TW7191', properties: {
-		'Name': 'High Temp Alarm Lamp',
-		'Initialize': {Color:4, On:1},
-		'ReferenceId': 4243,
-	}},
-	{type: 'equipment', kind: 'StructureCircuitHousing+IC10', id: 'RG3123', properties: {
-		'Name': 'Foyer Control A',
-		'ReferenceId': 4118,
-		'Lines': 128,
-		'Memory': 512,
-	}},
-	{type: 'equipment', kind: 'StructureCircuitHousing+IC10', id: 'RG3124', properties: {
-		'Name': 'Foyer Control B',
-		'ReferenceId': 5423,
-		'Lines': 128,
-		'Memory': 512,
-	}},
-	{type: 'equipment', kind: 'StructureUtilitySocket+UtilityMemory', id: 'UC48', properties: {
-		'Name': 'Foyer Control RAM',
-		'ReferenceId': 5766,
-		'Lines': 0,
-		'Memory': 8192,
-	}},
-
-	// Zone
-	{type: 'zone', id: 'ZHab1', properties: {
-		'Name': 'Habitat 1',
-	}},
-
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', fromIndex:0, toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', fromIndex:1, toNode: 'RG3124'},
-	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'UC48'},
-
-	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UV8201',   fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG82030',  fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG7364',   fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'ZG7188',   fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG2022',   fromPin: 'Zone', toNode: 'ZHab1'},
-	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
-
-	{type: 'rel', fromNode: 'UK381091', fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'UV8201',   fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'UG82030',  fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'UG7364',   fromPin: 'Processor', toNode: 'RG3124'},
-	{type: 'rel', fromNode: 'UG175689', fromPin: 'Processor', toNode: 'RG3124'},
-	{type: 'rel', fromNode: 'ZG7188',   fromPin: 'Processor', toNode: 'RG3123'},
-	{type: 'rel', fromNode: 'UG2022',   fromPin: 'Processor', toNode: 'RG3124'},
-	{type: 'rel', fromNode: 'UG497710', fromPin: 'Processor', toNode: 'RG3124'},
-
-	// Functions
-	{type: 'function', kind: 'IR', id: 'UK381091', properties: {
-		Name: 'TI-401 PV',
-	}},
-	{type: 'rel', fromNode: 'UK381091', fromPin: 'Source', toNode: 'EK419931', toPin: 'Temperature'},
-	{type: 'rel', fromNode: 'UK381091', fromPin: 'Destination', toNode: 'HL13014'},
-
-	{type: 'function', kind: 'XR', id: 'UV8201', properties: {
-		Name: 'ACK input',
-		'Signal': 1,
-	}},
-	{type: 'rel', fromNode: 'UV8201', fromPin: 'Source', toNode: 'RI39151'},
-	{type: 'rel', fromNode: 'UV8201', fromPin: 'Destination', toNode: 'HL94912'},
-
-	{type: 'function', kind: 'OR', id: 'EQ818293', properties: {
-		Name: 'TI-401 PV (to HID)',
-	}},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', toNode: 'HL13014', viaNode: 'UK381091', viaPin: 'Destination'},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 0, toNode: 'TW818194', toPin: 'Setting'},
-	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 1, toNode: 'TW37182', toPin: 'Setting'},
-
-	{type: 'function', kind: 'AT', id: 'UG82030', properties: {
-		Name: 'TI-401 low level alarm',
-		'Test': 'slt',
-		'Threshold': 283,
-	}},
-	{type: 'rel', fromNode: 'UG82030', fromPin: 'Input', toNode: 'UK381091'},
-	{type: 'rel', fromNode: 'UG82030', fromPin: 'Destination', toNode: 'HL83018'},
-
-	{type: 'function', kind: 'AS', id: 'UG7364', properties: {
-		Name: 'TI-401 low level alarm',
-	}},
-	{type: 'rel', fromNode: 'UG7364', fromPin: 'Input', toNode: 'UG82030'},
-	{type: 'rel', fromNode: 'UG7364', fromPin: 'State', toNode: 'HL92103'},
-	{type: 'rel', fromNode: 'UG7364', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
-
-	{type: 'function', kind: 'AA', id: 'UG175689', properties: {
-		Name: 'TI-401 low level alarm',
-	}},
-	{type: 'rel', fromNode: 'UG175689', fromPin: 'Input', toNode: 'UG7364'},
-	{type: 'rel', fromNode: 'UG175689', fromPin: 'Display', toNode: 'TW3716'},
-
-	{type: 'function', kind: 'AT', id: 'ZG7188', properties: {
-		Name: 'TI-401 high level alarm',
-		'Test': 'sgt',
-		'Threshold': 302,
-	}},
-	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Input', toNode: 'UK381091'},
-	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Destination', toNode: 'HH42018'},
-
-	{type: 'function', kind: 'AS', id: 'UG2022', properties: {
-		Name: 'TI-401 high level alarm',
-	}},
-	{type: 'rel', fromNode: 'UG2022', fromPin: 'Input', toNode: 'ZG7188'},
-	{type: 'rel', fromNode: 'UG2022', fromPin: 'State', toNode: 'HL19371'},
-	{type: 'rel', fromNode: 'UG2022', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
-
-	{type: 'function', kind: 'AA', id: 'UG497710', properties: {
-		Name: 'TI-401 high level alarm',
-	}},
-	{type: 'rel', fromNode: 'UG497710', fromPin: 'Input', toNode: 'UG2022'},
-	{type: 'rel', fromNode: 'UG497710', fromPin: 'Display', toNode: 'TW7191'},
-
-	{type: 'data', id: 'HL94912', name:'ACK GROUP 1 TRIGGER', transient:true, properties: {}},
-	{type: 'data', id: 'HL13014', name:'TI-401 PV', transient:true, properties: {}},
-	{type: 'data', id: 'HL83018', name:'TI-401 LO ALARM TRIGGER', transient:true, properties: {}},
-	{type: 'data', id: 'HL92103', name:'TI-401 LO ALARM STATE', transient:true, properties: {}},
-	{type: 'data', id: 'HH42018', name:'TI-401 HI ALARM TRIGGER', transient:true, properties: {}},
-	{type: 'data', id: 'HL19371', name:'TI-401 HI ALARM STATE', transient:true, properties: {}},
-
-
-	{type: 'drawing', id: 'DW927741', properties: {'Name': 'Greenhouse Support Module',}},
-	
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 0, toNode: 'EK419931', properties: {x:2, y:-1, as:'schematic'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 1, toNode: 'LC183102', properties: {x:2, y:0, as:'schematic'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 2, toNode: 'RG3123', properties: {x:2, y:1, as:'schematic'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 3, toNode: 'TW818194', properties: {x:0, y:-1, as:'schematic'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:0, y:0, as:'schematic'}},
-	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:0, y:1, as:'schematic'}},
-];
-/* */
-
 function ZoneCodeCompile(zone, def, rc, cc) {
+	rc.setCategory('Input Organization');
+
 	// Gather function-related assets in Zone.
 	const assets = def.FindRelations(zone)
 		.filter(rel => rel.fromNode === zone
 			&& (rel.fromPin === 'Processor' || rel.fromPin === 'RAM'));
-
+	
 	// Gather Functions in Zone
 	const funcs = def.FindRelations(zone)
 		.filter(r => r.toNode === zone && r.fromPin === 'Zone')
 		.map(rel => def.FindObject(rel.fromNode))
-		.filter(o => o.type === 'function');
+		.filter(o => o.type === 'function')
+		.filter((o1,i,a) => a.findIndex(o2 => o2.id === o1.id) === i);
 
-	// Gather Equipment in Zone which need Initialization code.
-	const initEquip = funcs.flatMap(f => def.RelationsOf(f.id))
+	const relatedObjects = funcs.flatMap(f => def.RelationsOf(f.id))
 		.map(rel => def.FindObject(rel.toNode))
-		.filter(o => o?.type === 'equipment' && o.properties?.Initialize);
+		.filter((o1,i,a) => a.findIndex(o2 => o2.id === o1.id) === i);
 	
+	// Gather Equipment in Zone which need Initialization code.
+	const initEquip = relatedObjects
+		.filter(o => o?.type === 'equipment' && o.properties?.Initialize);
+
 	// Add Equipment Initialization functions for each
+	rc.setCategory('Generate Initializers');
 	initEquip.forEach(eq => {
 		// Initialize in canonical logic field order!
 		const keys = Object.keys(eq.properties.Initialize)
@@ -204,20 +45,39 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			def.AddObject(f);
 			def.AddRel({fromNode:f.id, fromPin:'Destination', toNode:eq.id, toPin:initKey});
 			funcs.push(f);
+			rc.report('info', `Generated ${f.properties.Name}`, [eq.id, f.id]);
 		});
+	});
+
+	// Add Data Initialization functions for those that need it
+	const initData = relatedObjects
+		.filter(o => o?.type === 'data' && 'number' === typeof o.properties?.InitValue);
+	
+	initData.forEach(dd => {
+		const f = {
+			id: def.NewId(),
+			type: 'function',
+			kind: 'DI',
+			properties: {
+				Name: `Init ${metanode_db.data.Name(dd)}`,
+				Value: dd.properties.InitValue,
+			},
+			transient: true,
+		};
+
+		def.AddObject(f);
+		def.AddRel({fromNode:f.id, fromPin:'Destination', toNode:dd.id});
+		funcs.push(f);
+		rc.report('info', `Generated ${f.properties.Name}`, [dd.id, f.id]);
 	});
 	
 	// Allocate any `allocate`-able and allocate-needed pins of functions.
 	rc.setCategory('Pre-Allocation');
-	funcs.forEach(f => {
-		PreallocateFunction(rc.report, f, def);
-	})
+	funcs.forEach(f => PreallocateFunction(rc.report, f, def));
 
 	// Validate Functions
 	rc.setCategory('Function Validation');
-	funcs.forEach(f => {
-		ValidateFunction(rc.report, f, def);
-	});
+	funcs.forEach(f => ValidateFunction(rc.report, f, def));
 
 	const processors = [], storages = [];
 	if( ! rc.fatal ) {
@@ -226,6 +86,12 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 		// Gather what spaces we have available for allocating.
 		assets.forEach(ar => {
 			const n = def.FindObject(ar.toNode);
+
+			if( 'number' !== typeof n.properties.ReferenceId || 0 >= n.properties.ReferenceId ) {
+				rc.report('error', `${ar.fromPin} asset has no Reference ID!`, [n.id]);
+				return;
+			}
+
 			if( ar.fromPin === 'Processor' ) {
 				const LoCPerTick = n?.properties?.LoCPerTick ?? equipmenttype_db[n?.kind]?.attributes?.LoCPerTick ?? 128;
 				const maxLines = n?.properties?.Lines ?? equipmenttype_db[n?.kind]?.attributes?.Lines ?? 128;
@@ -310,7 +176,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 				return;
 
 			} else if( !fproc && processors[0] ) {
-				rc.report('info', `Assigning Zone processor to function`, [processors[0].node, f.id]);
+				rc.report('info', `Auto-assigning Zone processor to function`, [processors[0].node, f.id]);
 				CreateRelation(def, f.id, 'Processor', 0, processors[0].node);
 				fproc = def.FindObject(processors[0].node);
 			}
@@ -349,7 +215,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 					if( -1 === idx ) {
 						rc.report('error', `Register r${nval} is already in use in processor; cannot assign it to function type "${f.kind}"`, [proc.node]);
 					} else {
-						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor`, [proc.node]);
+						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor`, [proc.node, f.id]);
 						const reg = proc.registersFree[idx];
 						proc.registersFree.splice(idx, 1);
 						const vlist = proc.varsByFType[f.kind] ?? (proc.varsByFType[f.kind] = {});
@@ -731,9 +597,18 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 					
 					const generate = (a_vars, code) => {
 						code.forEach(line => {
-							var ln = line.replaceAll(/%([^% ]*)%/g, (_, name) => {
-								return a_vars[name] ?? `%FAILED: ${name}%`;
-							});
+							var ln = line;
+							var lastLn;
+							do {
+								lastLn = ln;
+								ln = lastLn.replaceAll(/%([^% ]+)%/g, (_, name) => {
+									return a_vars[name] ?? `%FAILED: ${name}%`;
+								});
+							} while( ln !== lastLn && ln.length <= 52 );
+							
+							if( ln.length > 52 ) {
+								rc.report('error', `Potential line length overrun (${ln.length} versus 52 max) at line #${all_lines.length}`, [procid]);
+							}
 
 							if( next_comment ) {
 								ln = rpad(32,ln) + next_comment;
@@ -1095,6 +970,171 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 }
 
 /* DEBUG: run compiler on test data
+
+const test_workspace = [
+	// Equipment
+	{type: 'equipment', kind: 'Gas Sensor', id: 'EK419931', properties: {
+		'Name': 'Foyer Gas Sensor',
+		'ReferenceId': 4108,
+	}},
+	{type: 'equipment', kind: 'Wall Heater', id: 'LC183102', properties: {
+		'Name': 'Foyer Wall Heater',
+		'ReferenceId': 1320,
+	}},
+	{type: 'equipment', kind: 'StructureConsoleLED', id: 'TW818194', properties: {
+		'Name': 'Temp Wall Display (North)',
+		'Initialize': {Color:2, On:1, Mode:4},
+		'ReferenceId': 4102,
+	}},
+	{type: 'equipment', kind: 'StructureConsoleLED', id: 'TW37182', properties: {
+		'Name': 'Temp Wall Display (South)',
+		'Initialize': {Color:2, On:1, Mode:4},
+		'ReferenceId': 4261,
+	}},
+	{type: 'equipment', kind: 'Button', id: 'RI39151', properties: {
+		'Name': 'ACK button',
+		'Initialize': {Color:5},
+		'ReferenceId': 4120,
+	}},
+	{type: 'equipment', kind: 'ModularDeviceLight', id: 'TW3716', properties: {
+		'Name': 'Low Temp Alarm Lamp',
+		'Initialize': {Color:5, On:1},
+		'ReferenceId': 4127,
+	}},
+	{type: 'equipment', kind: 'ModularDeviceLight', id: 'TW7191', properties: {
+		'Name': 'High Temp Alarm Lamp',
+		'Initialize': {Color:4, On:1},
+		'ReferenceId': 4243,
+	}},
+	{type: 'equipment', kind: 'StructureCircuitHousing+IC10', id: 'RG3123', properties: {
+		'Name': 'Foyer Control A',
+		'ReferenceId': 4118,
+		'Lines': 128,
+		'Memory': 512,
+	}},
+	{type: 'equipment', kind: 'StructureCircuitHousing+IC10', id: 'RG3124', properties: {
+		'Name': 'Foyer Control B',
+		'ReferenceId': 5423,
+		'Lines': 128,
+		'Memory': 512,
+	}},
+	{type: 'equipment', kind: 'StructureUtilitySocket+UtilityMemory', id: 'UC48', properties: {
+		'Name': 'Foyer Control RAM',
+		'ReferenceId': 5766,
+		'Lines': 0,
+		'Memory': 8192,
+	}},
+
+	// Zone
+	{type: 'zone', id: 'ZHab1', properties: {
+		'Name': 'Habitat 1',
+	}},
+
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', fromIndex:0, toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'Processor', fromIndex:1, toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'ZHab1', fromPin: 'RAM', toNode: 'UC48'},
+
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UV8201',   fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG82030',  fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG7364',   fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'ZG7188',   fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG2022',   fromPin: 'Zone', toNode: 'ZHab1'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Zone', toNode: 'ZHab1'},
+
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UV8201',   fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UG82030',  fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UG7364',   fromPin: 'Processor', toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Processor', toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'ZG7188',   fromPin: 'Processor', toNode: 'RG3123'},
+	{type: 'rel', fromNode: 'UG2022',   fromPin: 'Processor', toNode: 'RG3124'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Processor', toNode: 'RG3124'},
+
+	// Functions
+	{type: 'function', kind: 'IR', id: 'UK381091', properties: {
+		Name: 'TI-401 PV',
+	}},
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Source', toNode: 'EK419931', toPin: 'Temperature'},
+	{type: 'rel', fromNode: 'UK381091', fromPin: 'Destination', toNode: 'HL13014'},
+
+	{type: 'function', kind: 'XR', id: 'UV8201', properties: {
+		Name: 'ACK input',
+		'Signal': 1,
+	}},
+	{type: 'rel', fromNode: 'UV8201', fromPin: 'Source', toNode: 'RI39151'},
+	{type: 'rel', fromNode: 'UV8201', fromPin: 'Destination', toNode: 'HL94912'},
+
+	{type: 'function', kind: 'OR', id: 'EQ818293', properties: {
+		Name: 'TI-401 PV (to HID)',
+	}},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Source', toNode: 'HL13014', viaNode: 'UK381091', viaPin: 'Destination'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 0, toNode: 'TW818194', toPin: 'Setting'},
+	{type: 'rel', fromNode: 'EQ818293', fromPin: 'Destination', fromIndex: 1, toNode: 'TW37182', toPin: 'Setting'},
+
+	{type: 'function', kind: 'AT', id: 'UG82030', properties: {
+		Name: 'TI-401 low level alarm',
+		'Test': 'slt',
+		'Threshold': 283,
+	}},
+	{type: 'rel', fromNode: 'UG82030', fromPin: 'Input', toNode: 'UK381091'},
+	{type: 'rel', fromNode: 'UG82030', fromPin: 'Destination', toNode: 'HL83018'},
+
+	{type: 'function', kind: 'AS', id: 'UG7364', properties: {
+		Name: 'TI-401 low level alarm',
+	}},
+	{type: 'rel', fromNode: 'UG7364', fromPin: 'Input', toNode: 'UG82030'},
+	{type: 'rel', fromNode: 'UG7364', fromPin: 'State', toNode: 'HL92103'},
+	{type: 'rel', fromNode: 'UG7364', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
+
+	{type: 'function', kind: 'AA', id: 'UG175689', properties: {
+		Name: 'TI-401 low level alarm',
+	}},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Input', toNode: 'UG7364'},
+	{type: 'rel', fromNode: 'UG175689', fromPin: 'Display', toNode: 'TW3716'},
+
+	{type: 'function', kind: 'AT', id: 'ZG7188', properties: {
+		Name: 'TI-401 high level alarm',
+		'Test': 'sgt',
+		'Threshold': 302,
+	}},
+	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Input', toNode: 'UK381091'},
+	{type: 'rel', fromNode: 'ZG7188', fromPin: 'Destination', toNode: 'HH42018'},
+
+	{type: 'function', kind: 'AS', id: 'UG2022', properties: {
+		Name: 'TI-401 high level alarm',
+	}},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'Input', toNode: 'ZG7188'},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'State', toNode: 'HL19371'},
+	{type: 'rel', fromNode: 'UG2022', fromPin: 'AckSignal', toNode: 'HL94912', viaNode: 'UV8201', viaPin: 'Destination'},
+
+	{type: 'function', kind: 'AA', id: 'UG497710', properties: {
+		Name: 'TI-401 high level alarm',
+	}},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Input', toNode: 'UG2022'},
+	{type: 'rel', fromNode: 'UG497710', fromPin: 'Display', toNode: 'TW7191'},
+
+	{type: 'data', id: 'HL94912', name:'ACK GROUP 1 TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL13014', name:'TI-401 PV', transient:true, properties: {}},
+	{type: 'data', id: 'HL83018', name:'TI-401 LO ALARM TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL92103', name:'TI-401 LO ALARM STATE', transient:true, properties: {}},
+	{type: 'data', id: 'HH42018', name:'TI-401 HI ALARM TRIGGER', transient:true, properties: {}},
+	{type: 'data', id: 'HL19371', name:'TI-401 HI ALARM STATE', transient:true, properties: {}},
+
+
+	{type: 'drawing', id: 'DW927741', properties: {'Name': 'Greenhouse Support Module',}},
+	
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 0, toNode: 'EK419931', properties: {x:2, y:-1, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 1, toNode: 'LC183102', properties: {x:2, y:0, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 2, toNode: 'RG3123', properties: {x:2, y:1, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 3, toNode: 'TW818194', properties: {x:0, y:-1, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 4, toNode: 'RI39151', properties: {x:0, y:0, as:'schematic'}},
+	{type: 'rel', fromNode: 'DW927741', fromPin: 'Component', fromIndex: 5, toNode: 'TW3716', properties: {x:0, y:1, as:'schematic'}},
+];
+
 (function() {
 	// Create graph layer from prototype test data.
 	const db = new GraphLayer();

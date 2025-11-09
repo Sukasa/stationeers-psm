@@ -122,12 +122,20 @@ function makeToggler(list, id) {
 function renderNavigation(D, S) {
 	const selected = S.selection ?? [];
 	if( ! S.navigation ) S.navigation = {filters:{}};
-	const togs = S.navigation.filters;
+	const togs = S.navigation.filters ?? (S.navigation.filters = {});
 
 	const makeToggle = id => ["div", {
 		className:`toggle toggle-${id.replaceAll('_','-')} ${togs[id]?'active':'inactive'}`,
 		'?click': () => {togs[id]=!togs[id]; rerender()},
 	}];
+
+	const zones = D.Objects(o => o.type === 'zone');
+	if( zones.length === 0 ) {
+		const ins = {type:'zone', id: D.NewId(), properties:{Name:'New Zone'}};
+		S.activeZone = ins.id;
+		zones.push(ins);
+		D.AddObject(ins);
+	}
 
 	const zoneSelect = $("select",
 		{
@@ -139,11 +147,11 @@ function renderNavigation(D, S) {
 				}
 			}
 		},
-		D.Objects(o => o.type === 'zone').map(z =>
+		zones.map(z =>
 			["option", "="+metanode_db.zone.Name(z), {value:z.id, selected: z.id === S.activeZone}]
 		)
 	);
-	if( S.activeZone && zoneSelect.childNodes[0].textContent === '' )
+	if( S.activeZone && zoneSelect.childNodes[0]?.textContent === '' )
 		zoneSelect.removeChild(zoneSelect.childNodes[0]);
 
 	const navRoot = $("div", { className:'nav-list' });

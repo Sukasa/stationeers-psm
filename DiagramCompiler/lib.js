@@ -293,6 +293,30 @@ const functiondef_db = {
 		]
 	},
 
+	"DI": {
+		name: 'Data Initialization',
+		info: 'Writes constant values to Zone RAM, but just once each time the controllers are reset.',
+		notAddable: true,
+		rels: [
+			{name: 'Destination', type: 'data'},
+		],
+		properties: [
+			{name: 'Value', type: 'constant', subtype: 'number',},
+		],
+		InitNew(def) {
+			def.properties.Value = 0;
+			return def;
+		},
+		blocks: [
+			{
+				scope: 'zone-init',
+				code: [
+					's %Destination.RAM% %Destination.Addr% %Value%'
+				],
+			}
+		]
+	},
+
 	"CT": {
 		name: 'Condition Test',
 		info: 'Tests a value for some condition, and stores that boolean result.',
@@ -351,9 +375,10 @@ const functiondef_db = {
 			{name: 'Postprocess', type: 'constant', subtype: 'list', value: ' ', options: [
 				{name: ' ', label: 'None'},
 				{name: 'select %R1% %R1% 1 0', label: 'Cast to boolean'},
-				{name: 'select %R1% %R1% 0 1', label: 'Invert boolean'},
+				{name: 'select %R1% %R1% 0 1', label: 'Inverted boolean'},
 				{name: 'div %R1% 1 %R1%', label: 'Reciprocal (1/value)'},
 				{name: 'sub %R1% 0 %R1%', label: 'Inverse (0-value)'},
+				{name: 'max %R1% 0 %R1%', label: 'Clamp Non-Negative (0 or higher)' },
 			]},
 			{name: 'R1', type: 'register', allocate: true, hidden: true, scope: 'instance', },
 			{name: 'R2', type: 'register', allocate: true, hidden: true, scope: 'instance', },
@@ -809,7 +834,7 @@ const metanode_db = {
 		Info(obj) {},
 
 		Name(obj) {
-			return obj.properties?.name
+			return obj.properties?.Name
 				?? (obj.properties.addr && obj.properties.node && `[RAM] ${obj.properties.node}:\$${obj.properties.addr.toString(16)}`)
 				?? `[RAM] Unallocated ${obj.id}`;
 		},
@@ -819,7 +844,10 @@ const metanode_db = {
 		},
 
 		Fields(obj) {
-
+			return [
+				{name:'Name', type:'constant', subtype:'string', optional:true},
+				{name:'InitValue', type:'constant', subtype:'number', optional:true},
+			]
 		},
 
 		// Return renderer class for Schematic view of this metanode.
@@ -831,7 +859,7 @@ const metanode_db = {
 			return [{
 				group: 'Functional',
 				priority: 2,
-				label: `Data Allocation`,
+				label: `Data or Constant`,
 				ctor: id => ({type: 'data', properties:{},}),
 			}];
 		},
@@ -1081,6 +1109,8 @@ class GraphLayer {
 
 		this.Objs = {};
 		this.Rels = {};
+		if(str === '') return;
+
 		const raw = JSON.parse(str);
 		if( !(raw instanceof Array) )
 			throw new Error("expected deserialized graph data to be an array");
