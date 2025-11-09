@@ -112,7 +112,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 				const maxSlots = n?.properties?.Memory ?? equipmenttype_db[n?.kind]?.attributes?.Lines ?? 512;
 				storages.push({
 					node: ar.toNode,
-					buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', addr:0, size:1}],
+					buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', Addr:0, size:1}],
 					capacity: maxSlots,
 					free: maxSlots - 1
 				});
@@ -484,11 +484,11 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 							report('error', `Failed to look up RAM storage device for function pin "${rel.fromPin}"`, [fnObj.id]);
 						} else if( 'number' !== typeof ram.properties.ReferenceId ) {
 							report('error', `Data node "${rel.toNode}" RAM Device has no Reference ID!`, [fnObj.id, rel.toNode]);
-						} else if( 'number' !== typeof dataNode?.properties?.addr ) {
+						} else if( 'number' !== typeof dataNode?.properties?.Addr ) {
 							report('error', `Data node "${rel.toNode}" has no address allocated!`, [fnObj.id, rel.toNode]);
 						} else {
 							set(`${rel.fromPin}.RAM`, ram.properties.ReferenceId);
-							set(`${rel.fromPin}.Addr`, '$' + dataNode.properties.addr.toString(16))
+							set(`${rel.fromPin}.Addr`, '$' + dataNode.properties.Addr.toString(16))
 						}
 					});
 					break;
@@ -545,7 +545,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 					const ram = def.FindObject(data.properties.node);
 					ReduceArray(vars, fnObj, propDef, val, (v, set) => {
 						set(`B.RAM`, ram.properties?.ReferenceId);
-						set(`B.${propDef.name}`, data.properties.addr);
+						set(`B.${propDef.name}`, data.properties.Addr);
 					});
 					break;
 			}
@@ -655,7 +655,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 }
 
 function CheckAndValidateDatum(d, rc, storages) {
-	if( d.properties?.addr === undefined || d.properties?.node === undefined ) {
+	if( d.properties?.Addr === undefined || d.properties?.node === undefined ) {
 		// Find and allocate space for this datum in a Zone RAM.
 		const sz = d.properties?.size ?? 1;
 		const st = storages.find(st => st.free >= sz);
@@ -668,9 +668,9 @@ function CheckAndValidateDatum(d, rc, storages) {
 		for(var i = 0; i < st.buffers.length; ++i) {
 			if( i < st.buffers.length - 1 ) {
 				// Check between this block and next.
-				if( sz <= st.buffers[i+1].addr - st.buffers[i].addr - st.buffers[i].size ) {
+				if( sz <= st.buffers[i+1].Addr - st.buffers[i].Addr - st.buffers[i].size ) {
 					// We can insert a new block here!
-					addr = st.buffers[i+1].addr - sz;
+					addr = st.buffers[i+1].Addr - sz;
 					break;
 				}
 			} else {
@@ -686,19 +686,19 @@ function CheckAndValidateDatum(d, rc, storages) {
 		}
 
 		// Insert new entry
-		const e = {addr: addr, size: sz, id:d.id, name: d.name};
+		const e = {Addr: addr, size: sz, id:d.id, name: d.name};
 		d.properties = d.properties ?? {};
-		d.properties.addr = addr;
+		d.properties.Addr = addr;
 		d.properties.node = st.node;
 
 		rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`, [d.id]);
 		st.buffers.push(e);
-		st.buffers.sort((a,b) => a.addr - b.addr);
+		st.buffers.sort((a,b) => a.Addr - b.Addr);
 
 	} else {
 		// Validate manually-allocated space for this datum in a Zone RAM.
 		const sz = d.properties.size ?? 1;
-		const da = d.properties.addr;
+		const da = d.properties.Addr;
 		const st = storages.find(st => st.node === d.properties.node);
 		if( ! st ) {
 			rc.report('error', `Failed to find RAM device "${d.properties.node}" in Zone for datum "${d.id}"`, [d.id]);
@@ -706,18 +706,19 @@ function CheckAndValidateDatum(d, rc, storages) {
 		}
 
 		for(var i = 0; i < st.buffers.length; ++i) {
-			const { addr:ba, size:bz, id:otherId } = st.buffers[i];
+			const { Addr:ba, size:bz, id:otherId } = st.buffers[i];
 			if( otherId === d.id ) {
 				// This is already the allocation we're looking for, found by another path.
 				return;
 			} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
-				rc.report('error', `Datum allocation (${da}+${sz}) overlaps with another memory allocation (${ba}+${bz})`, [d.id, otherId]);
+				//TODO: "quick actions" to resolve reports
+				rc.report('error', `Datum allocation (${da}+${sz}) overlaps with another memory allocation (${ba}+${bz}) in RAM device`, [d.id, otherId, d.properties.node]);
 				return;
 			}
 		}
 
-		st.buffers.push({addr: da, size: sz, id: d.id, name: d.name})
-		st.buffers.sort((a,b) => a.addr - b.addr);
+		st.buffers.push({Addr: da, size: sz, id: d.id, name: d.name})
+		st.buffers.sort((a,b) => a.Addr - b.Addr);
 	}
 }
 

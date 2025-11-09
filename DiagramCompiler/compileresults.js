@@ -22,15 +22,32 @@ function renderCompile(D, S) {
 		if( !processors.find(({proc}) => proc.id === activeProc) )
 			activeProc = processors[0].proc.id;
 		const active = processors.find(({proc}) => proc.id === activeProc);
+		
+		const lines = active.code.split("\n");
+		const [lnos,body,comment] = lines.reduce(([lnos,body,comment], line, i) => {
+			lnos += '\n' + i + ': ';
+			const s = line.indexOf('#');
+			const before = s === -1 ? line : line.substr(0,s).trim();
+			const after = s === -1 ? '' : line.substr(s);
+
+			body += '\n' + before;
+			comment += '\n' + (after ? ' '+after : '');
+			
+			return [lnos,body,comment];
+		}, ["","",""]);
 
 		root.push(
 			$("select", {value: activeProc, '?change': evt => {
 				S.compile_proc = evt.currentTarget.value;
 				rerender();
-			}}, processors.map(p => ["option", {value:p.proc.id}, "="+p.label])),
-			
-			$("div", {className: 'code'}, [["pre", "="+active.code]]),
-			$("hr"),
+			}}, processors.map(p => ["option", {value:p.proc.id}, `=${p.label} (${lines.length} LoC, ${active.code.length} B)`])),
+
+			$("div", {className: 'code'}, [
+				["pre", {className:'lnos'}, "="+lnos.substr(1)],
+				["pre", {className:'content'}, "="+body.substr(1)],
+				["pre", {className:'comment'}, "="+comment.substr(1)]
+			]),
+			$("hr")
 		);
 	}
 
@@ -40,7 +57,7 @@ function renderCompile(D, S) {
 	let lastGroup = null;
 	root.push($("div", {className: 'reports'}, filteredReports.flatMap(r => {
 		//TODO: format report lines in detail!
-		
+
 		// For now, just splat out the raw text.
 		return [["div", `=${r.severity}: ${r.message}`]];
 	})));

@@ -273,6 +273,16 @@ body.narrow-viewport .window-inner.psm-navigation {
 	color: #000;
 }
 
+.drawing-node.functional-node.selectable.data-type .title {
+	background: #370;
+	color: #fff;
+}
+
+.drawing-node.functional-node.selectable.selected.data-type .title {
+	background: #6b2;
+	color: #fff;
+}
+
 .drawing-node.functional-node .label {
 	white-space: nowrap;
 	padding: 0px 4px;
@@ -601,13 +611,18 @@ body.narrow-viewport .window-inner.psm-navigation {
 	grid-template-rows: min-content 1fr min-content 1fr;
 }
 
-.psm-compile .reports,
-.psm-compile .code {
+.psm-compile .reports {
 	overflow: scroll;
 	flex-grow: 1;
 }
 
-.psm-compile .code pre {
+.psm-compile .code {
+	overflow: scroll;
+	display: grid;
+	grid-template-columns: max-content max-content 1fr;
+}
+
+.psm-compile .code pre.content {
 	user-select: all;
 }
 

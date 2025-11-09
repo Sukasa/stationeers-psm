@@ -835,18 +835,19 @@ const metanode_db = {
 
 		Name(obj) {
 			return obj.properties?.Name
-				?? (obj.properties.addr && obj.properties.node && `[RAM] ${obj.properties.node}:\$${obj.properties.addr.toString(16)}`)
+				?? (obj.properties.Addr && obj.properties.node && `[RAM] ${obj.properties.node}:\$${obj.properties.Addr.toString(16)}`)
 				?? `[RAM] Unallocated ${obj.id}`;
 		},
 
 		Pins(obj) {
-			return [{name:'Zone', type:'zone'}];
+			return [];
 		},
 
 		Fields(obj) {
 			return [
 				{name:'Name', type:'constant', subtype:'string', optional:true},
 				{name:'InitValue', type:'constant', subtype:'number', optional:true},
+				{name:'Addr', type:'constant', subtype:'number', optional:true},
 			]
 		},
 
