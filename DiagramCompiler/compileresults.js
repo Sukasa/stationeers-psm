@@ -1,6 +1,5 @@
 
 
-
 function renderCompile(D, S) {
 	const result = S.compilations[S.activeZone];
 	let activeProc = S.compile_proc ?? undefined;
@@ -22,17 +21,17 @@ function renderCompile(D, S) {
 		if( !processors.find(({proc}) => proc.id === activeProc) )
 			activeProc = processors[0].proc.id;
 		const active = processors.find(({proc}) => proc.id === activeProc);
-		
+
 		const lines = active.code.split("\n");
 		const [lnos,body,comment] = lines.reduce(([lnos,body,comment], line, i) => {
-			lnos += '\n' + i + ': ';
 			const s = line.indexOf('#');
 			const before = s === -1 ? line : line.substr(0,s).trim();
 			const after = s === -1 ? '' : line.substr(s);
 
+			lnos += '\n' + i + ': ';
 			body += '\n' + before;
 			comment += '\n' + (after ? ' '+after : '');
-			
+
 			return [lnos,body,comment];
 		}, ["","",""]);
 
@@ -40,7 +39,7 @@ function renderCompile(D, S) {
 			$("select", {value: activeProc, '?change': evt => {
 				S.compile_proc = evt.currentTarget.value;
 				rerender();
-			}}, processors.map(p => ["option", {value:p.proc.id}, `=${p.label} (${lines.length} LoC, ${active.code.length} B)`])),
+			}}, processors.map((p,i) => ["option", {value:p.proc.id}, `=(${i+1}/${processors.length}) ${p.label} (${lines.length} LoC, ${active.code.length} B)`])),
 
 			$("div", {className: 'code'}, [
 				["pre", {className:'lnos'}, "="+lnos.substr(1)],

@@ -807,6 +807,7 @@ const metanode_db = {
 			if( !def ) return [];
 			return [
 				{name:'Name', type:'constant', subtype:'string'},
+				{name:'Priority', type:'constant', subtype:'number', optional:true},
 				{name:'HideUnused', type:'constant', subtype:'boolean'},
 				...def.properties ?? [],
 			];
@@ -1177,8 +1178,8 @@ class GraphLayer {
 			throw new Error("cannot add to read-only graph layer");
 		if( !def || !def.fromNode )
 			throw new Error("incomplete relation; requires {fromNode:}");		
-		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex < 0 || def.fromIndex !== Math.trunc(def.fromIndex)) )
-			throw new Error("illegal index relation number; must be undefined or else a non-negative integer");
+		if( def.fromIndex !== undefined && ('number' !== typeof def.fromIndex || def.fromIndex !== Math.trunc(def.fromIndex)) )
+			throw new Error("illegal index relation number; must be undefined or else an integer");
 		if( def.type && def.type !== 'rel' )
 			throw new Error("bad object type; must use AddRel for relations, AddObject for objects!");
 		def.type = 'rel';

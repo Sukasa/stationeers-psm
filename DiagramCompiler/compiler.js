@@ -380,6 +380,8 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 
 		for(var procid in procTables) {
 			const proc = procTables[procid];
+			const pobj = def.FindObject(procid);
+			const pname = metanode_db[pobj.type].Name(pobj);
 			const CodeLen = L => L.reduce((t,b) => t + (b.count ?? 1) * b.block.code.length, 0);
 
 			// Zone-init; once per function instance, once per processor power-up.
@@ -388,7 +390,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			// Processor-init; once per function type, once per processor power-up.
 			const piLen = CodeLen(proc['processor-init']);
 			if( ziLen+piLen > 0) {
-				rc.report('info', `Processor "${procid}" has ${ziLen+piLen} LoC of on-powerup init code`, [procid]);
+				rc.report('info', `Processor "${pname}" has ${ziLen+piLen} LoC of on-powerup init code`, [procid]);
 			}
 
 			// Add yield to start of cycle-init.
@@ -397,11 +399,12 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			// Add a jump (to that yield) to the end of cycle-outro.
 			proc['cycle-outro'].push({func:null, block:{scope:'cycle-outro',code:[`j ${ziLen+piLen}`]}});
 
-			// Total up all other code.
+			// Total up all per-cycle code.
 			const remLen = ['cycle-init','instance','cycle-outro'].reduce((t,L) => t + CodeLen(proc[L]), 0);
 
+			// Report if we're over capacity.
 			if( ziLen+piLen+remLen > proc.processor.capacity ) {
-				rc.report('error', `Processor is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${remLen} cycle LoC: but this puts it ${ziLen+piLen+remLen - proc.processor.capacity} over its LoC budget!`, [proc.processor.node]);
+				rc.report('error', `Processor "${pname}" is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${remLen} cycle LoC: but this puts it ${ziLen+piLen+remLen - proc.processor.capacity} over its LoC budget!`, [procid]);
 				continue;
 			}
 
@@ -409,14 +412,14 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			// in vanilla Stationeers, but we are aware of mods that e.g. increase the LoC limit to 512 without
 			// changing the execution speed; such chips could run down to priority 4.
 			proc.bestPriority = Math.ceil(remLen / proc.processor.LoCPerTick);
-			rc.report('info', `Processor capable of serving Priority "${proc.bestPriority}" or worse, at ${remLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`, [procid]);
+			rc.report('info', `Processor "${pname}" is capable of serving Priority "${proc.bestPriority}" or worse, at ${remLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`, [procid]);
 
 			for(var fnId in proc.instances) {
 				const fnObj = proc.instances[fnId];
 				const fnDef = functiondef_db[fnObj.kind];
 				const pval = (fnDef.requiredPriority ?? fnObj.properties?.Priority) || 0;
 				if( pval > 0 && pval < proc.bestPriority ) {
-					rc.report('error', `Function demands priority "${pval}" or better, but is assigned to Processor "${procid}" which can serve at best priority "${proc.bestPriority}"`, [fnId]);
+					rc.report('error', `Function demands priority "${pval}" or better, but is assigned to a Processor which can serve at best priority "${proc.bestPriority}"`, [fnId]);
 				}
 			}
 		}
