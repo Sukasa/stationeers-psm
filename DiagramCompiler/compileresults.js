@@ -3,7 +3,6 @@
 function renderCompile(D, S) {
 	const result = S.compilations[S.activeZone];
 	let activeProc = S.compile_proc ?? undefined;
-	console.log(result);
 
 	document.body.classList.add('showing-compile');
 	preRerender(() => document.body.classList.remove('showing-compile'));
@@ -23,23 +22,30 @@ function renderCompile(D, S) {
 		const active = processors.find(({proc}) => proc.id === activeProc);
 
 		const lines = active.code.split("\n");
-		const [lnos,body,comment] = lines.reduce(([lnos,body,comment], line, i) => {
+		const [lns,lnos,body,comment] = lines.reduce(([lns,lnos,body,comment], line, i) => {
 			const s = line.indexOf('#');
 			const before = s === -1 ? line : line.substr(0,s).trim();
 			const after = s === -1 ? '' : line.substr(s);
 
+			lns++;
 			lnos += '\n' + i + ': ';
 			body += '\n' + before;
 			comment += '\n' + (after ? ' '+after : '');
 
-			return [lnos,body,comment];
-		}, ["","",""]);
+			return [lns,lnos,body,comment];
+		}, [0,"","",""]);
+
+		active.LoC = lns;
+		// The Stationeers UI includes both CR and LF, not just LF, in its measurement of
+		// code size, and doesn't include either at EOF.
+		const correction = lns - 2;
+		active.size = body.length + correction;
 
 		root.push(
 			$("select", {value: activeProc, '?change': evt => {
 				S.compile_proc = evt.currentTarget.value;
 				rerender();
-			}}, processors.map((p,i) => ["option", {value:p.proc.id}, `=(${i+1}/${processors.length}) ${p.label} (${lines.length} LoC, ${active.code.length} B)`])),
+			}}, processors.map((p,i) => ["option", {selected:activeProc===p.proc.id, value:p.proc.id}, `=(${i+1}/${processors.length}) ${p.label}${p.size ? ` (${p.LoC} LoC, ${p.size} B)` : ''}`])),
 
 			$("div", {className: 'code'}, [
 				["pre", {className:'lnos'}, "="+lnos.substr(1)],

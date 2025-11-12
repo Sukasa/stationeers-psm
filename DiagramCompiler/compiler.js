@@ -16,6 +16,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 
 	const relatedObjects = funcs.flatMap(f => def.RelationsOf(f.id))
 		.map(rel => def.FindObject(rel.toNode))
+		.filter(f => !!f)
 		.filter((o1,i,a) => a.findIndex(o2 => o2.id === o1.id) === i);
 	
 	// Gather Equipment in Zone which need Initialization code.
@@ -88,7 +89,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			const n = def.FindObject(ar.toNode);
 
 			if( 'number' !== typeof n.properties.ReferenceId || 0 >= n.properties.ReferenceId ) {
-				rc.report('error', `${ar.fromPin} asset has no Reference ID!`, [n.id]);
+				rc.report('error', `Zone ${ar.fromPin} asset has no Reference ID!`, [n.id]);
 				return;
 			}
 
@@ -470,7 +471,11 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			switch(relDef.type) {
 				case 'equipment':
 					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
-						const ref = def.FindObject(rel.toNode)?.properties?.ReferenceId;
+						var ref = def.FindObject(rel.toNode)?.properties?.ReferenceId;
+						if( 'number' !== typeof ref || 0 >= ref ) {
+							rc.report('error', `Equipment "${metanode_db.equipment.Name(def.FindObject(rel.toNode))}" has no Reference ID!`, [fnObj.id, rel.toNode]);
+							ref = `<MISSING ${rel.toNode}>`
+						}
 						set(rel.fromPin, ref);
 						set(`${rel.fromPin}.ReferenceId`, ref);
 						if( rel.toPin ) {
@@ -963,7 +968,7 @@ function ValidateFunctionLink(reldef, rel, fnObj, report, layer)
 				//TODO: validate specific destination pin type selected
 			}
 			if( !far.properties?.ReferenceId ) {
-				report('error', `Missing ReferenceId for equipment "${far.id}"`, [fnObj.id]);
+				report('warn', `Missing ReferenceId for equipment "${far.id}"`, [fnObj.id]);
 			}
 
 			break;

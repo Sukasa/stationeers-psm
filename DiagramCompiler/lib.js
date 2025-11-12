@@ -942,7 +942,7 @@ const metanode_db = {
 					kind: key,
 					properties:{
 						Name: `${equipmenttype_db[key].name} ${id}`,
-						ReferenceId: 0,
+						ReferenceId: undefined,
 					},
 				}),
 			}));
