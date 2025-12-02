@@ -140,7 +140,14 @@ function commitCheck(setter) {
 
 function commitNumber(setter, field) {
 	return (evt) => {
-		const v = parseFloat(evt.currentTarget.value);
+		const str = evt.currentTarget.value;
+		var v = NaN;
+		if( str.startsWith("$") ) {
+			v = parseInt(str.substr(1), 16);
+		} else {
+			v = parseFloat(str);
+		}
+
 		if( isNaN(v) ) {
 			if( field.optional ) {
 				setter(undefined);
