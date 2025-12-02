@@ -153,8 +153,19 @@ const equipmenttype_db = {
 		href: 'https://stationeers-wiki.com/Sensors',
 		logicRead: [
 			'Pressure','Temperature','TotalMoles','Combustion',
-			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioNitrousOxide',
+			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioPollutedWater','RatioNitrousOxide',
 			'RatioLiquidNitrogen','RatioLiquidOxygen','RatioLiquidVolatiles','RatioSteam','RatioLiquidCarbonDioxide','RatioLiquidPollutant','RatioLiquidNitrousOxide',
+		],
+		connections: [{data:1,power:1}],
+	},
+	'StructureLiquidPipeAnalyzer': {
+		name: 'Pipe Analyzer',
+		//href: 'TODO',
+		logicRead: [
+			'Pressure','Temperature','TotalMoles','Combustion',
+			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioPollutedWater','RatioNitrousOxide',
+			'RatioLiquidNitrogen','RatioLiquidOxygen','RatioLiquidVolatiles','RatioSteam','RatioLiquidCarbonDioxide','RatioLiquidPollutant','RatioLiquidNitrousOxide',
+			'Volume','VolumeOfLiquid',
 		],
 		connections: [{data:1,power:1}],
 	},
@@ -164,7 +175,7 @@ const equipmenttype_db = {
 		logicWrite: ['On','Mode','Lock','Setting'],
 		logicRead: [
 			'Pressure','Temperature','TotalMoles','Combustion',
-			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioNitrousOxide',
+			'RatioOxygen','RatioCarbonDioxide','RatioNitrogen','RatioPollutant','RatioVolatiles','RatioWater','RatioPollutedWater','RatioNitrousOxide',
 			'RatioLiquidNitrogen','RatioLiquidOxygen','RatioLiquidVolatiles','RatioSteam','RatioLiquidCarbonDioxide','RatioLiquidPollutant','RatioLiquidNitrousOxide',
 		].flatMap(L=>['Input'+L,'Output'+L,'Output2'+L]),
 		logicSlots: [
@@ -173,7 +184,38 @@ const equipmenttype_db = {
 			[], // IC10
 		],
 		connections: [{data:1},{power:1},{gas:'Input'},{gas:'Filtered'},{gas:'Unfiltered'}],
-	}
+	},
+	'StructureLiquidPipeVolumePump': {
+		name: 'Liquid Volume Pump',
+		href: 'https://stationeers-wiki.com/Kit_(Liquid_Volume_Pump)',
+		logicWrite: ['On','Lock','Setting'],
+		logicRead: ['Error','Maximum','Ratio'],
+		connections: [{data:1,power:1},{liquid:'Input'},{liquid:'Output'}],
+	},
+	'StructurePipeVolumePump': {
+		name: 'Volume Pump',
+		href: 'https://stationeers-wiki.com/Pipe_Volume_Pump',
+		logicWrite: ['On','Lock','Setting'],
+		logicRead: ['Error','Maximum','Ratio'],
+		connections: [{data:1,power:1},{gas:'Input'},{gas:'Output'}],
+	},
+	'StructurePurgeValve': {
+		name: 'Purge Valve',
+		href: 'https://stationeers-wiki.com/Purge_Valve',
+		logicWrite: ['On','Lock','Setting'],
+		logicRead: ['Error','Maximum','Ratio'],
+		connections: [{data:1,power:1},{liquid:'Input'},{gas:'Output'}],
+	},
+	'StructureWaterPurifier': {
+		name: 'Water Purifier',
+		href: 'https://stationeers-wiki.com/Water_Purifier',
+		logicWrite: ['On','Lock'],
+		logicRead: ['Error'],
+		logicSlots: [
+			[], // Charcoal
+		],
+		connections: [{data:1},{power:1},{liquid:'Input'},{liquid:'Output'}],
+	},
 };
 
 // Function Definition
@@ -367,10 +409,11 @@ const functiondef_db = {
 		],
 		properties: [
 			{name: 'Operation', type: 'constant', subtype: 'list', value: 'add %R1% %R1% %R2%', options: [
-				{name: 'select %R1% %R2% %R2% %R1%', label: 'Logical AND'},
-				{name: 'or %R1% %R1% %R2%', label: 'Logical OR'},
+				{name: 'select %R1% %R1% %R2% %R1%', label: 'Logical AND'},
+				{name: 'select %R1% %R1% %R1% %R2%', label: 'Logical OR'},
 				{name: 'add %R1% %R1% %R2%', label: 'Sum'},
 				{name: 'mul %R1% %R1% %R2%', label: 'Product'},
+				{name: 'div %R1% %R1% %R2%', label: 'Divide'},
 			]},
 			{name: 'Postprocess', type: 'constant', subtype: 'list', value: ' ', options: [
 				{name: ' ', label: 'None'},

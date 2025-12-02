@@ -225,6 +225,475 @@
     "id": "1conm.meqgme"
   },
   {
+    "type": "zone",
+    "properties": {
+      "Name": "Spa"
+    },
+    "id": "3kdmn.enzfi9"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureCircuitHousing+IC10",
+    "properties": {
+      "Name": "Spa Controller",
+      "ReferenceId": 793238
+    },
+    "id": "38nz0.1gqcei"
+  },
+  {
+    "type": "drawing",
+    "properties": {
+      "Name": "Spa - Processing"
+    },
+    "id": "29uhx.4qvz4w"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "DW-PollutantGas"
+    },
+    "id": "4s5g9.lr84w6"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "DW-Water"
+    },
+    "id": "55778.9xtuvt"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "DW-DirtyWater"
+    },
+    "id": "3ze8f.lxzjsj"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "DW-PollutantLiquid"
+    },
+    "id": "47uxe.lx1mhn"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Clean Water Present",
+      "Threshold": 0,
+      "Test": "sgt"
+    },
+    "id": "4k282.dez99a"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Dirty Water Present",
+      "Threshold": 0,
+      "Test": "sgt"
+    },
+    "id": "5ewrs.x5mquu"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "Bypass Clean Water",
+      "Operation": "select %R1% %R1% %R2% %R1%",
+      "PostProcess": " ",
+      "Postprocess": " "
+    },
+    "id": "4ten6.3j9dc"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureLiquidPipeVolumePump",
+    "properties": {
+      "Name": "Clean Water Bypass Pump",
+      "Initialize": {
+        "Lock": 1,
+        "Setting": 10
+      },
+      "HideUnused": true,
+      "ReferenceId": 749127
+    },
+    "id": "57moq.1x5dqw"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "1h72j.30izzq"
+    },
+    "id": "1h72j.30izzq"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "DW System Gasses Clean",
+      "Operation": "add %R1% %R1% %R2%",
+      "PostProcess": " ",
+      "Postprocess": "select %R1% %R1% 0 1"
+    },
+    "id": "1m14b.ps0371"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "Filter Dirty Water",
+      "Operation": "select %R1% %R1% %R2% %R1%",
+      "PostProcess": " "
+    },
+    "id": "2zy00.z35a6u"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureWaterPurifier",
+    "properties": {
+      "Name": "Water Purifier",
+      "Initialize": {
+        "Lock": 1
+      },
+      "HideUnused": true,
+      "ReferenceId": 744634
+    },
+    "id": "3vouo.djazxh"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "45p6j.vt5fuw"
+    },
+    "id": "45p6j.vt5fuw"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Dirty Water Absent",
+      "Threshold": 0,
+      "Test": "seq"
+    },
+    "id": "525wt.tnonao"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "CW-PollutantGas"
+    },
+    "id": "55qjw.nvq2r3"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "CW-PollutantLiquid"
+    },
+    "id": "5jpbc.3qgize"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "CW-DirtyWater"
+    },
+    "id": "2bd1x.6lxrrf"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "Clean System Polluted",
+      "Operation": "add %R1% %R1% %R2%",
+      "PostProcess": " ",
+      "Postprocess": "select %R1% %R1% 1 0"
+    },
+    "id": "5xhj6.o44tht"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "47jie.wsqm5e"
+    },
+    "id": "47jie.wsqm5e"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "ALARM System Polluted",
+      "Initialize": {
+        "Color": "4"
+      },
+      "ReferenceId": 773065
+    },
+    "id": "3vq9w.80qunm"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "Charcoal Available"
+    },
+    "id": "ky8g.wrpvjxa"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "oc56.u117vyf"
+    },
+    "id": "oc56.u117vyf"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Charcoal Low",
+      "Threshold": 20,
+      "Test": "slt"
+    },
+    "id": "2j41l.4kwol"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "ALARM Charcoal Low",
+      "Initialize": {
+        "Color": "3"
+      },
+      "ReferenceId": 773058,
+      "HideUnused": true
+    },
+    "id": "5kuwy.5wzcjt"
+  },
+  {
+    "type": "data",
+    "id": "4c1mv.wa1nzf",
+    "transient": true,
+    "properties": {
+      "Addr": 113,
+      "node": "38nz0.1gqcei"
+    }
+  },
+  {
+    "type": "data",
+    "id": "48yok.jxq92w",
+    "transient": true,
+    "properties": {
+      "Addr": 124,
+      "node": "38nz0.1gqcei"
+    }
+  },
+  {
+    "type": "data",
+    "id": "zofp.p6dv96",
+    "transient": true,
+    "properties": {
+      "Addr": 125,
+      "node": "38nz0.1gqcei"
+    }
+  },
+  {
+    "type": "data",
+    "id": "280mf.e8wvky",
+    "transient": true,
+    "properties": {
+      "Addr": 126,
+      "node": "38nz0.1gqcei"
+    }
+  },
+  {
+    "type": "data",
+    "id": "js45.zwy92d6",
+    "transient": true,
+    "properties": {
+      "Addr": 127,
+      "node": "38nz0.1gqcei"
+    }
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "Clean Water Volume"
+    },
+    "id": "24mpx.sln8z2"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "Clean Water Fill"
+    },
+    "id": "6ryb.vrg8esn"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureLiquidPipeAnalyzer",
+    "properties": {
+      "Name": "Clean Water Analyzer",
+      "ReferenceId": 772437,
+      "HideUnused": true
+    },
+    "id": "2dt5w.teq871"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "2a75i.i0vlcz",
+      "Operation": "div %R1% %R1% %R2%",
+      "PostProcess": " "
+    },
+    "id": "2a75i.i0vlcz"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "13zcf.qwwgop"
+    },
+    "id": "13zcf.qwwgop"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureConsoleLED",
+    "properties": {
+      "Name": "Clean Water %",
+      "ReferenceId": 784557,
+      "Initialize": {
+        "Color": "0"
+      }
+    },
+    "id": "5l4i5.vnalbv"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureLiquidPipeAnalyzer",
+    "properties": {
+      "Name": "Pipe Analyzer 2tvy0.opep16",
+      "ReferenceId": 772458,
+      "HideUnused": true
+    },
+    "id": "2tvy0.opep16"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "2zi2e.fanql2"
+    },
+    "id": "2zi2e.fanql2"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "3ag9i.mj5epl"
+    },
+    "id": "3ag9i.mj5epl"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "14cf4.8i8ydh",
+      "Operation": "div %R1% %R1% %R2%",
+      "PostProcess": " "
+    },
+    "id": "14cf4.8i8ydh"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "anqy.cwr3zn8"
+    },
+    "id": "anqy.cwr3zn8"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureConsoleLED",
+    "properties": {
+      "Name": "Dirty Water %",
+      "ReferenceId": 784547,
+      "Initialize": {
+        "Color": "1"
+      },
+      "HideUnused": true
+    },
+    "id": "2sw1m.1fnxay"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "IND Bypassing",
+      "ReferenceId": 784611,
+      "Initialize": {
+        "Color": "0"
+      },
+      "HideUnused": true
+    },
+    "id": "3xjyt.toiwy"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "IND Purifying",
+      "ReferenceId": 784606,
+      "Initialize": {
+        "Color": "2"
+      },
+      "HideUnused": true
+    },
+    "id": "8dj2.5b996b6"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "dm57.02z7snb",
+      "Threshold": 200,
+      "Test": "slt"
+    },
+    "id": "dm57.02z7snb"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "48j8.izaa958"
+    },
+    "id": "48j8.izaa958"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "ALARM Water Low",
+      "ReferenceId": 773068,
+      "Initialize": {
+        "Color": "4"
+      },
+      "HideUnused": true
+    },
+    "id": "qbo0.a35iel"
+  },
+  {
     "fromNode": "ZHab1",
     "fromPin": "Processor",
     "fromIndex": 0,
@@ -615,6 +1084,1201 @@
       "x": -100,
       "y": -162
     },
+    "type": "rel"
+  },
+  {
+    "fromNode": "32wb5.al2to9",
+    "fromPin": "Component",
+    "fromIndex": 2,
+    "toNode": "3kdmn.enzfi9",
+    "properties": {
+      "as": "functional",
+      "x": -100,
+      "y": 108
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "32wb5.al2to9",
+    "fromPin": "Component",
+    "fromIndex": 3,
+    "toNode": "38nz0.1gqcei",
+    "properties": {
+      "as": "functional",
+      "x": -400,
+      "y": 126
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "32wb5.al2to9",
+    "fromPin": "Component",
+    "fromIndex": 4,
+    "toNode": "29uhx.4qvz4w",
+    "properties": {
+      "as": "functional",
+      "x": -100,
+      "y": 234
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "3kdmn.enzfi9",
+    "fromPin": "Processor",
+    "fromIndex": 0,
+    "toNode": "38nz0.1gqcei",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3kdmn.enzfi9",
+    "fromPin": "RAM",
+    "toNode": "38nz0.1gqcei",
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 0,
+    "toNode": "4s5g9.lr84w6",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": -216
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 1,
+    "toNode": "55778.9xtuvt",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": -90
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 2,
+    "toNode": "3ze8f.lxzjsj",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": 36
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 3,
+    "toNode": "47uxe.lx1mhn",
+    "properties": {
+      "as": "functional",
+      "x": 350,
+      "y": 162
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 4,
+    "toNode": "4k282.dez99a",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": -54
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 5,
+    "toNode": "5ewrs.x5mquu",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": 162
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 6,
+    "toNode": "4ten6.3j9dc",
+    "properties": {
+      "as": "functional",
+      "x": 1100,
+      "y": -54
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 7,
+    "toNode": "57moq.1x5dqw",
+    "properties": {
+      "as": "functional",
+      "x": 1250,
+      "y": -216
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 8,
+    "toNode": "1h72j.30izzq",
+    "properties": {
+      "as": "functional",
+      "x": 1700,
+      "y": -126
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 9,
+    "toNode": "1m14b.ps0371",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": -198
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": -1,
+    "toNode": "2zy00.z35a6u",
+    "properties": {
+      "as": "functional",
+      "x": 1100,
+      "y": 126
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 10,
+    "toNode": "3vouo.djazxh",
+    "properties": {
+      "as": "functional",
+      "x": 1350,
+      "y": 306
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 11,
+    "toNode": "45p6j.vt5fuw",
+    "properties": {
+      "as": "functional",
+      "x": 1650,
+      "y": 180
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 12,
+    "toNode": "525wt.tnonao",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": 54
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 13,
+    "toNode": "55qjw.nvq2r3",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": 486
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 14,
+    "toNode": "5jpbc.3qgize",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": 702
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 15,
+    "toNode": "2bd1x.6lxrrf",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": 594
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 16,
+    "toNode": "5xhj6.o44tht",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": 594
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 17,
+    "toNode": "47jie.wsqm5e",
+    "properties": {
+      "as": "functional",
+      "x": 1000,
+      "y": 666
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 18,
+    "toNode": "3vq9w.80qunm",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": 756
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 19,
+    "toNode": "ky8g.wrpvjxa",
+    "properties": {
+      "as": "functional",
+      "x": 1650,
+      "y": 468
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 20,
+    "toNode": "oc56.u117vyf",
+    "properties": {
+      "as": "functional",
+      "x": 2150,
+      "y": 504
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 21,
+    "toNode": "2j41l.4kwol",
+    "properties": {
+      "as": "functional",
+      "x": 1900,
+      "y": 486
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 22,
+    "toNode": "5kuwy.5wzcjt",
+    "properties": {
+      "as": "functional",
+      "x": 1800,
+      "y": 594
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 23,
+    "toNode": "24mpx.sln8z2",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": 846
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 24,
+    "toNode": "6ryb.vrg8esn",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": 954
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 25,
+    "toNode": "2dt5w.teq871",
+    "properties": {
+      "as": "functional",
+      "x": 0,
+      "y": 684
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 26,
+    "toNode": "2a75i.i0vlcz",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": 918
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 27,
+    "toNode": "13zcf.qwwgop",
+    "properties": {
+      "as": "functional",
+      "x": 1100,
+      "y": 1026
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 28,
+    "toNode": "5l4i5.vnalbv",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": 1080
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 29,
+    "toNode": "2tvy0.opep16",
+    "properties": {
+      "as": "functional",
+      "x": -150,
+      "y": -144
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 30,
+    "toNode": "2zi2e.fanql2",
+    "properties": {
+      "as": "functional",
+      "x": 300,
+      "y": -414
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 31,
+    "toNode": "3ag9i.mj5epl",
+    "properties": {
+      "as": "functional",
+      "x": 300,
+      "y": -540
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 32,
+    "toNode": "14cf4.8i8ydh",
+    "properties": {
+      "as": "functional",
+      "x": 550,
+      "y": -504
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 33,
+    "toNode": "anqy.cwr3zn8",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": -432
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 34,
+    "toNode": "2sw1m.1fnxay",
+    "properties": {
+      "as": "functional",
+      "x": 550,
+      "y": -360
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 35,
+    "toNode": "3xjyt.toiwy",
+    "properties": {
+      "as": "functional",
+      "x": 1300,
+      "y": -144
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 36,
+    "toNode": "8dj2.5b996b6",
+    "properties": {
+      "as": "functional",
+      "x": 1350,
+      "y": 414
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 37,
+    "toNode": "dm57.02z7snb",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": 1332
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 38,
+    "toNode": "48j8.izaa958",
+    "properties": {
+      "as": "functional",
+      "x": 1100,
+      "y": 1440
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 39,
+    "toNode": "qbo0.a35iel",
+    "properties": {
+      "as": "functional",
+      "x": 750,
+      "y": 1494
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "4s5g9.lr84w6",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4s5g9.lr84w6",
+    "fromPin": "Destination",
+    "toNode": "js45.zwy92d6",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4s5g9.lr84w6",
+    "fromPin": "Source",
+    "toNode": "2tvy0.opep16",
+    "toPin": "RatioPollutant",
+    "type": "rel"
+  },
+  {
+    "fromNode": "55778.9xtuvt",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "55778.9xtuvt",
+    "fromPin": "Destination",
+    "toNode": "280mf.e8wvky",
+    "type": "rel"
+  },
+  {
+    "fromNode": "55778.9xtuvt",
+    "fromPin": "Source",
+    "toNode": "2tvy0.opep16",
+    "toPin": "RatioWater",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3ze8f.lxzjsj",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3ze8f.lxzjsj",
+    "fromPin": "Destination",
+    "toNode": "zofp.p6dv96",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3ze8f.lxzjsj",
+    "fromPin": "Source",
+    "toNode": "2tvy0.opep16",
+    "toPin": "RatioPollutedWater",
+    "type": "rel"
+  },
+  {
+    "fromNode": "47uxe.lx1mhn",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "47uxe.lx1mhn",
+    "fromPin": "Destination",
+    "toNode": "48yok.jxq92w",
+    "type": "rel"
+  },
+  {
+    "fromNode": "47uxe.lx1mhn",
+    "fromPin": "Source",
+    "toNode": "2tvy0.opep16",
+    "toPin": "RatioLiquidPollutant",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4k282.dez99a",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4k282.dez99a",
+    "fromPin": "Input",
+    "viaNode": "55778.9xtuvt",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "280mf.e8wvky"
+  },
+  {
+    "fromNode": "5ewrs.x5mquu",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5ewrs.x5mquu",
+    "fromPin": "Input",
+    "viaNode": "3ze8f.lxzjsj",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "zofp.p6dv96"
+  },
+  {
+    "fromNode": "4ten6.3j9dc",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4ten6.3j9dc",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "1m14b.ps0371",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "28ua6.odx1ec"
+  },
+  {
+    "fromNode": "4ten6.3j9dc",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "4k282.dez99a",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "5h7ai.8fv0by"
+  },
+  {
+    "fromNode": "4ten6.3j9dc",
+    "fromPin": "Input",
+    "fromIndex": 2,
+    "viaNode": "525wt.tnonao",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1tl3v.xvp0j3"
+  },
+  {
+    "fromNode": "57moq.1x5dqw",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1h72j.30izzq",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1h72j.30izzq",
+    "fromPin": "Source",
+    "viaNode": "4ten6.3j9dc",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "4s8zo.g479al"
+  },
+  {
+    "fromNode": "1h72j.30izzq",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "57moq.1x5dqw",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1h72j.30izzq",
+    "fromPin": "Destination",
+    "fromIndex": 1,
+    "toNode": "3xjyt.toiwy",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1m14b.ps0371",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1m14b.ps0371",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "4s5g9.lr84w6",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "js45.zwy92d6"
+  },
+  {
+    "fromNode": "1m14b.ps0371",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "47uxe.lx1mhn",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "48yok.jxq92w"
+  },
+  {
+    "fromNode": "2zy00.z35a6u",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2zy00.z35a6u",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "1m14b.ps0371",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "28ua6.odx1ec"
+  },
+  {
+    "fromNode": "2zy00.z35a6u",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "5ewrs.x5mquu",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1yjwa.t70zhl"
+  },
+  {
+    "fromNode": "3vouo.djazxh",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "45p6j.vt5fuw",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "45p6j.vt5fuw",
+    "fromPin": "Source",
+    "viaNode": "2zy00.z35a6u",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "4nw1h.lisa5m"
+  },
+  {
+    "fromNode": "45p6j.vt5fuw",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "3vouo.djazxh",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "45p6j.vt5fuw",
+    "fromPin": "Destination",
+    "fromIndex": 1,
+    "toNode": "8dj2.5b996b6",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "525wt.tnonao",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "525wt.tnonao",
+    "fromPin": "Input",
+    "viaNode": "3ze8f.lxzjsj",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "zofp.p6dv96"
+  },
+  {
+    "fromNode": "55qjw.nvq2r3",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "55qjw.nvq2r3",
+    "fromPin": "Source",
+    "toNode": "2dt5w.teq871",
+    "toPin": "RatioPollutant",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5jpbc.3qgize",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5jpbc.3qgize",
+    "fromPin": "Source",
+    "toNode": "2dt5w.teq871",
+    "toPin": "RatioLiquidPollutant",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2bd1x.6lxrrf",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2bd1x.6lxrrf",
+    "fromPin": "Source",
+    "toNode": "2dt5w.teq871",
+    "toPin": "RatioPollutedWater",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5xhj6.o44tht",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5xhj6.o44tht",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "55qjw.nvq2r3",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "i1oo.i4flfd"
+  },
+  {
+    "fromNode": "5xhj6.o44tht",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "2bd1x.6lxrrf",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "is3l.94qcc3s"
+  },
+  {
+    "fromNode": "5xhj6.o44tht",
+    "fromPin": "Input",
+    "fromIndex": 2,
+    "viaNode": "5jpbc.3qgize",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "hgrk.f3a4ht"
+  },
+  {
+    "fromNode": "47jie.wsqm5e",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "47jie.wsqm5e",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "3vq9w.80qunm",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "47jie.wsqm5e",
+    "fromPin": "Source",
+    "viaNode": "5xhj6.o44tht",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "50v19.9ecj54"
+  },
+  {
+    "fromNode": "3vq9w.80qunm",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "ky8g.wrpvjxa",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "ky8g.wrpvjxa",
+    "fromPin": "Source",
+    "toNode": "3vouo.djazxh",
+    "toPin": "Slot #0 Quantity",
+    "type": "rel"
+  },
+  {
+    "fromNode": "ky8g.wrpvjxa",
+    "fromPin": "Destination",
+    "toNode": "4c1mv.wa1nzf",
+    "type": "rel"
+  },
+  {
+    "fromNode": "oc56.u117vyf",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "oc56.u117vyf",
+    "fromPin": "Source",
+    "viaNode": "2j41l.4kwol",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1ghho.7yqskt"
+  },
+  {
+    "fromNode": "oc56.u117vyf",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "5kuwy.5wzcjt",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2j41l.4kwol",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2j41l.4kwol",
+    "fromPin": "Input",
+    "toNode": "4c1mv.wa1nzf",
+    "viaNode": "ky8g.wrpvjxa",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5kuwy.5wzcjt",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "24mpx.sln8z2",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "24mpx.sln8z2",
+    "fromPin": "Source",
+    "toNode": "2dt5w.teq871",
+    "toPin": "Volume",
+    "type": "rel"
+  },
+  {
+    "fromNode": "6ryb.vrg8esn",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "6ryb.vrg8esn",
+    "fromPin": "Source",
+    "toNode": "2dt5w.teq871",
+    "toPin": "VolumeOfLiquid",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2dt5w.teq871",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2a75i.i0vlcz",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2a75i.i0vlcz",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "6ryb.vrg8esn",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "3dob9.px4b32"
+  },
+  {
+    "fromNode": "2a75i.i0vlcz",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "24mpx.sln8z2",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "5le9w.p7jj4"
+  },
+  {
+    "fromNode": "13zcf.qwwgop",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "13zcf.qwwgop",
+    "fromPin": "Source",
+    "viaNode": "2a75i.i0vlcz",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "2vpo2.mz2yr5"
+  },
+  {
+    "fromNode": "13zcf.qwwgop",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "5l4i5.vnalbv",
+    "toPin": "Setting",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5l4i5.vnalbv",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2tvy0.opep16",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2zi2e.fanql2",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2zi2e.fanql2",
+    "fromPin": "Source",
+    "toNode": "2tvy0.opep16",
+    "toPin": "VolumeOfLiquid",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3ag9i.mj5epl",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3ag9i.mj5epl",
+    "fromPin": "Source",
+    "toNode": "2tvy0.opep16",
+    "toPin": "Volume",
+    "type": "rel"
+  },
+  {
+    "fromNode": "14cf4.8i8ydh",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "14cf4.8i8ydh",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "2zi2e.fanql2",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "2zl9m.5vhx3c"
+  },
+  {
+    "fromNode": "14cf4.8i8ydh",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "3ag9i.mj5epl",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "2ynha.bzz4vo"
+  },
+  {
+    "fromNode": "anqy.cwr3zn8",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "anqy.cwr3zn8",
+    "fromPin": "Source",
+    "viaNode": "14cf4.8i8ydh",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "5dbuq.3wkiis"
+  },
+  {
+    "fromNode": "anqy.cwr3zn8",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "2sw1m.1fnxay",
+    "toPin": "Setting",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2sw1m.1fnxay",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3xjyt.toiwy",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "8dj2.5b996b6",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "dm57.02z7snb",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "dm57.02z7snb",
+    "fromPin": "Input",
+    "viaNode": "6ryb.vrg8esn",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "3dob9.px4b32"
+  },
+  {
+    "fromNode": "48j8.izaa958",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "48j8.izaa958",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "qbo0.a35iel",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "48j8.izaa958",
+    "fromPin": "Source",
+    "viaNode": "dm57.02z7snb",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "64qt.4hieiei"
+  },
+  {
+    "fromNode": "qbo0.a35iel",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
     "type": "rel"
   }
 ]

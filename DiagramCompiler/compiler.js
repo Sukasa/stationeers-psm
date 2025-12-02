@@ -89,8 +89,8 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			const n = def.FindObject(ar.toNode);
 
 			if( 'number' !== typeof n.properties.ReferenceId || 0 >= n.properties.ReferenceId ) {
-				rc.report('error', `Zone ${ar.fromPin} asset has no Reference ID!`, [n.id]);
-				return;
+				rc.report('warn', `Zone ${ar.fromPin} asset has no Reference ID!`, [n.id]);
+				//return;
 			}
 
 			if( ar.fromPin === 'Processor' ) {
@@ -489,11 +489,11 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 						const dataNode = def.FindObject(rel.toNode);
 						const ram = def.FindObject(dataNode?.properties?.node);
 						if( !dataNode || !ram ) {
-							report('error', `Failed to look up RAM storage device for function pin "${rel.fromPin}"`, [fnObj.id]);
+							rc.report('error', `Failed to look up RAM storage device for function pin "${rel.fromPin}"`, [fnObj.id]);
 						} else if( 'number' !== typeof ram.properties.ReferenceId ) {
-							report('error', `Data node "${rel.toNode}" RAM Device has no Reference ID!`, [fnObj.id, rel.toNode]);
+							rc.report('error', `Data node "${rel.toNode}" RAM Device has no Reference ID!`, [fnObj.id, rel.toNode]);
 						} else if( 'number' !== typeof dataNode?.properties?.Addr ) {
-							report('error', `Data node "${rel.toNode}" has no address allocated!`, [fnObj.id, rel.toNode]);
+							rc.report('error', `Data node "${rel.toNode}" has no address allocated!`, [fnObj.id, rel.toNode]);
 						} else {
 							set(`${rel.fromPin}.RAM`, ram.properties.ReferenceId);
 							set(`${rel.fromPin}.Addr`, '$' + dataNode.properties.Addr.toString(16))
@@ -618,12 +618,14 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 								rc.report('error', `Potential line length overrun (${ln.length} versus 52 max) at line #${all_lines.length}`, [procid]);
 							}
 
-							if( next_comment ) {
+							if( next_comment && ln.trim().length > 0 ) {
 								ln = rpad(32,ln) + next_comment;
 								next_comment = null;
 							}
 
-							if( ln.trim().length > 0 ) all_lines.push(ln);
+							if( ln.trim().length > 0 ) {
+								all_lines.push(ln);
+							}
 						});
 					}
 
@@ -852,7 +854,7 @@ function ValidateFunction(report, fnObj, layer) {
 
 function ValidatePropertyValue(propDef, val, fnObj, report, layer)
 {
-	const ok = true;
+	var ok = true;
 	switch(propDef.type) {
 		case 'constant':
 			if( propDef.subtype === 'number' ) {
