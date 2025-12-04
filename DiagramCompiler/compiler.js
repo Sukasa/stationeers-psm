@@ -110,7 +110,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 				});
 
 			} else if( ar.fromPin === 'RAM' ) {
-				const maxSlots = n?.properties?.Memory ?? equipmenttype_db[n?.kind]?.attributes?.Lines ?? 512;
+				const maxSlots = n?.properties?.Memory ?? equipmenttype_db[n?.kind]?.attributes?.Memory ?? 512;
 				storages.push({
 					node: ar.toNode,
 					buffers: [{id:null, name:'-BLOCK-NULLPTR-ALLOC-', Addr:0, size:1}],
@@ -128,9 +128,15 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 		const fQueue = funcs.map(f => ({
 			func: f,
 			refs: def.RelationsOf(f.id)
+				// Select relations FROM this function...
 				.filter(r => r.fromNode === f.id)
-				.map(r => def.FindObject(r.toNode))
-				.filter(f2 => f2.type === 'function')
+				// To other nodes or via non-passive pins...
+				.flatMap(rel => [rel.toNode, rel.viaNode])
+				// Removing duplicates...
+				.uniq()
+				// Where the mentioned object is another function...
+				.map(id => id && def.FindObject(id))
+				.filter(f2 => f2 && f2.type === 'function')
 		}));
 
 		while( fQueue.length > 0 ) {
@@ -163,6 +169,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 		}
 
 		rc.report('info', `${rc.fatal ? 'Incompletely sequenced':'Sequenced'} functions`, funcsByDep.map(f => f.id));
+		funcsByDep.forEach(f => rc.report('info', `Fn "${metanode_db.function.Name(f)}"`));
 	}
 
 	if( ! rc.fatal ) {
@@ -265,6 +272,20 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 				} else if( c.kind === 'immediately-after' ) {
 					// Would be solved (if possible) by the function ordering phase.
 					return true;
+
+				} else if( c.kind === 'available' || c.kind === 'unavailable' ) {
+					const rel = fnDef.rels.find(r => r.name === c.target);
+					if( rel && rel.optional && !rel.array ) {
+						const count = def.RelationsOf(fnObj.id, c.target).length;
+
+						if( c.kind === 'available' && count > 0 ) return true;
+						if( c.kind === 'unavailable' && count === 0 ) return true;
+						return false;
+
+					} else {
+						rc.report('error', `Unable to find optional Relation matching the constraint target`)
+						return false;
+					}
 
 				} else if( c.kind === 'array-plural' || c.kind === 'array-singular' ) {
 					var arity;
@@ -401,6 +422,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			proc['cycle-outro'].push({func:null, block:{scope:'cycle-outro',code:[`j ${ziLen+piLen}`]}});
 
 			// Total up all per-cycle code.
+			//TODO: this over-estimates the length of code which has blank-line optimizations available and array index constraints... is that resolvable here?
 			const remLen = ['cycle-init','instance','cycle-outro'].reduce((t,L) => t + CodeLen(proc[L]), 0);
 
 			// Report if we're over capacity.
@@ -466,20 +488,23 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			} else if( !relDef.optional && rels.length === 0 ) {
 				rc.report('error', `Function Relation "${relDef.name}" missing at least one required value.`, [fnObj.id]);
 				return;
+			} else if( relDef.optional && rels.length === 0 ) {
+				// This is fine; no variable TO reduce.
+				return;
 			}
 
 			switch(relDef.type) {
 				case 'equipment':
 					ReduceArray(vars, fnObj, relDef, rels, (rel, set) => {
-						var ref = def.FindObject(rel.toNode)?.properties?.ReferenceId;
-						if( 'number' !== typeof ref || 0 >= ref ) {
+						var ref = def.FindObject(rel.toNode)?.properties?.ReferenceId?.toHex();
+						if( undefined === ref ) {
 							rc.report('error', `Equipment "${metanode_db.equipment.Name(def.FindObject(rel.toNode))}" has no Reference ID!`, [fnObj.id, rel.toNode]);
 							ref = `<MISSING ${rel.toNode}>`
 						}
 						set(rel.fromPin, ref);
 						set(`${rel.fromPin}.ReferenceId`, ref);
 						if( rel.toPin ) {
-							set(`${rel.fromPin}.Logic`, rel.toPin);
+							set(`${rel.fromPin}.Logic`, rel.toPin.replace(/^Slot /, ''));
 						}
 					});
 					break;
@@ -495,8 +520,8 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 						} else if( 'number' !== typeof dataNode?.properties?.Addr ) {
 							rc.report('error', `Data node "${rel.toNode}" has no address allocated!`, [fnObj.id, rel.toNode]);
 						} else {
-							set(`${rel.fromPin}.RAM`, ram.properties.ReferenceId);
-							set(`${rel.fromPin}.Addr`, '$' + dataNode.properties.Addr.toString(16))
+							set(`${rel.fromPin}.RAM`, ram.properties.ReferenceId.toHex());
+							set(`${rel.fromPin}.Addr`, '+' + dataNode.properties.Addr.toString(10))
 						}
 					});
 					break;
@@ -701,7 +726,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 		d.properties.Addr = addr;
 		d.properties.node = st.node;
 
-		rc.report('info', `Allocated ${sz} slots of "${st.node}" at \$${addr.toString(16)} for datum "${d.name ?? d.id}"`, [d.id]);
+		rc.report('info', `Allocated ${sz} slots of "${st.node}" at +${addr} for datum "${d.name ?? d.id}"`, [d.id]);
 		st.buffers.push(e);
 		st.buffers.sort((a,b) => a.Addr - b.Addr);
 
@@ -722,7 +747,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 				return;
 			} else if( (da <= ba && da+sz > ba) || (ba <= da && ba+bz > da) ) {
 				//TODO: "quick actions" to resolve reports
-				rc.report('error', `Datum allocation (${da}+${sz}) overlaps with another memory allocation (${ba}+${bz}) in RAM device`, [d.id, otherId, d.properties.node]);
+				rc.report('error', `Datum allocation (+${da}+${sz}) overlaps with another memory allocation (+${ba}+${bz}) in RAM device`, [d.id, otherId, d.properties.node]);
 				return;
 			}
 		}

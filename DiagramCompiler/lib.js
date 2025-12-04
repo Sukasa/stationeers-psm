@@ -248,6 +248,46 @@ const functiondef_db = {
 		],
 	},
 
+	"SIR": {
+		name: 'Slot Input Router',
+		info: 'Reads device slot logic values for processing, using a variable slot index.',
+		rels: [
+			{name: 'Source', type: 'equipment', subtype: 'slot', },
+			{name: 'Index', type: 'data', optional: true, },
+			{name: 'Destination', type: 'data', allocate: true, },
+		],
+		properties: [
+			{name: 'FixedIndex', type: 'constant', subtype: 'integer', },
+			{name: 'R0', type: 'register', allocate: true, hidden: true, scope: 'instance', },
+		],
+		InitNew(def) {
+			def.properties.FixedIndex = 0;
+			return def;
+		},
+		validate(report, workspace) {
+			// Nothing to check. All configuration is required, and that's pre-validated.
+		},
+		blocks: [
+			{
+				scope: 'instance', group: 'by-variable',
+				constraints: [{kind:'available', target:'Index'}],
+				code: [
+					'l %R0% %Index.RAM% %Index.Addr%',
+					'ls %R0% %Source.ReferenceId% %R0% %Source.Logic%',
+					'put %Destination.RAM% %Destination.Addr% %R0%',
+				],
+			},
+			{
+				scope: 'instance', group: 'by-variable',
+				constraints: [{kind:'unavailable', target:'Index'}],
+				code: [
+					'ls %R0% %Source.ReferenceId% %FixedIndex% %Source.Logic%',
+					'put %Destination.RAM% %Destination.Addr% %R0%',
+				],
+			},
+		],
+	},
+
 	"XR": {
 		name: 'Interrupt Router',
 		info: 'Reads device `Setting` values for processing, at a high priority.',
@@ -945,7 +985,7 @@ const metanode_db = {
 				}
 
 				def.logicSlots?.forEach((S,si) => {
-					const addSlot = L => res.push({logic:L, slot:si, name:`Slot #${si} ${L}`, passive:true, type:'logic', writable:false});
+					const addSlot = L => res.push({logic:L, slot:si, name:`Slot ${L}`, passive:true, type:'slot', writable:false});
 					S.forEach(addSlot);
 					UniversalSlotLogic.forEach(addSlot);
 				});
@@ -960,7 +1000,7 @@ const metanode_db = {
 			const res = [
 				{name:'Name', type:'constant', subtype:'string'},
 				{name:'HideUnused', type:'constant', subtype:'boolean'},
-				{name:'ReferenceId', type:'constant', subtype:'number'},
+				{name:'ReferenceId', type:'constant', subtype:'integer'},
 			];
 
 			if( def.logicWrite?.length ) {
@@ -1404,9 +1444,29 @@ function PinValidForPin(from, to) {
 	if( from.type === 'equipment' && from.subtype === 'logic' && to.type === 'logic' && (!from.writable || to.writable) )
 		return true;
 
+	if( from.type === 'equipment' && from.subtype === 'slot' && to.type === 'slot' && !from.writable )
+		return true;
+
 	if( from.type === to.type && from.subtype === to.subtype && match(from.equipmenttype, to.equipmenttype) && match(from.functiontype, to.functiontype) )
 		return true;
 
 	//TODO: other conditions?
 	return false;
+}
+
+
+// Monkey-patch in a uniq() function for Array.
+Array.prototype.uniq = function() {
+	this.sort();
+	for(var i = 1; i < this.length; ++i) {
+		if( this[i] == this[i-1] ) {
+			this.splice(i, 1);
+			i--;
+		}
+	}
+	return this;
+}
+
+Number.prototype.toHex = function() {
+	return '$' + this.toString(16);
 }

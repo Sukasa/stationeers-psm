@@ -402,6 +402,11 @@ body.narrow-viewport .window-inner.psm-navigation {
 	stroke-width: 3px;
 }
 
+@media print {
+	.diagram-root svg.zigzag path.underlay       { stroke: white !important; }
+	.diagram-root svg.zigzag path.drawn.selected { stroke: black !important; }
+}
+
 /* ********** Properties Table ********** */
 
 .properties-table {

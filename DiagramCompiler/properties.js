@@ -160,6 +160,28 @@ function commitNumber(setter, field) {
 	}
 }
 
+function commitInteger(setter, field) {
+	return (evt) => {
+		const str = evt.currentTarget.value;
+		var v = NaN;
+		if( str.startsWith("$") ) {
+			v = parseInt(str.substr(1), 16);
+		} else {
+			v = parseInt(str, 10);
+		}
+
+		if( isNaN(v) ) {
+			if( field.optional ) {
+				setter(undefined);
+			} else {
+				evt.currentTarget.value = evt.currentTarget.defaultValue;
+			}
+		} else {
+			setter(v);
+		}
+	}
+}
+
 function EditorFor(tgt, field, object, val, setter)
 {
 	switch(field.type) {
@@ -205,6 +227,16 @@ function ConstantEditor(tgt, field, val, setter)
 			defaultValue: field.optional ? undefined : apparentVal,
 			value: apparentVal,
 			'?blur': commitNumber(setter, field),
+		});
+		if( field.unit ) $(tgt, "span", {className:'unit', }, "="+field.unit);
+
+	} else if( field.subtype === 'integer' ) {
+		const apparentVal = val === undefined ? '' : String(val);
+		$(tgt, "input", {
+			type: 'text',
+			defaultValue: field.optional ? undefined : apparentVal,
+			value: apparentVal,
+			'?blur': commitInteger(setter, field),
 		});
 		if( field.unit ) $(tgt, "span", {className:'unit', }, "="+field.unit);
 

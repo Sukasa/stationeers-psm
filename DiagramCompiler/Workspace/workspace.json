@@ -441,14 +441,6 @@
   },
   {
     "type": "function",
-    "kind": "IR",
-    "properties": {
-      "Name": "Charcoal Available"
-    },
-    "id": "ky8g.wrpvjxa"
-  },
-  {
-    "type": "function",
     "kind": "OR",
     "properties": {
       "Name": "oc56.u117vyf"
@@ -479,55 +471,10 @@
     "id": "5kuwy.5wzcjt"
   },
   {
-    "type": "data",
-    "id": "4c1mv.wa1nzf",
-    "transient": true,
-    "properties": {
-      "Addr": 113,
-      "node": "38nz0.1gqcei"
-    }
-  },
-  {
-    "type": "data",
-    "id": "48yok.jxq92w",
-    "transient": true,
-    "properties": {
-      "Addr": 124,
-      "node": "38nz0.1gqcei"
-    }
-  },
-  {
-    "type": "data",
-    "id": "zofp.p6dv96",
-    "transient": true,
-    "properties": {
-      "Addr": 125,
-      "node": "38nz0.1gqcei"
-    }
-  },
-  {
-    "type": "data",
-    "id": "280mf.e8wvky",
-    "transient": true,
-    "properties": {
-      "Addr": 126,
-      "node": "38nz0.1gqcei"
-    }
-  },
-  {
-    "type": "data",
-    "id": "js45.zwy92d6",
-    "transient": true,
-    "properties": {
-      "Addr": 127,
-      "node": "38nz0.1gqcei"
-    }
-  },
-  {
     "type": "function",
     "kind": "IR",
     "properties": {
-      "Name": "Clean Water Volume"
+      "Name": "CW-Capacity"
     },
     "id": "24mpx.sln8z2"
   },
@@ -535,7 +482,7 @@
     "type": "function",
     "kind": "IR",
     "properties": {
-      "Name": "Clean Water Fill"
+      "Name": "CW-Liquid Volume"
     },
     "id": "6ryb.vrg8esn"
   },
@@ -553,7 +500,7 @@
     "type": "function",
     "kind": "MR",
     "properties": {
-      "Name": "2a75i.i0vlcz",
+      "Name": "CW-Ratio",
       "Operation": "div %R1% %R1% %R2%",
       "PostProcess": " "
     },
@@ -593,7 +540,7 @@
     "type": "function",
     "kind": "IR",
     "properties": {
-      "Name": "2zi2e.fanql2"
+      "Name": "DW-LiquidVolume"
     },
     "id": "2zi2e.fanql2"
   },
@@ -601,7 +548,7 @@
     "type": "function",
     "kind": "IR",
     "properties": {
-      "Name": "3ag9i.mj5epl"
+      "Name": "DW-Capacity"
     },
     "id": "3ag9i.mj5epl"
   },
@@ -609,7 +556,7 @@
     "type": "function",
     "kind": "MR",
     "properties": {
-      "Name": "14cf4.8i8ydh",
+      "Name": "DW-Fill Ratio",
       "Operation": "div %R1% %R1% %R2%",
       "PostProcess": " "
     },
@@ -666,7 +613,7 @@
     "type": "function",
     "kind": "CT",
     "properties": {
-      "Name": "dm57.02z7snb",
+      "Name": "CW Water Low",
       "Threshold": 200,
       "Test": "slt"
     },
@@ -692,6 +639,15 @@
       "HideUnused": true
     },
     "id": "qbo0.a35iel"
+  },
+  {
+    "type": "function",
+    "kind": "SIR",
+    "properties": {
+      "Name": "Charcoal Quantity",
+      "FixedIndex": 0
+    },
+    "id": "48nj0.feuiz"
   },
   {
     "fromNode": "ZHab1",
@@ -1138,7 +1094,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 0,
+    "fromIndex": 46,
     "toNode": "4s5g9.lr84w6",
     "properties": {
       "as": "functional",
@@ -1150,36 +1106,36 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 1,
+    "fromIndex": 45,
     "toNode": "55778.9xtuvt",
     "properties": {
       "as": "functional",
       "x": 400,
-      "y": -90
+      "y": 18
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 2,
+    "fromIndex": 44,
     "toNode": "3ze8f.lxzjsj",
     "properties": {
       "as": "functional",
       "x": 400,
-      "y": 36
+      "y": 144
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 3,
+    "fromIndex": 43,
     "toNode": "47uxe.lx1mhn",
     "properties": {
       "as": "functional",
-      "x": 350,
-      "y": 162
+      "x": 400,
+      "y": -108
     },
     "type": "rel"
   },
@@ -1198,12 +1154,12 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 5,
+    "fromIndex": 42,
     "toNode": "5ewrs.x5mquu",
     "properties": {
       "as": "functional",
       "x": 700,
-      "y": 162
+      "y": 180
     },
     "type": "rel"
   },
@@ -1275,7 +1231,7 @@
     "properties": {
       "as": "functional",
       "x": 1350,
-      "y": 306
+      "y": 342
     },
     "type": "rel"
   },
@@ -1294,12 +1250,12 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 12,
+    "fromIndex": 41,
     "toNode": "525wt.tnonao",
     "properties": {
       "as": "functional",
       "x": 700,
-      "y": 54
+      "y": 72
     },
     "type": "rel"
   },
@@ -1330,7 +1286,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 15,
+    "fromIndex": -8,
     "toNode": "2bd1x.6lxrrf",
     "properties": {
       "as": "functional",
@@ -1379,18 +1335,6 @@
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
     "fromIndex": 19,
-    "toNode": "ky8g.wrpvjxa",
-    "properties": {
-      "as": "functional",
-      "x": 1650,
-      "y": 468
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 20,
     "toNode": "oc56.u117vyf",
     "properties": {
       "as": "functional",
@@ -1402,7 +1346,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 21,
+    "fromIndex": 20,
     "toNode": "2j41l.4kwol",
     "properties": {
       "as": "functional",
@@ -1414,7 +1358,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 22,
+    "fromIndex": 21,
     "toNode": "5kuwy.5wzcjt",
     "properties": {
       "as": "functional",
@@ -1426,7 +1370,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 23,
+    "fromIndex": 22,
     "toNode": "24mpx.sln8z2",
     "properties": {
       "as": "functional",
@@ -1438,7 +1382,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 24,
+    "fromIndex": 23,
     "toNode": "6ryb.vrg8esn",
     "properties": {
       "as": "functional",
@@ -1450,7 +1394,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 25,
+    "fromIndex": 24,
     "toNode": "2dt5w.teq871",
     "properties": {
       "as": "functional",
@@ -1462,7 +1406,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 26,
+    "fromIndex": 25,
     "toNode": "2a75i.i0vlcz",
     "properties": {
       "as": "functional",
@@ -1474,7 +1418,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 27,
+    "fromIndex": 26,
     "toNode": "13zcf.qwwgop",
     "properties": {
       "as": "functional",
@@ -1486,7 +1430,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 28,
+    "fromIndex": 27,
     "toNode": "5l4i5.vnalbv",
     "properties": {
       "as": "functional",
@@ -1498,7 +1442,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 29,
+    "fromIndex": 28,
     "toNode": "2tvy0.opep16",
     "properties": {
       "as": "functional",
@@ -1510,7 +1454,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 30,
+    "fromIndex": -7,
     "toNode": "2zi2e.fanql2",
     "properties": {
       "as": "functional",
@@ -1522,7 +1466,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 31,
+    "fromIndex": -6,
     "toNode": "3ag9i.mj5epl",
     "properties": {
       "as": "functional",
@@ -1534,7 +1478,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 32,
+    "fromIndex": 31,
     "toNode": "14cf4.8i8ydh",
     "properties": {
       "as": "functional",
@@ -1546,7 +1490,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 33,
+    "fromIndex": 32,
     "toNode": "anqy.cwr3zn8",
     "properties": {
       "as": "functional",
@@ -1558,7 +1502,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 34,
+    "fromIndex": 33,
     "toNode": "2sw1m.1fnxay",
     "properties": {
       "as": "functional",
@@ -1570,7 +1514,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 35,
+    "fromIndex": 34,
     "toNode": "3xjyt.toiwy",
     "properties": {
       "as": "functional",
@@ -1582,19 +1526,19 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 36,
+    "fromIndex": 35,
     "toNode": "8dj2.5b996b6",
     "properties": {
       "as": "functional",
       "x": 1350,
-      "y": 414
+      "y": 270
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 37,
+    "fromIndex": 36,
     "toNode": "dm57.02z7snb",
     "properties": {
       "as": "functional",
@@ -1606,7 +1550,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 38,
+    "fromIndex": 37,
     "toNode": "48j8.izaa958",
     "properties": {
       "as": "functional",
@@ -1618,7 +1562,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 39,
+    "fromIndex": 38,
     "toNode": "qbo0.a35iel",
     "properties": {
       "as": "functional",
@@ -1628,15 +1572,21 @@
     "type": "rel"
   },
   {
-    "fromNode": "4s5g9.lr84w6",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 39,
+    "toNode": "48nj0.feuiz",
+    "properties": {
+      "as": "functional",
+      "x": 1650,
+      "y": 450
+    },
     "type": "rel"
   },
   {
     "fromNode": "4s5g9.lr84w6",
-    "fromPin": "Destination",
-    "toNode": "js45.zwy92d6",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
     "type": "rel"
   },
   {
@@ -1654,12 +1604,6 @@
   },
   {
     "fromNode": "55778.9xtuvt",
-    "fromPin": "Destination",
-    "toNode": "280mf.e8wvky",
-    "type": "rel"
-  },
-  {
-    "fromNode": "55778.9xtuvt",
     "fromPin": "Source",
     "toNode": "2tvy0.opep16",
     "toPin": "RatioWater",
@@ -1673,12 +1617,6 @@
   },
   {
     "fromNode": "3ze8f.lxzjsj",
-    "fromPin": "Destination",
-    "toNode": "zofp.p6dv96",
-    "type": "rel"
-  },
-  {
-    "fromNode": "3ze8f.lxzjsj",
     "fromPin": "Source",
     "toNode": "2tvy0.opep16",
     "toPin": "RatioPollutedWater",
@@ -1688,12 +1626,6 @@
     "fromNode": "47uxe.lx1mhn",
     "fromPin": "Zone",
     "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
-    "fromNode": "47uxe.lx1mhn",
-    "fromPin": "Destination",
-    "toNode": "48yok.jxq92w",
     "type": "rel"
   },
   {
@@ -1714,8 +1646,7 @@
     "fromPin": "Input",
     "viaNode": "55778.9xtuvt",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "280mf.e8wvky"
+    "type": "rel"
   },
   {
     "fromNode": "5ewrs.x5mquu",
@@ -1728,8 +1659,7 @@
     "fromPin": "Input",
     "viaNode": "3ze8f.lxzjsj",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "zofp.p6dv96"
+    "type": "rel"
   },
   {
     "fromNode": "4ten6.3j9dc",
@@ -1808,8 +1738,7 @@
     "fromIndex": 0,
     "viaNode": "4s5g9.lr84w6",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "js45.zwy92d6"
+    "type": "rel"
   },
   {
     "fromNode": "1m14b.ps0371",
@@ -1817,8 +1746,7 @@
     "fromIndex": 1,
     "viaNode": "47uxe.lx1mhn",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "48yok.jxq92w"
+    "type": "rel"
   },
   {
     "fromNode": "2zy00.z35a6u",
@@ -1865,7 +1793,7 @@
     "fromNode": "45p6j.vt5fuw",
     "fromPin": "Destination",
     "fromIndex": 0,
-    "toNode": "3vouo.djazxh",
+    "toNode": "8dj2.5b996b6",
     "toPin": "On",
     "type": "rel"
   },
@@ -1873,7 +1801,7 @@
     "fromNode": "45p6j.vt5fuw",
     "fromPin": "Destination",
     "fromIndex": 1,
-    "toNode": "8dj2.5b996b6",
+    "toNode": "3vouo.djazxh",
     "toPin": "On",
     "type": "rel"
   },
@@ -1888,8 +1816,7 @@
     "fromPin": "Input",
     "viaNode": "3ze8f.lxzjsj",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "zofp.p6dv96"
+    "type": "rel"
   },
   {
     "fromNode": "55qjw.nvq2r3",
@@ -1988,25 +1915,6 @@
     "type": "rel"
   },
   {
-    "fromNode": "ky8g.wrpvjxa",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
-    "fromNode": "ky8g.wrpvjxa",
-    "fromPin": "Source",
-    "toNode": "3vouo.djazxh",
-    "toPin": "Slot #0 Quantity",
-    "type": "rel"
-  },
-  {
-    "fromNode": "ky8g.wrpvjxa",
-    "fromPin": "Destination",
-    "toNode": "4c1mv.wa1nzf",
-    "type": "rel"
-  },
-  {
     "fromNode": "oc56.u117vyf",
     "fromPin": "Zone",
     "toNode": "3kdmn.enzfi9",
@@ -2036,8 +1944,7 @@
   {
     "fromNode": "2j41l.4kwol",
     "fromPin": "Input",
-    "toNode": "4c1mv.wa1nzf",
-    "viaNode": "ky8g.wrpvjxa",
+    "viaNode": "48nj0.feuiz",
     "viaPin": "Destination",
     "type": "rel"
   },
@@ -2259,6 +2166,19 @@
     "fromNode": "qbo0.a35iel",
     "fromPin": "Zone",
     "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "48nj0.feuiz",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "48nj0.feuiz",
+    "fromPin": "Source",
+    "toNode": "3vouo.djazxh",
+    "toPin": "Slot Quantity",
     "type": "rel"
   }
 ]
