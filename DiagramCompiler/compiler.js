@@ -36,11 +36,11 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 				id: def.NewId(),
 				type: 'function',
 				kind: 'EI',
+				transient: true,
 				properties:{
 					Name: `Init "${metanode_db.equipment.Name(eq)}" ${initKey}`,
 					Value: eq.properties.Initialize[initKey] ?? 0
 				},
-				transient: true,
 			};
 
 			def.AddObject(f);
@@ -59,11 +59,11 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			id: def.NewId(),
 			type: 'function',
 			kind: 'DI',
+			transient: true,
 			properties: {
 				Name: `Init ${metanode_db.data.Name(dd)}`,
 				Value: dd.properties.InitValue,
 			},
-			transient: true,
 		};
 
 		def.AddObject(f);
@@ -169,7 +169,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 		}
 
 		rc.report('info', `${rc.fatal ? 'Incompletely sequenced':'Sequenced'} functions`, funcsByDep.map(f => f.id));
-		funcsByDep.forEach(f => rc.report('info', `Fn "${metanode_db.function.Name(f)}"`));
+		//DEBUG: funcsByDep.forEach(f => rc.report('debug', `Fn "${metanode_db.function.Name(f)}"`));
 	}
 
 	if( ! rc.fatal ) {
@@ -404,6 +404,9 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 	if( ! rc.fatal ) {
 		rc.setCategory('Code Generation');
 		const varsByFunc = {};
+		//TODO: support for eliminating unnecessary load/stores to transient data locations,
+		// which would reduce code size by probably 33% anywhere integration isn't a concern
+		// e.g. replacing `put $100 +490 r15 / get r13 $100 +490` on consecutive lines with `move r13 r15`
 
 		const setter = (tgt, fnObj) => (k,v) => {
 			if( tgt[k] === v ) {
@@ -727,7 +730,7 @@ function CheckAndValidateDatum(d, rc, storages) {
 		d.properties.Addr = addr;
 		d.properties.node = st.node;
 
-		rc.report('info', `Allocated ${sz} slots of "${st.node}" at +${addr} for datum "${d.name ?? d.id}"`, [d.id]);
+		rc.report('info', `Allocated ${sz} slots of "${st.node}" at +${addr} for datum "${d.properties.Name ?? d.id}"`, [d.id]);
 		st.buffers.push(e);
 		st.buffers.sort((a,b) => a.Addr - b.Addr);
 
@@ -763,21 +766,23 @@ function SortByIndex(a, b) {
 	return av - bv;
 }
 
-function AllocateFunctionRel(layer, objId, reldef) {
-	var toObj = layer.NewId();
+function AllocateFunctionRel(layer, fnObj, reldef) {
+	var newObj = layer.NewId();
 	if( 'data' === reldef.type ) {
 		layer.AddObject({
 			type: 'data',
-			id: toObj,
+			id: newObj,
 			transient: true,
-			properties: {},
+			properties: {
+				Name: `(Auto) ${metanode_db.function.Name(fnObj)} ${reldef.name}`,
+			},
 		});
 
 	} else {
 		throw new Error(`Unrecognized allocate relation data type "${reldef.type}"!`);
 	}
 
-	return CreateRelation(layer, objId, reldef.name, undefined, toObj);
+	return CreateRelation(layer, fnObj.id, reldef.name, undefined, newObj);
 }
 
 function PreallocateFunction(report, fnObj, layer) {
@@ -793,8 +798,8 @@ function PreallocateFunction(report, fnObj, layer) {
 
 		// For allocatable relations with no bound value, allocate one!
 		if( reldef.allocate && applicable.length === 0 ) {
-			report('info', `Allocating associated value for "${fnObj.id}" pin "${reldef.name}"`, [fnObj.id])
-			AllocateFunctionRel(layer, fnObj.id, reldef);
+			report('info', `Allocating associated value for "${metanode_db.function.Name(fnObj)}" pin "${reldef.name}"`, [fnObj.id])
+			AllocateFunctionRel(layer, fnObj, reldef);
 		}
 	});
 }

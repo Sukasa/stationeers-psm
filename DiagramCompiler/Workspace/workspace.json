@@ -16,7 +16,10 @@
     "properties": {
       "Name": "Foyer Wall Heater",
       "ReferenceId": 1320,
-      "HideUnused": true
+      "HideUnused": true,
+      "Initialize": {
+        "Lock": 1
+      }
     }
   },
   {
@@ -73,7 +76,7 @@
         "On": 1
       },
       "ReferenceId": 4127,
-      "HideUnused": true
+      "HideUnused": false
     }
   },
   {
@@ -650,6 +653,77 @@
     "id": "48nj0.feuiz"
   },
   {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "5tpvo.3ix0vq"
+    },
+    "id": "5tpvo.3ix0vq"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Temp Low",
+      "Threshold": 288,
+      "Test": "slt"
+    },
+    "id": "1kctx.kp06fb"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "57kga.iq44tm"
+    },
+    "id": "57kga.iq44tm"
+  },
+  {
+    "type": "function",
+    "kind": "ST",
+    "properties": {
+      "Name": "Heater Operate"
+    },
+    "id": "12t0l.a89hpf"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "f5m2.p4dd97"
+    },
+    "id": "f5m2.p4dd97"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Temp Not High",
+      "Threshold": 295,
+      "Test": "slt"
+    },
+    "id": "46um6.8mjxds"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "Temp High",
+      "Operation": "add %R1% %R1% %R2%",
+      "PostProcess": " ",
+      "Postprocess": "select %R1% %R1% 0 1"
+    },
+    "id": "5fbwr.c0m482"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "3wt5y.qjxwb3"
+    },
+    "id": "3wt5y.qjxwb3"
+  },
+  {
     "fromNode": "ZHab1",
     "fromPin": "Processor",
     "fromIndex": 0,
@@ -681,8 +755,8 @@
     "fromIndex": 2,
     "toNode": "TW818194",
     "properties": {
-      "x": -250,
-      "y": -198,
+      "x": 50,
+      "y": -54,
       "as": "functional"
     }
   },
@@ -705,8 +779,8 @@
     "fromIndex": 4,
     "toNode": "TW3716",
     "properties": {
-      "x": 500,
-      "y": -270,
+      "x": 750,
+      "y": -18,
       "as": "functional"
     }
   },
@@ -717,8 +791,8 @@
     "toNode": "TW37182",
     "properties": {
       "as": "functional",
-      "x": -250,
-      "y": -162
+      "x": 50,
+      "y": 0
     },
     "type": "rel"
   },
@@ -729,8 +803,8 @@
     "toNode": "TW7191",
     "properties": {
       "as": "functional",
-      "x": 500,
-      "y": -234
+      "x": 1550,
+      "y": -18
     },
     "type": "rel"
   },
@@ -741,8 +815,8 @@
     "toNode": "LC183102",
     "properties": {
       "as": "functional",
-      "x": -200,
-      "y": -126
+      "x": 1600,
+      "y": -198
     },
     "type": "rel"
   },
@@ -801,7 +875,7 @@
     "toNode": "304yb.fxxu6",
     "properties": {
       "as": "functional",
-      "x": -50,
+      "x": 150,
       "y": -324
     },
     "type": "rel"
@@ -879,6 +953,102 @@
     "type": "rel"
   },
   {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 21,
+    "toNode": "5tpvo.3ix0vq",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": -90
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 22,
+    "toNode": "1kctx.kp06fb",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": -306
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 23,
+    "toNode": "57kga.iq44tm",
+    "properties": {
+      "as": "functional",
+      "x": 1050,
+      "y": -54
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 24,
+    "toNode": "12t0l.a89hpf",
+    "properties": {
+      "as": "functional",
+      "x": 1350,
+      "y": -270
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 25,
+    "toNode": "f5m2.p4dd97",
+    "properties": {
+      "as": "functional",
+      "x": 1900,
+      "y": -270
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 26,
+    "toNode": "46um6.8mjxds",
+    "properties": {
+      "as": "functional",
+      "x": 800,
+      "y": -198
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 27,
+    "toNode": "5fbwr.c0m482",
+    "properties": {
+      "as": "functional",
+      "x": 1350,
+      "y": -144
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "366ad.m3q4t6",
+    "fromPin": "Component",
+    "fromIndex": 28,
+    "toNode": "3wt5y.qjxwb3",
+    "properties": {
+      "as": "functional",
+      "x": 1900,
+      "y": -126
+    },
+    "type": "rel"
+  },
+  {
     "fromNode": "53by1.ck5j1e",
     "fromPin": "Zone",
     "toNode": "ZHab1",
@@ -947,7 +1117,8 @@
     "fromPin": "Source",
     "viaNode": "1conm.meqgme",
     "viaPin": "State",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "18ro8.jeuyou"
   },
   {
     "fromNode": "36gwd.47quex",
@@ -978,7 +1149,8 @@
     "fromPin": "AckSignal",
     "viaNode": "53by1.ck5j1e",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "4274v.7i6u1n"
   },
   {
     "fromNode": "57j3l.ujgzo",
@@ -1009,14 +1181,16 @@
     "fromPin": "Raise",
     "viaNode": "36gwd.47quex",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "br8c.mbinzw"
   },
   {
     "fromNode": "1conm.meqgme",
     "fromPin": "Hold",
     "viaNode": "4dw2p.k9qzw",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "5hfiv.2fpikt"
   },
   {
     "fromNode": "32wb5.al2to9",
@@ -1647,7 +1821,7 @@
     "viaNode": "55778.9xtuvt",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "4i609.ddcc7y"
+    "toNode": "1rule.q9q5iu"
   },
   {
     "fromNode": "5ewrs.x5mquu",
@@ -1661,7 +1835,7 @@
     "viaNode": "3ze8f.lxzjsj",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "3jmlk.hitwnn"
+    "toNode": "2upcd.f3xgkg"
   },
   {
     "fromNode": "4ten6.3j9dc",
@@ -1676,7 +1850,7 @@
     "viaNode": "1m14b.ps0371",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "5ls4d.zzq818"
+    "toNode": "2hinj.yhedh9"
   },
   {
     "fromNode": "4ten6.3j9dc",
@@ -1685,7 +1859,7 @@
     "viaNode": "4k282.dez99a",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "5uxhp.hsxfol"
+    "toNode": "3ou4l.li3c3"
   },
   {
     "fromNode": "4ten6.3j9dc",
@@ -1694,7 +1868,7 @@
     "viaNode": "525wt.tnonao",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "e1j0.w9q96f8"
+    "toNode": "45svv.s151xr"
   },
   {
     "fromNode": "57moq.1x5dqw",
@@ -1714,7 +1888,7 @@
     "viaNode": "4ten6.3j9dc",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "5hjgl.yty87t"
+    "toNode": "24u9j.seqf5n"
   },
   {
     "fromNode": "1h72j.30izzq",
@@ -1745,7 +1919,7 @@
     "viaNode": "4s5g9.lr84w6",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "1843o.360tbpg"
+    "toNode": "5hai8.cchbbv"
   },
   {
     "fromNode": "1m14b.ps0371",
@@ -1754,7 +1928,7 @@
     "viaNode": "47uxe.lx1mhn",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "3yu7z.i6psix"
+    "toNode": "urmi.fz8b6ul"
   },
   {
     "fromNode": "2zy00.z35a6u",
@@ -1769,7 +1943,7 @@
     "viaNode": "1m14b.ps0371",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "5ls4d.zzq818"
+    "toNode": "2hinj.yhedh9"
   },
   {
     "fromNode": "2zy00.z35a6u",
@@ -1778,7 +1952,7 @@
     "viaNode": "5ewrs.x5mquu",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "3x7qv.tac8hb"
+    "toNode": "5q06d.6s4ut4"
   },
   {
     "fromNode": "3vouo.djazxh",
@@ -1798,7 +1972,7 @@
     "viaNode": "2zy00.z35a6u",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "4z5hn.gymj88"
+    "toNode": "27fe6.p2iqia"
   },
   {
     "fromNode": "45p6j.vt5fuw",
@@ -1828,7 +2002,7 @@
     "viaNode": "3ze8f.lxzjsj",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "3jmlk.hitwnn"
+    "toNode": "2upcd.f3xgkg"
   },
   {
     "fromNode": "55qjw.nvq2r3",
@@ -1882,7 +2056,7 @@
     "viaNode": "55qjw.nvq2r3",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "4ibsu.w6tv3w"
+    "toNode": "3vink.yok74p"
   },
   {
     "fromNode": "5xhj6.o44tht",
@@ -1891,7 +2065,7 @@
     "viaNode": "2bd1x.6lxrrf",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "41qc3.u5pz2l"
+    "toNode": "4k53d.5ynpjo"
   },
   {
     "fromNode": "5xhj6.o44tht",
@@ -1900,7 +2074,7 @@
     "viaNode": "5jpbc.3qgize",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "6m0h.qg8pcx9"
+    "toNode": "3juev.gmhzyg"
   },
   {
     "fromNode": "47jie.wsqm5e",
@@ -1922,7 +2096,7 @@
     "viaNode": "5xhj6.o44tht",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "57535.xsbyw"
+    "toNode": "2u4qd.c8gdwy"
   },
   {
     "fromNode": "3vq9w.80qunm",
@@ -1942,7 +2116,7 @@
     "viaNode": "2j41l.4kwol",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "5eb3q.347aip"
+    "toNode": "3bmbf.lz9oyu"
   },
   {
     "fromNode": "oc56.u117vyf",
@@ -1964,7 +2138,7 @@
     "viaNode": "48nj0.feuiz",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "w1k.4jc7ei4"
+    "toNode": "2yhg0.s4nrq6"
   },
   {
     "fromNode": "5kuwy.5wzcjt",
@@ -2017,7 +2191,7 @@
     "viaNode": "6ryb.vrg8esn",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "1e8tl.l1b9qn"
+    "toNode": "4zade.hv6t8p"
   },
   {
     "fromNode": "2a75i.i0vlcz",
@@ -2026,7 +2200,7 @@
     "viaNode": "24mpx.sln8z2",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "cv5v.ib0x8k"
+    "toNode": "i0w6.hazrxhf"
   },
   {
     "fromNode": "13zcf.qwwgop",
@@ -2040,7 +2214,7 @@
     "viaNode": "2a75i.i0vlcz",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "4wo9f.ee9cv3"
+    "toNode": "kz8v.sbh6eyj"
   },
   {
     "fromNode": "13zcf.qwwgop",
@@ -2101,7 +2275,7 @@
     "viaNode": "2zi2e.fanql2",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "5gesb.zdt0et"
+    "toNode": "z9hn.kfy0r7"
   },
   {
     "fromNode": "14cf4.8i8ydh",
@@ -2110,7 +2284,7 @@
     "viaNode": "3ag9i.mj5epl",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "2g1t0.wox6oy"
+    "toNode": "47m01.7q0ta8"
   },
   {
     "fromNode": "anqy.cwr3zn8",
@@ -2124,7 +2298,7 @@
     "viaNode": "14cf4.8i8ydh",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "3ajcz.xan52t"
+    "toNode": "3ziv9.xmhygu"
   },
   {
     "fromNode": "anqy.cwr3zn8",
@@ -2164,7 +2338,7 @@
     "viaNode": "6ryb.vrg8esn",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "1e8tl.l1b9qn"
+    "toNode": "4zade.hv6t8p"
   },
   {
     "fromNode": "48j8.izaa958",
@@ -2186,7 +2360,7 @@
     "viaNode": "dm57.02z7snb",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "56bb0.2tbgaw"
+    "toNode": "34wab.3fac4g"
   },
   {
     "fromNode": "qbo0.a35iel",
@@ -2205,6 +2379,167 @@
     "fromPin": "Source",
     "toNode": "3vouo.djazxh",
     "toPin": "Slot Quantity",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Source",
+    "toNode": "36if7.ugltng",
+    "viaNode": "304yb.fxxu6",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "TW818194",
+    "toPin": "Setting",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Destination",
+    "fromIndex": 1,
+    "toNode": "TW37182",
+    "toPin": "Setting",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1kctx.kp06fb",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1kctx.kp06fb",
+    "fromPin": "Input",
+    "toNode": "36if7.ugltng",
+    "viaNode": "304yb.fxxu6",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "57kga.iq44tm",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "57kga.iq44tm",
+    "fromPin": "Source",
+    "toNode": "2v8nk.7y1qva",
+    "viaNode": "1kctx.kp06fb",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "57kga.iq44tm",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "TW3716",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "12t0l.a89hpf",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "12t0l.a89hpf",
+    "fromPin": "Raise",
+    "toNode": "2v8nk.7y1qva",
+    "viaNode": "1kctx.kp06fb",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "12t0l.a89hpf",
+    "fromPin": "Hold",
+    "toNode": "4mwmq.9fkzw5",
+    "viaNode": "46um6.8mjxds",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "f5m2.p4dd97",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "f5m2.p4dd97",
+    "fromPin": "Source",
+    "toNode": "1uih8.00cvhr",
+    "viaNode": "12t0l.a89hpf",
+    "viaPin": "State",
+    "type": "rel"
+  },
+  {
+    "fromNode": "f5m2.p4dd97",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "LC183102",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "46um6.8mjxds",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "46um6.8mjxds",
+    "fromPin": "Input",
+    "toNode": "36if7.ugltng",
+    "viaNode": "304yb.fxxu6",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5fbwr.c0m482",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5fbwr.c0m482",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "toNode": "4mwmq.9fkzw5",
+    "viaNode": "46um6.8mjxds",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wt5y.qjxwb3",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wt5y.qjxwb3",
+    "fromPin": "Source",
+    "toNode": "9tlt.9g0iqz9",
+    "viaNode": "5fbwr.c0m482",
+    "viaPin": "Output",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wt5y.qjxwb3",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "TW7191",
+    "toPin": "On",
     "type": "rel"
   }
 ]
