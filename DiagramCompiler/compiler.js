@@ -399,53 +399,6 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 			DistributeBlocks(fblk.filter(b => !IsProcScope(b)));
 			//TODO: for custom-code functions, insert processing here for the custom list in fnObj
 		});
-
-		for(var procid in procTables) {
-			const proc = procTables[procid];
-			const pobj = def.FindObject(procid);
-			const pname = metanode_db[pobj.type].Name(pobj);
-			const CodeLen = L => L.reduce((t,b) => t + (b.count ?? 1) * b.block.code.length, 0);
-
-			// Zone-init; once per function instance, once per processor power-up.
-			const ziLen = CodeLen(proc['zone-init']);
-
-			// Processor-init; once per function type, once per processor power-up.
-			const piLen = CodeLen(proc['processor-init']);
-			if( ziLen+piLen > 0) {
-				rc.report('info', `Processor "${pname}" has ${ziLen+piLen} LoC of on-powerup init code`, [procid]);
-			}
-
-			// Add yield to start of cycle-init.
-			proc['cycle-init'].unshift({func:null, block:{scope:'cycle-init',code:[`yield`]}});
-
-			// Add a jump (to that yield) to the end of cycle-outro.
-			proc['cycle-outro'].push({func:null, block:{scope:'cycle-outro',code:[`j ${ziLen+piLen}`]}});
-
-			// Total up all per-cycle code.
-			//TODO: this over-estimates the length of code which has blank-line optimizations available and array index constraints... is that resolvable here?
-			const remLen = ['cycle-init','instance','cycle-outro'].reduce((t,L) => t + CodeLen(proc[L]), 0);
-
-			// Report if we're over capacity.
-			if( ziLen+piLen+remLen > proc.processor.capacity ) {
-				rc.report('error', `Processor "${pname}" is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${remLen} cycle LoC: but this puts it ${ziLen+piLen+remLen - proc.processor.capacity} over its LoC budget!`, [procid]);
-				continue;
-			}
-
-			// Calculate the best servable priority (how many ticks it takes to execute all code). Is always 1
-			// in vanilla Stationeers, but we are aware of mods that e.g. increase the LoC limit to 512 without
-			// changing the execution speed; such chips could run down to priority 4.
-			proc.bestPriority = Math.ceil(remLen / proc.processor.LoCPerTick);
-			rc.report('info', `Processor "${pname}" is capable of serving Priority "${proc.bestPriority}" or worse, at ${remLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`, [procid]);
-
-			for(var fnId in proc.instances) {
-				const fnObj = proc.instances[fnId];
-				const fnDef = functiondef_db[fnObj.kind];
-				const pval = (fnDef.requiredPriority ?? fnObj.properties?.Priority) || 0;
-				if( pval > 0 && pval < proc.bestPriority ) {
-					rc.report('error', `Function demands priority "${pval}" or better, but is assigned to a Processor which can serve at best priority "${proc.bestPriority}"`, [fnId]);
-				}
-			}
-		}
 	}
 
 	if( ! rc.fatal ) {
@@ -609,10 +562,21 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 		const lpad = (n,s,r) => (r??' ').repeat(Math.max(0, n-String(s).length)) + s;
 		const rpad = (n,s,r) => s + (r??' ').repeat(Math.max(0, n-String(s).length));
 		
+		const ALL_SECTIONS = ['zone-init','processor-init','cycle-init','instance','cycle-outro'];
 		for(var procid in procTables) {
 			const proc = procTables[procid];
+			const pobj = def.FindObject(procid);
+			const pname = metanode_db[pobj.type].Name(pobj);
+			const line_counts = {};
 			const all_lines = [];
-			['zone-init','processor-init','cycle-init','instance','cycle-outro'].forEach(section => {
+
+			// Add yield to start of cycle-init.
+			proc['cycle-init'].unshift({func:null, block:{scope:'cycle-init',code:[`yield`]}});
+
+			ALL_SECTIONS.forEach(section => {
+				// Prepare line-counts tracker which will be used for validation in a minute.
+				line_counts[section] = 0;
+
 				proc[section].forEach(({func,block,count}) => {
 					const o_vars = (func && varsByFunc[func.id]) ?? {};
 					const comments = true; //DEBUG:
@@ -650,6 +614,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 
 							if( ln.trim().length > 0 ) {
 								all_lines.push(ln);
+								line_counts[section]++;
 							}
 						});
 					}
@@ -670,6 +635,42 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 					}
 				})
 			});
+
+			// Calculate length of one-time init code.
+			const ziLen = line_counts['zone-init'];
+			const piLen = line_counts['processor-init'];
+
+			// Add the epilogue line which loops back to the 'yield' at the start of cycle-init.
+			line_counts['cycle-outro']++;
+			all_lines.push(`j ${ziLen+piLen}`);
+
+			const loopLen = line_counts['cycle-init'] + line_counts['instance'] + line_counts['cycle-outro'];
+
+			// Report init code.
+			if( ziLen+piLen > 0) {
+				rc.report('info', `Processor "${pname}" has ${ziLen+piLen} LoC of on-powerup init code`, [procid]);
+			}
+
+			// Report if we're over capacity.
+			if( ziLen+piLen+loopLen > proc.processor.capacity ) {
+				rc.report('error', `Processor "${pname}" is allocated ${ziLen} zone-init LoC, ${piLen} processor-init LoC, and ${loopLen} cycle LoC: but this puts it ${ziLen+piLen+loopLen - proc.processor.capacity} over its LoC budget!`, [procid]);
+				continue;
+			}
+
+			// Calculate the best servable priority (how many ticks it takes to execute all code). Is always 1
+			// in vanilla Stationeers, but we are aware of mods that e.g. increase the LoC limit to 512 without
+			// changing the execution speed; such chips could run down to priority 4.
+			proc.bestPriority = Math.ceil(loopLen / proc.processor.LoCPerTick);
+			rc.report('info', `Processor "${pname}" is capable of serving Priority "${proc.bestPriority}" or worse, at ${loopLen} LoC/cycle versus ${proc.processor.LoCPerTick} LoC/tick.`, [procid]);
+
+			for(var fnId in proc.instances) {
+				const fnObj = proc.instances[fnId];
+				const fnDef = functiondef_db[fnObj.kind];
+				const pval = (fnDef.requiredPriority ?? fnObj.properties?.Priority) || 0;
+				if( pval > 0 && pval < proc.bestPriority ) {
+					rc.report('error', `Function demands priority "${pval}" or better, but is assigned to a Processor which can serve at best priority "${proc.bestPriority}"`, [fnId]);
+				}
+			}
 
 			cc[procid] = all_lines.join('\n');
 			if( /*DEBUG*/ false ) {
