@@ -272,7 +272,7 @@ const functiondef_db = {
 				scope: 'instance', group: 'by-variable',
 				constraints: [{kind:'available', target:'Index'}],
 				code: [
-					'l %R0% %Index.RAM% %Index.Addr%',
+					'get %R0% %Index.RAM% %Index.Addr%',
 					'ls %R0% %Source.ReferenceId% %R0% %Source.Logic%',
 					'put %Destination.RAM% %Destination.Addr% %R0%',
 				],
@@ -393,7 +393,7 @@ const functiondef_db = {
 			{
 				scope: 'zone-init',
 				code: [
-					's %Destination.RAM% %Destination.Addr% %Value%'
+					'put %Destination.RAM% %Destination.Addr% %Value%'
 				],
 			}
 		]
@@ -454,6 +454,8 @@ const functiondef_db = {
 				{name: 'add %R1% %R1% %R2%', label: 'Sum'},
 				{name: 'mul %R1% %R1% %R2%', label: 'Product'},
 				{name: 'div %R1% %R1% %R2%', label: 'Divide'},
+				{name: 'min %R1% %R1% %R2%', label: 'Minimum'},
+				{name: 'max %R1% %R1% %R2%', label: 'Maximum'},
 			]},
 			{name: 'Postprocess', type: 'constant', subtype: 'list', value: ' ', options: [
 				{name: ' ', label: 'None'},
