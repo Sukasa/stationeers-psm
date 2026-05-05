@@ -104,6 +104,7 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 					node: ar.toNode,
 					blocks: [],
 					varsByFType: {},
+					initByFType: {},
 					registersFree: avail,
 					capacity: maxLines, free: maxLines,
 					LoCPerTick: LoCPerTick,
@@ -195,9 +196,9 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 				.filter(o => o?.type === 'data');
 			datum.forEach(d => CheckAndValidateDatum(d, rc, storages));
 
-			if( !typesOnce[f.kind] ) {
+			if( !proc.initByFType[f.kind] ) {
 				// Process processor-wide register allocations
-				typesOnce[f.kind] = true;
+				proc.initByFType[f.kind] = true;
 				functiondef_db[f.kind].properties?.forEach(pdef => {
 					if( pdef.type !== 'register' ) return;
 					const pval = f.properties?.[pdef.name] ?? pdef.value ?? undefined;
@@ -221,9 +222,9 @@ function ZoneCodeCompile(zone, def, rc, cc) {
 
 					const idx = proc.registersFree.indexOf(nval);
 					if( -1 === idx ) {
-						rc.report('error', `Register r${nval} is already in use in processor; cannot assign it to function type "${f.kind}"`, [proc.node]);
+						rc.report('error', `Register r${nval} is already in use in processor "${fproc.properties?.Name ?? fproc.id}"; cannot assign it to function type "${f.kind}"`, [proc.node]);
 					} else {
-						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor`, [proc.node, f.id]);
+						rc.report('info', `Assigning Register r${nval} to Function Type "${f.kind}" Variable "${pdef.name}" in Processor "${fproc.properties?.Name ?? fproc.id}"`, [proc.node, f.id]);
 						const reg = proc.registersFree[idx];
 						proc.registersFree.splice(idx, 1);
 						const vlist = proc.varsByFType[f.kind] ?? (proc.varsByFType[f.kind] = {});

@@ -238,7 +238,7 @@
     "type": "equipment",
     "kind": "StructureCircuitHousing+IC10",
     "properties": {
-      "Name": "Spa Controller",
+      "Name": "Spa Controller A",
       "ReferenceId": 793238
     },
     "id": "38nz0.1gqcei"
@@ -246,146 +246,10 @@
   {
     "type": "drawing",
     "properties": {
-      "Name": "Spa - Processing"
+      "Name": "Spa - Processing",
+      "HideUnused": false
     },
     "id": "29uhx.4qvz4w"
-  },
-  {
-    "type": "function",
-    "kind": "IR",
-    "properties": {
-      "Name": "DW-PollutantGas"
-    },
-    "id": "4s5g9.lr84w6"
-  },
-  {
-    "type": "function",
-    "kind": "IR",
-    "properties": {
-      "Name": "DW-Water"
-    },
-    "id": "55778.9xtuvt"
-  },
-  {
-    "type": "function",
-    "kind": "IR",
-    "properties": {
-      "Name": "DW-DirtyWater"
-    },
-    "id": "3ze8f.lxzjsj"
-  },
-  {
-    "type": "function",
-    "kind": "IR",
-    "properties": {
-      "Name": "DW-PollutantLiquid"
-    },
-    "id": "47uxe.lx1mhn"
-  },
-  {
-    "type": "function",
-    "kind": "CT",
-    "properties": {
-      "Name": "Clean Water Present",
-      "Threshold": 0,
-      "Test": "sgt"
-    },
-    "id": "4k282.dez99a"
-  },
-  {
-    "type": "function",
-    "kind": "CT",
-    "properties": {
-      "Name": "Dirty Water Present",
-      "Threshold": 0,
-      "Test": "sgt"
-    },
-    "id": "5ewrs.x5mquu"
-  },
-  {
-    "type": "function",
-    "kind": "MR",
-    "properties": {
-      "Name": "Bypass Clean Water",
-      "Operation": "select %R1% %R1% %R2% %R1%",
-      "PostProcess": " ",
-      "Postprocess": " "
-    },
-    "id": "4ten6.3j9dc"
-  },
-  {
-    "type": "equipment",
-    "kind": "StructureLiquidPipeVolumePump",
-    "properties": {
-      "Name": "Clean Water Bypass Pump",
-      "Initialize": {
-        "Lock": 1,
-        "Setting": 10
-      },
-      "HideUnused": true,
-      "ReferenceId": 749127
-    },
-    "id": "57moq.1x5dqw"
-  },
-  {
-    "type": "function",
-    "kind": "OR",
-    "properties": {
-      "Name": "1h72j.30izzq"
-    },
-    "id": "1h72j.30izzq"
-  },
-  {
-    "type": "function",
-    "kind": "MR",
-    "properties": {
-      "Name": "DW System Gasses Clean",
-      "Operation": "add %R1% %R1% %R2%",
-      "PostProcess": " ",
-      "Postprocess": "select %R1% %R1% 0 1"
-    },
-    "id": "1m14b.ps0371"
-  },
-  {
-    "type": "function",
-    "kind": "MR",
-    "properties": {
-      "Name": "Filter Dirty Water",
-      "Operation": "select %R1% %R1% %R2% %R1%",
-      "PostProcess": " "
-    },
-    "id": "2zy00.z35a6u"
-  },
-  {
-    "type": "equipment",
-    "kind": "StructureWaterPurifier",
-    "properties": {
-      "Name": "Water Purifier",
-      "Initialize": {
-        "Lock": 1
-      },
-      "HideUnused": true,
-      "ReferenceId": 744634
-    },
-    "id": "3vouo.djazxh"
-  },
-  {
-    "type": "function",
-    "kind": "OR",
-    "properties": {
-      "Name": "45p6j.vt5fuw"
-    },
-    "id": "45p6j.vt5fuw"
-  },
-  {
-    "type": "function",
-    "kind": "CT",
-    "properties": {
-      "Name": "Dirty Water Absent",
-      "Threshold": 0,
-      "Test": "seq"
-    },
-    "id": "525wt.tnonao"
   },
   {
     "type": "function",
@@ -444,37 +308,6 @@
   },
   {
     "type": "function",
-    "kind": "OR",
-    "properties": {
-      "Name": "oc56.u117vyf"
-    },
-    "id": "oc56.u117vyf"
-  },
-  {
-    "type": "function",
-    "kind": "CT",
-    "properties": {
-      "Name": "Charcoal Low",
-      "Threshold": 20,
-      "Test": "slt"
-    },
-    "id": "2j41l.4kwol"
-  },
-  {
-    "type": "equipment",
-    "kind": "ModularDeviceLight",
-    "properties": {
-      "Name": "ALARM Charcoal Low",
-      "Initialize": {
-        "Color": "3"
-      },
-      "ReferenceId": 773058,
-      "HideUnused": true
-    },
-    "id": "5kuwy.5wzcjt"
-  },
-  {
-    "type": "function",
     "kind": "IR",
     "properties": {
       "Name": "CW-Capacity"
@@ -494,7 +327,7 @@
     "kind": "StructureLiquidPipeAnalyzer",
     "properties": {
       "Name": "Clean Water Analyzer",
-      "ReferenceId": 772437,
+      "ReferenceId": 3888343,
       "HideUnused": true
     },
     "id": "2dt5w.teq871"
@@ -533,7 +366,7 @@
     "type": "equipment",
     "kind": "StructureLiquidPipeAnalyzer",
     "properties": {
-      "Name": "Pipe Analyzer 2tvy0.opep16",
+      "Name": "Dirty Water Analyzer",
       "ReferenceId": 772458,
       "HideUnused": true
     },
@@ -587,32 +420,6 @@
     "id": "2sw1m.1fnxay"
   },
   {
-    "type": "equipment",
-    "kind": "ModularDeviceLight",
-    "properties": {
-      "Name": "IND Bypassing",
-      "ReferenceId": 784611,
-      "Initialize": {
-        "Color": "0"
-      },
-      "HideUnused": true
-    },
-    "id": "3xjyt.toiwy"
-  },
-  {
-    "type": "equipment",
-    "kind": "ModularDeviceLight",
-    "properties": {
-      "Name": "IND Purifying",
-      "ReferenceId": 784606,
-      "Initialize": {
-        "Color": "2"
-      },
-      "HideUnused": true
-    },
-    "id": "8dj2.5b996b6"
-  },
-  {
     "type": "function",
     "kind": "CT",
     "properties": {
@@ -642,15 +449,6 @@
       "HideUnused": true
     },
     "id": "qbo0.a35iel"
-  },
-  {
-    "type": "function",
-    "kind": "SIR",
-    "properties": {
-      "Name": "Charcoal Quantity",
-      "FixedIndex": 0
-    },
-    "id": "48nj0.feuiz"
   },
   {
     "type": "function",
@@ -724,6 +522,378 @@
     "id": "3wt5y.qjxwb3"
   },
   {
+    "type": "equipment",
+    "kind": "StructureFiltration",
+    "properties": {
+      "Name": "Quarters Filtration",
+      "Initialize": {
+        "On": 1
+      },
+      "HideUnused": true,
+      "ReferenceId": 801426
+    },
+    "id": "40027.pcqyml"
+  },
+  {
+    "type": "function",
+    "kind": "SIR",
+    "properties": {
+      "Name": "4zdax.yd3j65",
+      "FixedIndex": 0
+    },
+    "id": "4zdax.yd3j65"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureFiltration",
+    "properties": {
+      "Name": "Spa Filtration",
+      "Initialize": {
+        "On": 1
+      },
+      "HideUnused": true,
+      "ReferenceId": 696072
+    },
+    "id": "416ud.htaxhd"
+  },
+  {
+    "type": "data",
+    "properties": {
+      "Name": "Const (0)",
+      "InitValue": 0,
+      "Addr": 488,
+      "node": "38nz0.1gqcei"
+    },
+    "id": "jqa1.fo864rh"
+  },
+  {
+    "type": "data",
+    "properties": {
+      "Name": "Const (1)",
+      "InitValue": 1,
+      "Addr": 486,
+      "node": "38nz0.1gqcei"
+    },
+    "id": "23rcn.x28j6b"
+  },
+  {
+    "type": "function",
+    "kind": "SIR",
+    "properties": {
+      "Name": "hcrn.mr231hd",
+      "FixedIndex": 0
+    },
+    "id": "hcrn.mr231hd"
+  },
+  {
+    "type": "function",
+    "kind": "SIR",
+    "properties": {
+      "Name": "3glsq.aqzqop",
+      "FixedIndex": 0
+    },
+    "id": "3glsq.aqzqop"
+  },
+  {
+    "type": "function",
+    "kind": "SIR",
+    "properties": {
+      "Name": "d7lf.1ov8yge",
+      "FixedIndex": 0
+    },
+    "id": "d7lf.1ov8yge"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "46l9o.xtmoc4",
+      "Operation": "min %R1% %R1% %R2%",
+      "PostProcess": " "
+    },
+    "id": "46l9o.xtmoc4"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Any filters depleted?",
+      "Threshold": 0,
+      "Test": "seq"
+    },
+    "id": "4fgvs.7helap"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "545kp.zw48y8"
+    },
+    "id": "545kp.zw48y8"
+  },
+  {
+    "type": "equipment",
+    "kind": "ModularDeviceLight",
+    "properties": {
+      "Name": "ALARM Filters Depleted",
+      "Initialize": {
+        "Color": "3"
+      },
+      "ReferenceId": 1701440
+    },
+    "id": "2cpix.prevxa"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureLiquidPipeAnalyzer",
+    "properties": {
+      "Name": "Condensation System Analyzer",
+      "ReferenceId": 3891336,
+      "HideUnused": true
+    },
+    "id": "1xvbp.qmz9gx"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "eeu3.4svqul5"
+    },
+    "id": "eeu3.4svqul5"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Condenser Pressure Safe (<5MPa)",
+      "Threshold": 5000,
+      "Test": "slt"
+    },
+    "id": "5pzt1.hw7d6q"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Condenser Pressure Ready (<1MPa)",
+      "Threshold": 1000,
+      "Test": "slt"
+    },
+    "id": "4qxxh.c97oyu"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Needs Cleaning (>1L)",
+      "Threshold": 1,
+      "Test": "sgt"
+    },
+    "id": "42mqo.ilf8ql"
+  },
+  {
+    "type": "function",
+    "kind": "ST",
+    "properties": {
+      "Name": "Pump to Condenser"
+    },
+    "id": "2xowg.q6ywh7"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "(AND) Pump Activator",
+      "Operation": "select %R1% %R1% %R2% %R1%",
+      "PostProcess": " "
+    },
+    "id": "22yay.b0yvxr"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructurePipeVolumePump",
+    "properties": {
+      "Name": "Pump from Evap to Condense",
+      "ReferenceId": 3891259,
+      "HideUnused": true,
+      "Initialize": {
+        "On": 0
+      }
+    },
+    "id": "2t8by.7h33r4"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "3vl32.62rbyv"
+    },
+    "id": "3vl32.62rbyv"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Anything to Clean (>0L)",
+      "Threshold": 0,
+      "Test": "sgt"
+    },
+    "id": "2c2ln.7ovphm"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "(AND) Pump Cutoff",
+      "Operation": "select %R1% %R1% %R2% %R1%",
+      "PostProcess": " "
+    },
+    "id": "5cyo9.7bs733"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureLiquidPipeVolumePump",
+    "properties": {
+      "Name": "Spa Clean Water Top-Up Pump",
+      "ReferenceId": 3997943,
+      "Initialize": {
+        "On": 0
+      },
+      "HideUnused": true
+    },
+    "id": "2wib.59jxrbb"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureLiquidPipeAnalyzer",
+    "properties": {
+      "Name": "Water Supply Analyzer",
+      "ReferenceId": 3998015,
+      "HideUnused": true
+    },
+    "id": "2h988.lrp7ag"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "Avail Liquid Quantity"
+    },
+    "id": "5dyd8.agb9od"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Qty > 200L",
+      "Threshold": 200,
+      "Test": "sgt"
+    },
+    "id": "3bcva.9aekpv"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "Clean Water%"
+    },
+    "id": "2opyb.kjak9h"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "No Pollutant",
+      "Threshold": 0,
+      "Test": "seq"
+    },
+    "id": "179d5.rr19tfk"
+  },
+  {
+    "type": "function",
+    "kind": "IR",
+    "properties": {
+      "Name": "Steam%"
+    },
+    "id": "4e4ez.jvmaup"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "Sum Water Ratios",
+      "Operation": "add %R1% %R1% %R2%",
+      "PostProcess": " "
+    },
+    "id": "5btfw.rntz3l"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Is Pure",
+      "Threshold": 0.99999,
+      "Test": "sgt"
+    },
+    "id": "5of04.sq83va"
+  },
+  {
+    "type": "function",
+    "kind": "MR",
+    "properties": {
+      "Name": "Fill Ready",
+      "Operation": "select %R1% %R1% %R2% %R1%",
+      "PostProcess": " "
+    },
+    "id": "rais.9rokfp"
+  },
+  {
+    "type": "function",
+    "kind": "ST",
+    "properties": {
+      "Name": "Run Top-Up"
+    },
+    "id": "4gdz5.iqctvn"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Level Low",
+      "Threshold": 0.3,
+      "Test": "slt",
+      "Priority": 0
+    },
+    "id": "51pec.qrizx3"
+  },
+  {
+    "type": "function",
+    "kind": "OR",
+    "properties": {
+      "Name": "5v5kp.q7kcc3"
+    },
+    "id": "5v5kp.q7kcc3"
+  },
+  {
+    "type": "function",
+    "kind": "CT",
+    "properties": {
+      "Name": "Level Not Okay",
+      "Threshold": 0.25,
+      "Test": "slt"
+    },
+    "id": "43t5j.d8gfrv"
+  },
+  {
+    "type": "equipment",
+    "kind": "StructureCircuitHousing+IC10",
+    "properties": {
+      "Name": "Spa Controller B",
+      "ReferenceId": 4008902
+    },
+    "id": "e5kx.v3um6p9"
+  },
+  {
     "fromNode": "ZHab1",
     "fromPin": "Processor",
     "fromIndex": 0,
@@ -744,7 +914,7 @@
     "toNode": "EK419931",
     "properties": {
       "x": -350,
-      "y": -378,
+      "y": -306,
       "as": "functional"
     }
   },
@@ -779,7 +949,7 @@
     "fromIndex": 4,
     "toNode": "TW3716",
     "properties": {
-      "x": 750,
+      "x": 700,
       "y": -18,
       "as": "functional"
     }
@@ -888,7 +1058,7 @@
     "properties": {
       "as": "functional",
       "x": 400,
-      "y": -450
+      "y": -504
     },
     "type": "rel"
   },
@@ -1117,8 +1287,7 @@
     "fromPin": "Source",
     "viaNode": "1conm.meqgme",
     "viaPin": "State",
-    "type": "rel",
-    "toNode": "18ro8.jeuyou"
+    "type": "rel"
   },
   {
     "fromNode": "36gwd.47quex",
@@ -1149,8 +1318,7 @@
     "fromPin": "AckSignal",
     "viaNode": "53by1.ck5j1e",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "4274v.7i6u1n"
+    "type": "rel"
   },
   {
     "fromNode": "57j3l.ujgzo",
@@ -1181,16 +1349,166 @@
     "fromPin": "Raise",
     "viaNode": "36gwd.47quex",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "br8c.mbinzw"
+    "type": "rel"
   },
   {
     "fromNode": "1conm.meqgme",
     "fromPin": "Hold",
     "viaNode": "4dw2p.k9qzw",
     "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "5hfiv.2fpikt"
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Source",
+    "viaNode": "304yb.fxxu6",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "TW818194",
+    "toPin": "Setting",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5tpvo.3ix0vq",
+    "fromPin": "Destination",
+    "fromIndex": 1,
+    "toNode": "TW37182",
+    "toPin": "Setting",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1kctx.kp06fb",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1kctx.kp06fb",
+    "fromPin": "Input",
+    "viaNode": "304yb.fxxu6",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "57kga.iq44tm",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "57kga.iq44tm",
+    "fromPin": "Source",
+    "viaNode": "1kctx.kp06fb",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "57kga.iq44tm",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "TW3716",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "12t0l.a89hpf",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "12t0l.a89hpf",
+    "fromPin": "Raise",
+    "viaNode": "1kctx.kp06fb",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "12t0l.a89hpf",
+    "fromPin": "Hold",
+    "viaNode": "46um6.8mjxds",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "f5m2.p4dd97",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "f5m2.p4dd97",
+    "fromPin": "Source",
+    "viaNode": "12t0l.a89hpf",
+    "viaPin": "State",
+    "type": "rel"
+  },
+  {
+    "fromNode": "f5m2.p4dd97",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "LC183102",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "46um6.8mjxds",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "46um6.8mjxds",
+    "fromPin": "Input",
+    "viaNode": "304yb.fxxu6",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5fbwr.c0m482",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5fbwr.c0m482",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "46um6.8mjxds",
+    "viaPin": "Destination",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wt5y.qjxwb3",
+    "fromPin": "Zone",
+    "toNode": "ZHab1",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wt5y.qjxwb3",
+    "fromPin": "Source",
+    "viaNode": "5fbwr.c0m482",
+    "viaPin": "Output",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3wt5y.qjxwb3",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "TW7191",
+    "toPin": "On",
+    "type": "rel"
   },
   {
     "fromNode": "32wb5.al2to9",
@@ -1253,6 +1571,18 @@
     "type": "rel"
   },
   {
+    "fromNode": "32wb5.al2to9",
+    "fromPin": "Component",
+    "fromIndex": 5,
+    "toNode": "e5kx.v3um6p9",
+    "properties": {
+      "as": "functional",
+      "x": -400,
+      "y": 360
+    },
+    "type": "rel"
+  },
+  {
     "fromNode": "3kdmn.enzfi9",
     "fromPin": "Processor",
     "fromIndex": 0,
@@ -1266,177 +1596,16 @@
     "type": "rel"
   },
   {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 46,
-    "toNode": "4s5g9.lr84w6",
-    "properties": {
-      "as": "functional",
-      "x": 400,
-      "y": -216
-    },
+    "fromNode": "3kdmn.enzfi9",
+    "fromPin": "Processor",
+    "fromIndex": 1,
+    "toNode": "e5kx.v3um6p9",
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 45,
-    "toNode": "55778.9xtuvt",
-    "properties": {
-      "as": "functional",
-      "x": 400,
-      "y": 18
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 44,
-    "toNode": "3ze8f.lxzjsj",
-    "properties": {
-      "as": "functional",
-      "x": 400,
-      "y": 144
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 43,
-    "toNode": "47uxe.lx1mhn",
-    "properties": {
-      "as": "functional",
-      "x": 400,
-      "y": -108
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 4,
-    "toNode": "4k282.dez99a",
-    "properties": {
-      "as": "functional",
-      "x": 700,
-      "y": -54
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 42,
-    "toNode": "5ewrs.x5mquu",
-    "properties": {
-      "as": "functional",
-      "x": 700,
-      "y": 180
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 6,
-    "toNode": "4ten6.3j9dc",
-    "properties": {
-      "as": "functional",
-      "x": 1100,
-      "y": -54
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 7,
-    "toNode": "57moq.1x5dqw",
-    "properties": {
-      "as": "functional",
-      "x": 1250,
-      "y": -216
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 8,
-    "toNode": "1h72j.30izzq",
-    "properties": {
-      "as": "functional",
-      "x": 1700,
-      "y": -126
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 9,
-    "toNode": "1m14b.ps0371",
-    "properties": {
-      "as": "functional",
-      "x": 700,
-      "y": -198
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": -1,
-    "toNode": "2zy00.z35a6u",
-    "properties": {
-      "as": "functional",
-      "x": 1100,
-      "y": 126
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 10,
-    "toNode": "3vouo.djazxh",
-    "properties": {
-      "as": "functional",
-      "x": 1350,
-      "y": 342
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 11,
-    "toNode": "45p6j.vt5fuw",
-    "properties": {
-      "as": "functional",
-      "x": 1650,
-      "y": 180
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 41,
-    "toNode": "525wt.tnonao",
-    "properties": {
-      "as": "functional",
-      "x": 700,
-      "y": 72
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 13,
+    "fromIndex": 5,
     "toNode": "55qjw.nvq2r3",
     "properties": {
       "as": "functional",
@@ -1448,7 +1617,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 14,
+    "fromIndex": 6,
     "toNode": "5jpbc.3qgize",
     "properties": {
       "as": "functional",
@@ -1472,7 +1641,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 16,
+    "fromIndex": 8,
     "toNode": "5xhj6.o44tht",
     "properties": {
       "as": "functional",
@@ -1484,11 +1653,11 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 17,
+    "fromIndex": 9,
     "toNode": "47jie.wsqm5e",
     "properties": {
       "as": "functional",
-      "x": 1000,
+      "x": 1050,
       "y": 666
     },
     "type": "rel"
@@ -1496,7 +1665,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 18,
+    "fromIndex": 10,
     "toNode": "3vq9w.80qunm",
     "properties": {
       "as": "functional",
@@ -1508,43 +1677,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 19,
-    "toNode": "oc56.u117vyf",
-    "properties": {
-      "as": "functional",
-      "x": 2150,
-      "y": 504
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 20,
-    "toNode": "2j41l.4kwol",
-    "properties": {
-      "as": "functional",
-      "x": 1900,
-      "y": 486
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 21,
-    "toNode": "5kuwy.5wzcjt",
-    "properties": {
-      "as": "functional",
-      "x": 1800,
-      "y": 594
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 22,
+    "fromIndex": 11,
     "toNode": "24mpx.sln8z2",
     "properties": {
       "as": "functional",
@@ -1556,11 +1689,11 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 23,
+    "fromIndex": 12,
     "toNode": "6ryb.vrg8esn",
     "properties": {
       "as": "functional",
-      "x": 450,
+      "x": 500,
       "y": 954
     },
     "type": "rel"
@@ -1568,7 +1701,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 24,
+    "fromIndex": 13,
     "toNode": "2dt5w.teq871",
     "properties": {
       "as": "functional",
@@ -1580,7 +1713,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 25,
+    "fromIndex": 14,
     "toNode": "2a75i.i0vlcz",
     "properties": {
       "as": "functional",
@@ -1592,7 +1725,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 26,
+    "fromIndex": 15,
     "toNode": "13zcf.qwwgop",
     "properties": {
       "as": "functional",
@@ -1604,7 +1737,7 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 27,
+    "fromIndex": 16,
     "toNode": "5l4i5.vnalbv",
     "properties": {
       "as": "functional",
@@ -1616,12 +1749,12 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 28,
+    "fromIndex": 17,
     "toNode": "2tvy0.opep16",
     "properties": {
       "as": "functional",
-      "x": -150,
-      "y": -144
+      "x": 0,
+      "y": 144
     },
     "type": "rel"
   },
@@ -1632,8 +1765,8 @@
     "toNode": "2zi2e.fanql2",
     "properties": {
       "as": "functional",
-      "x": 300,
-      "y": -414
+      "x": 450,
+      "y": 18
     },
     "type": "rel"
   },
@@ -1644,75 +1777,51 @@
     "toNode": "3ag9i.mj5epl",
     "properties": {
       "as": "functional",
-      "x": 300,
-      "y": -540
+      "x": 450,
+      "y": 126
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 31,
+    "fromIndex": 20,
     "toNode": "14cf4.8i8ydh",
     "properties": {
       "as": "functional",
-      "x": 550,
-      "y": -504
+      "x": 700,
+      "y": 108
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 32,
+    "fromIndex": 21,
     "toNode": "anqy.cwr3zn8",
     "properties": {
       "as": "functional",
-      "x": 800,
-      "y": -432
+      "x": 950,
+      "y": 162
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 33,
+    "fromIndex": 22,
     "toNode": "2sw1m.1fnxay",
     "properties": {
       "as": "functional",
-      "x": 550,
-      "y": -360
+      "x": 700,
+      "y": 252
     },
     "type": "rel"
   },
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 34,
-    "toNode": "3xjyt.toiwy",
-    "properties": {
-      "as": "functional",
-      "x": 1300,
-      "y": -144
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 35,
-    "toNode": "8dj2.5b996b6",
-    "properties": {
-      "as": "functional",
-      "x": 1350,
-      "y": 270
-    },
-    "type": "rel"
-  },
-  {
-    "fromNode": "29uhx.4qvz4w",
-    "fromPin": "Component",
-    "fromIndex": 36,
+    "fromIndex": 23,
     "toNode": "dm57.02z7snb",
     "properties": {
       "as": "functional",
@@ -1724,12 +1833,156 @@
   {
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
-    "fromIndex": 37,
+    "fromIndex": 24,
     "toNode": "48j8.izaa958",
     "properties": {
       "as": "functional",
-      "x": 1100,
-      "y": 1440
+      "x": 1150,
+      "y": 1404
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 25,
+    "toNode": "qbo0.a35iel",
+    "properties": {
+      "as": "functional",
+      "x": 750,
+      "y": 1476
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 27,
+    "toNode": "40027.pcqyml",
+    "properties": {
+      "as": "functional",
+      "x": 1700,
+      "y": 846
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 28,
+    "toNode": "4zdax.yd3j65",
+    "properties": {
+      "as": "functional",
+      "x": 2150,
+      "y": 864
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 29,
+    "toNode": "416ud.htaxhd",
+    "properties": {
+      "as": "functional",
+      "x": 1650,
+      "y": 1098
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 30,
+    "toNode": "jqa1.fo864rh",
+    "properties": {
+      "as": "functional",
+      "x": 1700,
+      "y": 1026
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 31,
+    "toNode": "23rcn.x28j6b",
+    "properties": {
+      "as": "functional",
+      "x": 1800,
+      "y": 1062
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 32,
+    "toNode": "hcrn.mr231hd",
+    "properties": {
+      "as": "functional",
+      "x": 2150,
+      "y": 990
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 33,
+    "toNode": "3glsq.aqzqop",
+    "properties": {
+      "as": "functional",
+      "x": 2150,
+      "y": 1116
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 34,
+    "toNode": "d7lf.1ov8yge",
+    "properties": {
+      "as": "functional",
+      "x": 2150,
+      "y": 1260
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 35,
+    "toNode": "46l9o.xtmoc4",
+    "properties": {
+      "as": "functional",
+      "x": 2450,
+      "y": 1008
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 36,
+    "toNode": "4fgvs.7helap",
+    "properties": {
+      "as": "functional",
+      "x": 2700,
+      "y": 1008
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 37,
+    "toNode": "545kp.zw48y8",
+    "properties": {
+      "as": "functional",
+      "x": 3000,
+      "y": 1062
     },
     "type": "rel"
   },
@@ -1737,11 +1990,11 @@
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
     "fromIndex": 38,
-    "toNode": "qbo0.a35iel",
+    "toNode": "2cpix.prevxa",
     "properties": {
       "as": "functional",
-      "x": 750,
-      "y": 1494
+      "x": 2650,
+      "y": 1206
     },
     "type": "rel"
   },
@@ -1749,260 +2002,301 @@
     "fromNode": "29uhx.4qvz4w",
     "fromPin": "Component",
     "fromIndex": 39,
-    "toNode": "48nj0.feuiz",
+    "toNode": "1xvbp.qmz9gx",
     "properties": {
       "as": "functional",
-      "x": 1650,
-      "y": 450
+      "x": 0,
+      "y": -450
     },
     "type": "rel"
   },
   {
-    "fromNode": "4s5g9.lr84w6",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 40,
+    "toNode": "eeu3.4svqul5",
+    "properties": {
+      "as": "functional",
+      "x": 400,
+      "y": -468
+    },
     "type": "rel"
   },
   {
-    "fromNode": "4s5g9.lr84w6",
-    "fromPin": "Source",
-    "toNode": "2tvy0.opep16",
-    "toPin": "RatioPollutant",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 41,
+    "toNode": "5pzt1.hw7d6q",
+    "properties": {
+      "as": "functional",
+      "x": 750,
+      "y": -450
+    },
     "type": "rel"
   },
   {
-    "fromNode": "55778.9xtuvt",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 42,
+    "toNode": "4qxxh.c97oyu",
+    "properties": {
+      "as": "functional",
+      "x": 750,
+      "y": -324
+    },
     "type": "rel"
   },
   {
-    "fromNode": "55778.9xtuvt",
-    "fromPin": "Source",
-    "toNode": "2tvy0.opep16",
-    "toPin": "RatioWater",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 43,
+    "toNode": "42mqo.ilf8ql",
+    "properties": {
+      "as": "functional",
+      "x": 750,
+      "y": -684
+    },
     "type": "rel"
   },
   {
-    "fromNode": "3ze8f.lxzjsj",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 44,
+    "toNode": "2xowg.q6ywh7",
+    "properties": {
+      "as": "functional",
+      "x": 1500,
+      "y": -522
+    },
     "type": "rel"
   },
   {
-    "fromNode": "3ze8f.lxzjsj",
-    "fromPin": "Source",
-    "toNode": "2tvy0.opep16",
-    "toPin": "RatioPollutedWater",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 45,
+    "toNode": "22yay.b0yvxr",
+    "properties": {
+      "as": "functional",
+      "x": 1200,
+      "y": -666
+    },
     "type": "rel"
   },
   {
-    "fromNode": "47uxe.lx1mhn",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 46,
+    "toNode": "2t8by.7h33r4",
+    "properties": {
+      "as": "functional",
+      "x": 1300,
+      "y": -288
+    },
     "type": "rel"
   },
   {
-    "fromNode": "47uxe.lx1mhn",
-    "fromPin": "Source",
-    "toNode": "2tvy0.opep16",
-    "toPin": "RatioLiquidPollutant",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 47,
+    "toNode": "3vl32.62rbyv",
+    "properties": {
+      "as": "functional",
+      "x": 1750,
+      "y": -468
+    },
     "type": "rel"
   },
   {
-    "fromNode": "4k282.dez99a",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 48,
+    "toNode": "2c2ln.7ovphm",
+    "properties": {
+      "as": "functional",
+      "x": 750,
+      "y": -576
+    },
     "type": "rel"
   },
   {
-    "fromNode": "4k282.dez99a",
-    "fromPin": "Input",
-    "viaNode": "55778.9xtuvt",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "1rule.q9q5iu"
-  },
-  {
-    "fromNode": "5ewrs.x5mquu",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 49,
+    "toNode": "5cyo9.7bs733",
+    "properties": {
+      "as": "functional",
+      "x": 1200,
+      "y": -450
+    },
     "type": "rel"
   },
   {
-    "fromNode": "5ewrs.x5mquu",
-    "fromPin": "Input",
-    "viaNode": "3ze8f.lxzjsj",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "2upcd.f3xgkg"
-  },
-  {
-    "fromNode": "4ten6.3j9dc",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 50,
+    "toNode": "2wib.59jxrbb",
+    "properties": {
+      "as": "functional",
+      "x": 1250,
+      "y": 2304
+    },
     "type": "rel"
   },
   {
-    "fromNode": "4ten6.3j9dc",
-    "fromPin": "Input",
-    "fromIndex": 0,
-    "viaNode": "1m14b.ps0371",
-    "viaPin": "Output",
-    "type": "rel",
-    "toNode": "2hinj.yhedh9"
-  },
-  {
-    "fromNode": "4ten6.3j9dc",
-    "fromPin": "Input",
-    "fromIndex": 1,
-    "viaNode": "4k282.dez99a",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "3ou4l.li3c3"
-  },
-  {
-    "fromNode": "4ten6.3j9dc",
-    "fromPin": "Input",
-    "fromIndex": 2,
-    "viaNode": "525wt.tnonao",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "45svv.s151xr"
-  },
-  {
-    "fromNode": "57moq.1x5dqw",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 51,
+    "toNode": "2h988.lrp7ag",
+    "properties": {
+      "as": "functional",
+      "x": -200,
+      "y": 1944
+    },
     "type": "rel"
   },
   {
-    "fromNode": "1h72j.30izzq",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 52,
+    "toNode": "5dyd8.agb9od",
+    "properties": {
+      "as": "functional",
+      "x": 200,
+      "y": 2052
+    },
     "type": "rel"
   },
   {
-    "fromNode": "1h72j.30izzq",
-    "fromPin": "Source",
-    "viaNode": "4ten6.3j9dc",
-    "viaPin": "Output",
-    "type": "rel",
-    "toNode": "24u9j.seqf5n"
-  },
-  {
-    "fromNode": "1h72j.30izzq",
-    "fromPin": "Destination",
-    "fromIndex": 0,
-    "toNode": "57moq.1x5dqw",
-    "toPin": "On",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 53,
+    "toNode": "3bcva.9aekpv",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": 2070
+    },
     "type": "rel"
   },
   {
-    "fromNode": "1h72j.30izzq",
-    "fromPin": "Destination",
-    "fromIndex": 1,
-    "toNode": "3xjyt.toiwy",
-    "toPin": "On",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 54,
+    "toNode": "2opyb.kjak9h",
+    "properties": {
+      "as": "functional",
+      "x": 200,
+      "y": 1818
+    },
     "type": "rel"
   },
   {
-    "fromNode": "1m14b.ps0371",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 55,
+    "toNode": "4e4ez.jvmaup",
+    "properties": {
+      "as": "functional",
+      "x": 200,
+      "y": 1944
+    },
     "type": "rel"
   },
   {
-    "fromNode": "1m14b.ps0371",
-    "fromPin": "Input",
-    "fromIndex": 0,
-    "viaNode": "4s5g9.lr84w6",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "5hai8.cchbbv"
-  },
-  {
-    "fromNode": "1m14b.ps0371",
-    "fromPin": "Input",
-    "fromIndex": 1,
-    "viaNode": "47uxe.lx1mhn",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "urmi.fz8b6ul"
-  },
-  {
-    "fromNode": "2zy00.z35a6u",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 56,
+    "toNode": "5btfw.rntz3l",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": 1836
+    },
     "type": "rel"
   },
   {
-    "fromNode": "2zy00.z35a6u",
-    "fromPin": "Input",
-    "fromIndex": 0,
-    "viaNode": "1m14b.ps0371",
-    "viaPin": "Output",
-    "type": "rel",
-    "toNode": "2hinj.yhedh9"
-  },
-  {
-    "fromNode": "2zy00.z35a6u",
-    "fromPin": "Input",
-    "fromIndex": 1,
-    "viaNode": "5ewrs.x5mquu",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "5q06d.6s4ut4"
-  },
-  {
-    "fromNode": "3vouo.djazxh",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 57,
+    "toNode": "5of04.sq83va",
+    "properties": {
+      "as": "functional",
+      "x": 700,
+      "y": 1890
+    },
     "type": "rel"
   },
   {
-    "fromNode": "45p6j.vt5fuw",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 58,
+    "toNode": "rais.9rokfp",
+    "properties": {
+      "as": "functional",
+      "x": 1350,
+      "y": 1998
+    },
     "type": "rel"
   },
   {
-    "fromNode": "45p6j.vt5fuw",
-    "fromPin": "Source",
-    "viaNode": "2zy00.z35a6u",
-    "viaPin": "Output",
-    "type": "rel",
-    "toNode": "27fe6.p2iqia"
-  },
-  {
-    "fromNode": "45p6j.vt5fuw",
-    "fromPin": "Destination",
-    "fromIndex": 0,
-    "toNode": "8dj2.5b996b6",
-    "toPin": "On",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 59,
+    "toNode": "4gdz5.iqctvn",
+    "properties": {
+      "as": "functional",
+      "x": 1650,
+      "y": 1872
+    },
     "type": "rel"
   },
   {
-    "fromNode": "45p6j.vt5fuw",
-    "fromPin": "Destination",
-    "fromIndex": 1,
-    "toNode": "3vouo.djazxh",
-    "toPin": "On",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 60,
+    "toNode": "51pec.qrizx3",
+    "properties": {
+      "as": "functional",
+      "x": 1100,
+      "y": 1692
+    },
     "type": "rel"
   },
   {
-    "fromNode": "525wt.tnonao",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 61,
+    "toNode": "5v5kp.q7kcc3",
+    "properties": {
+      "as": "functional",
+      "x": 1900,
+      "y": 2124
+    },
     "type": "rel"
   },
   {
-    "fromNode": "525wt.tnonao",
-    "fromPin": "Input",
-    "viaNode": "3ze8f.lxzjsj",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "2upcd.f3xgkg"
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 62,
+    "toNode": "43t5j.d8gfrv",
+    "properties": {
+      "as": "functional",
+      "x": 1100,
+      "y": 1584
+    },
+    "type": "rel"
+  },
+  {
+    "fromNode": "29uhx.4qvz4w",
+    "fromPin": "Component",
+    "fromIndex": 63,
+    "toNode": "e5kx.v3um6p9",
+    "properties": {
+      "as": "functional",
+      "x": 450,
+      "y": 2250
+    },
+    "type": "rel"
   },
   {
     "fromNode": "55qjw.nvq2r3",
@@ -2056,7 +2350,7 @@
     "viaNode": "55qjw.nvq2r3",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "3vink.yok74p"
+    "toNode": "25tkg.p4t7hl"
   },
   {
     "fromNode": "5xhj6.o44tht",
@@ -2065,7 +2359,7 @@
     "viaNode": "2bd1x.6lxrrf",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "4k53d.5ynpjo"
+    "toNode": "zwuu.9a6fh9"
   },
   {
     "fromNode": "5xhj6.o44tht",
@@ -2074,7 +2368,7 @@
     "viaNode": "5jpbc.3qgize",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "3juev.gmhzyg"
+    "toNode": "4qrhl.fsij3k"
   },
   {
     "fromNode": "47jie.wsqm5e",
@@ -2096,52 +2390,10 @@
     "viaNode": "5xhj6.o44tht",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "2u4qd.c8gdwy"
+    "toNode": "2uo0i.ow36en"
   },
   {
     "fromNode": "3vq9w.80qunm",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
-    "fromNode": "oc56.u117vyf",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
-    "fromNode": "oc56.u117vyf",
-    "fromPin": "Source",
-    "viaNode": "2j41l.4kwol",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "3bmbf.lz9oyu"
-  },
-  {
-    "fromNode": "oc56.u117vyf",
-    "fromPin": "Destination",
-    "fromIndex": 0,
-    "toNode": "5kuwy.5wzcjt",
-    "toPin": "On",
-    "type": "rel"
-  },
-  {
-    "fromNode": "2j41l.4kwol",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
-    "fromNode": "2j41l.4kwol",
-    "fromPin": "Input",
-    "viaNode": "48nj0.feuiz",
-    "viaPin": "Destination",
-    "type": "rel",
-    "toNode": "2yhg0.s4nrq6"
-  },
-  {
-    "fromNode": "5kuwy.5wzcjt",
     "fromPin": "Zone",
     "toNode": "3kdmn.enzfi9",
     "type": "rel"
@@ -2191,7 +2443,7 @@
     "viaNode": "6ryb.vrg8esn",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "4zade.hv6t8p"
+    "toNode": "3l61f.ktif9s"
   },
   {
     "fromNode": "2a75i.i0vlcz",
@@ -2200,7 +2452,7 @@
     "viaNode": "24mpx.sln8z2",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "i0w6.hazrxhf"
+    "toNode": "3gdu8.8cmnx2"
   },
   {
     "fromNode": "13zcf.qwwgop",
@@ -2214,7 +2466,7 @@
     "viaNode": "2a75i.i0vlcz",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "kz8v.sbh6eyj"
+    "toNode": "npnd.1m6bb5"
   },
   {
     "fromNode": "13zcf.qwwgop",
@@ -2275,7 +2527,7 @@
     "viaNode": "2zi2e.fanql2",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "z9hn.kfy0r7"
+    "toNode": "2jn82.utxz9l"
   },
   {
     "fromNode": "14cf4.8i8ydh",
@@ -2284,7 +2536,7 @@
     "viaNode": "3ag9i.mj5epl",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "47m01.7q0ta8"
+    "toNode": "4d68i.v9e1fd"
   },
   {
     "fromNode": "anqy.cwr3zn8",
@@ -2298,7 +2550,7 @@
     "viaNode": "14cf4.8i8ydh",
     "viaPin": "Output",
     "type": "rel",
-    "toNode": "3ziv9.xmhygu"
+    "toNode": "5elwj.zwsbuu"
   },
   {
     "fromNode": "anqy.cwr3zn8",
@@ -2315,18 +2567,6 @@
     "type": "rel"
   },
   {
-    "fromNode": "3xjyt.toiwy",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
-    "fromNode": "8dj2.5b996b6",
-    "fromPin": "Zone",
-    "toNode": "3kdmn.enzfi9",
-    "type": "rel"
-  },
-  {
     "fromNode": "dm57.02z7snb",
     "fromPin": "Zone",
     "toNode": "3kdmn.enzfi9",
@@ -2338,7 +2578,7 @@
     "viaNode": "6ryb.vrg8esn",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "4zade.hv6t8p"
+    "toNode": "3l61f.ktif9s"
   },
   {
     "fromNode": "48j8.izaa958",
@@ -2360,7 +2600,7 @@
     "viaNode": "dm57.02z7snb",
     "viaPin": "Destination",
     "type": "rel",
-    "toNode": "34wab.3fac4g"
+    "toNode": "3odn4.of5bpi"
   },
   {
     "fromNode": "qbo0.a35iel",
@@ -2369,177 +2609,636 @@
     "type": "rel"
   },
   {
-    "fromNode": "48nj0.feuiz",
+    "fromNode": "40027.pcqyml",
     "fromPin": "Zone",
     "toNode": "3kdmn.enzfi9",
     "type": "rel"
   },
   {
-    "fromNode": "48nj0.feuiz",
+    "fromNode": "4zdax.yd3j65",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4zdax.yd3j65",
     "fromPin": "Source",
-    "toNode": "3vouo.djazxh",
+    "toNode": "40027.pcqyml",
     "toPin": "Slot Quantity",
     "type": "rel"
   },
   {
-    "fromNode": "5tpvo.3ix0vq",
+    "fromNode": "4zdax.yd3j65",
+    "fromPin": "Index",
+    "toNode": "jqa1.fo864rh",
+    "type": "rel"
+  },
+  {
+    "fromNode": "416ud.htaxhd",
     "fromPin": "Zone",
-    "toNode": "ZHab1",
+    "toNode": "3kdmn.enzfi9",
     "type": "rel"
   },
   {
-    "fromNode": "5tpvo.3ix0vq",
+    "fromNode": "hcrn.mr231hd",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "hcrn.mr231hd",
+    "fromPin": "Index",
+    "toNode": "23rcn.x28j6b",
+    "type": "rel"
+  },
+  {
+    "fromNode": "hcrn.mr231hd",
     "fromPin": "Source",
-    "toNode": "36if7.ugltng",
-    "viaNode": "304yb.fxxu6",
-    "viaPin": "Destination",
+    "toNode": "40027.pcqyml",
+    "toPin": "Slot Quantity",
     "type": "rel"
   },
   {
-    "fromNode": "5tpvo.3ix0vq",
-    "fromPin": "Destination",
+    "fromNode": "3glsq.aqzqop",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3glsq.aqzqop",
+    "fromPin": "Source",
+    "toNode": "416ud.htaxhd",
+    "toPin": "Slot Quantity",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3glsq.aqzqop",
+    "fromPin": "Index",
+    "toNode": "jqa1.fo864rh",
+    "type": "rel"
+  },
+  {
+    "fromNode": "d7lf.1ov8yge",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "d7lf.1ov8yge",
+    "fromPin": "Source",
+    "toNode": "416ud.htaxhd",
+    "toPin": "Slot Quantity",
+    "type": "rel"
+  },
+  {
+    "fromNode": "d7lf.1ov8yge",
+    "fromPin": "Index",
+    "toNode": "23rcn.x28j6b",
+    "type": "rel"
+  },
+  {
+    "fromNode": "46l9o.xtmoc4",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "46l9o.xtmoc4",
+    "fromPin": "Input",
     "fromIndex": 0,
-    "toNode": "TW818194",
-    "toPin": "Setting",
-    "type": "rel"
+    "viaNode": "4zdax.yd3j65",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "27nb4.xdmtsj"
   },
   {
-    "fromNode": "5tpvo.3ix0vq",
-    "fromPin": "Destination",
+    "fromNode": "46l9o.xtmoc4",
+    "fromPin": "Input",
     "fromIndex": 1,
-    "toNode": "TW37182",
-    "toPin": "Setting",
-    "type": "rel"
+    "viaNode": "hcrn.mr231hd",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "2dagv.ezocjb"
   },
   {
-    "fromNode": "1kctx.kp06fb",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "1kctx.kp06fb",
+    "fromNode": "46l9o.xtmoc4",
     "fromPin": "Input",
-    "toNode": "36if7.ugltng",
-    "viaNode": "304yb.fxxu6",
+    "fromIndex": 2,
+    "viaNode": "3glsq.aqzqop",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "4bila.7xjzm5"
   },
   {
-    "fromNode": "57kga.iq44tm",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "57kga.iq44tm",
-    "fromPin": "Source",
-    "toNode": "2v8nk.7y1qva",
-    "viaNode": "1kctx.kp06fb",
-    "viaPin": "Destination",
-    "type": "rel"
-  },
-  {
-    "fromNode": "57kga.iq44tm",
-    "fromPin": "Destination",
-    "fromIndex": 0,
-    "toNode": "TW3716",
-    "toPin": "On",
-    "type": "rel"
-  },
-  {
-    "fromNode": "12t0l.a89hpf",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "12t0l.a89hpf",
-    "fromPin": "Raise",
-    "toNode": "2v8nk.7y1qva",
-    "viaNode": "1kctx.kp06fb",
-    "viaPin": "Destination",
-    "type": "rel"
-  },
-  {
-    "fromNode": "12t0l.a89hpf",
-    "fromPin": "Hold",
-    "toNode": "4mwmq.9fkzw5",
-    "viaNode": "46um6.8mjxds",
-    "viaPin": "Destination",
-    "type": "rel"
-  },
-  {
-    "fromNode": "f5m2.p4dd97",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "f5m2.p4dd97",
-    "fromPin": "Source",
-    "toNode": "1uih8.00cvhr",
-    "viaNode": "12t0l.a89hpf",
-    "viaPin": "State",
-    "type": "rel"
-  },
-  {
-    "fromNode": "f5m2.p4dd97",
-    "fromPin": "Destination",
-    "fromIndex": 0,
-    "toNode": "LC183102",
-    "toPin": "On",
-    "type": "rel"
-  },
-  {
-    "fromNode": "46um6.8mjxds",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "46um6.8mjxds",
+    "fromNode": "46l9o.xtmoc4",
     "fromPin": "Input",
-    "toNode": "36if7.ugltng",
-    "viaNode": "304yb.fxxu6",
+    "fromIndex": 3,
+    "viaNode": "d7lf.1ov8yge",
     "viaPin": "Destination",
-    "type": "rel"
+    "type": "rel",
+    "toNode": "22i7b.9l0ef2"
   },
   {
-    "fromNode": "5fbwr.c0m482",
+    "fromNode": "4fgvs.7helap",
     "fromPin": "Zone",
-    "toNode": "ZHab1",
+    "toNode": "3kdmn.enzfi9",
     "type": "rel"
   },
   {
-    "fromNode": "5fbwr.c0m482",
+    "fromNode": "4fgvs.7helap",
     "fromPin": "Input",
-    "fromIndex": 0,
-    "toNode": "4mwmq.9fkzw5",
-    "viaNode": "46um6.8mjxds",
-    "viaPin": "Destination",
-    "type": "rel"
-  },
-  {
-    "fromNode": "3wt5y.qjxwb3",
-    "fromPin": "Zone",
-    "toNode": "ZHab1",
-    "type": "rel"
-  },
-  {
-    "fromNode": "3wt5y.qjxwb3",
-    "fromPin": "Source",
-    "toNode": "9tlt.9g0iqz9",
-    "viaNode": "5fbwr.c0m482",
+    "viaNode": "46l9o.xtmoc4",
     "viaPin": "Output",
+    "type": "rel",
+    "toNode": "2xbsz.eawtac"
+  },
+  {
+    "fromNode": "545kp.zw48y8",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
     "type": "rel"
   },
   {
-    "fromNode": "3wt5y.qjxwb3",
+    "fromNode": "545kp.zw48y8",
+    "fromPin": "Source",
+    "viaNode": "4fgvs.7helap",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "4ngc8.j8q9fc"
+  },
+  {
+    "fromNode": "545kp.zw48y8",
     "fromPin": "Destination",
     "fromIndex": 0,
-    "toNode": "TW7191",
+    "toNode": "2cpix.prevxa",
     "toPin": "On",
     "type": "rel"
+  },
+  {
+    "fromNode": "2cpix.prevxa",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "1xvbp.qmz9gx",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "eeu3.4svqul5",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "eeu3.4svqul5",
+    "fromPin": "Source",
+    "toNode": "1xvbp.qmz9gx",
+    "toPin": "Pressure",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5pzt1.hw7d6q",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5pzt1.hw7d6q",
+    "fromPin": "Input",
+    "viaNode": "eeu3.4svqul5",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "5u60o.ox82ze"
+  },
+  {
+    "fromNode": "4qxxh.c97oyu",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4qxxh.c97oyu",
+    "fromPin": "Input",
+    "viaNode": "eeu3.4svqul5",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "5u60o.ox82ze"
+  },
+  {
+    "fromNode": "42mqo.ilf8ql",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "42mqo.ilf8ql",
+    "fromPin": "Input",
+    "viaNode": "2zi2e.fanql2",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "2jn82.utxz9l"
+  },
+  {
+    "fromNode": "2xowg.q6ywh7",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2xowg.q6ywh7",
+    "fromPin": "Raise",
+    "viaNode": "22yay.b0yvxr",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "5be9e.2yv4q5"
+  },
+  {
+    "fromNode": "2xowg.q6ywh7",
+    "fromPin": "Hold",
+    "viaNode": "5cyo9.7bs733",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "svk2.uawiczd"
+  },
+  {
+    "fromNode": "22yay.b0yvxr",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "22yay.b0yvxr",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "4qxxh.c97oyu",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "4twmb.zjaq73"
+  },
+  {
+    "fromNode": "22yay.b0yvxr",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "42mqo.ilf8ql",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "5ciya.gy9y1f"
+  },
+  {
+    "fromNode": "2t8by.7h33r4",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3vl32.62rbyv",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3vl32.62rbyv",
+    "fromPin": "Source",
+    "viaNode": "2xowg.q6ywh7",
+    "viaPin": "State",
+    "type": "rel",
+    "toNode": "1kk4x.0tna9p"
+  },
+  {
+    "fromNode": "3vl32.62rbyv",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "2t8by.7h33r4",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2c2ln.7ovphm",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2c2ln.7ovphm",
+    "fromPin": "Input",
+    "viaNode": "2zi2e.fanql2",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "2jn82.utxz9l"
+  },
+  {
+    "fromNode": "5cyo9.7bs733",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5cyo9.7bs733",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "2c2ln.7ovphm",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "31ug2.vc6dnk"
+  },
+  {
+    "fromNode": "5cyo9.7bs733",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "5pzt1.hw7d6q",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1bg1.4oc07le"
+  },
+  {
+    "fromNode": "2wib.59jxrbb",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2h988.lrp7ag",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5dyd8.agb9od",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5dyd8.agb9od",
+    "fromPin": "Source",
+    "toNode": "2h988.lrp7ag",
+    "toPin": "VolumeOfLiquid",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5dyd8.agb9od",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3bcva.9aekpv",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "3bcva.9aekpv",
+    "fromPin": "Input",
+    "viaNode": "5dyd8.agb9od",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "17egb.c6zt5mj"
+  },
+  {
+    "fromNode": "3bcva.9aekpv",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2opyb.kjak9h",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2opyb.kjak9h",
+    "fromPin": "Source",
+    "toNode": "2h988.lrp7ag",
+    "toPin": "RatioWater",
+    "type": "rel"
+  },
+  {
+    "fromNode": "2opyb.kjak9h",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4e4ez.jvmaup",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4e4ez.jvmaup",
+    "fromPin": "Source",
+    "toNode": "2h988.lrp7ag",
+    "toPin": "RatioSteam",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4e4ez.jvmaup",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5btfw.rntz3l",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5btfw.rntz3l",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "2opyb.kjak9h",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "12rke.c8bnjy"
+  },
+  {
+    "fromNode": "5btfw.rntz3l",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "4e4ez.jvmaup",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "3wgzr.jv2tm"
+  },
+  {
+    "fromNode": "5btfw.rntz3l",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5of04.sq83va",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5of04.sq83va",
+    "fromPin": "Input",
+    "viaNode": "5btfw.rntz3l",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "uklz.3xzjid"
+  },
+  {
+    "fromNode": "5of04.sq83va",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "rais.9rokfp",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "rais.9rokfp",
+    "fromPin": "Input",
+    "fromIndex": 0,
+    "viaNode": "5of04.sq83va",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "5m3yc.sj0nhn"
+  },
+  {
+    "fromNode": "rais.9rokfp",
+    "fromPin": "Input",
+    "fromIndex": 1,
+    "viaNode": "3bcva.9aekpv",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1ibxd.sw0v6b"
+  },
+  {
+    "fromNode": "rais.9rokfp",
+    "fromPin": "Input",
+    "fromIndex": 2,
+    "viaNode": "51pec.qrizx3",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1ztxm.6lbjaw"
+  },
+  {
+    "fromNode": "rais.9rokfp",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4gdz5.iqctvn",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "4gdz5.iqctvn",
+    "fromPin": "Hold",
+    "viaNode": "rais.9rokfp",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "39ei1.0b4w8y"
+  },
+  {
+    "fromNode": "4gdz5.iqctvn",
+    "fromPin": "Raise",
+    "viaNode": "43t5j.d8gfrv",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "1e3nb.67y8ck"
+  },
+  {
+    "fromNode": "4gdz5.iqctvn",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "51pec.qrizx3",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "51pec.qrizx3",
+    "fromPin": "Input",
+    "viaNode": "2a75i.i0vlcz",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "npnd.1m6bb5"
+  },
+  {
+    "fromNode": "51pec.qrizx3",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5v5kp.q7kcc3",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5v5kp.q7kcc3",
+    "fromPin": "Destination",
+    "fromIndex": 0,
+    "toNode": "2wib.59jxrbb",
+    "toPin": "On",
+    "type": "rel"
+  },
+  {
+    "fromNode": "5v5kp.q7kcc3",
+    "fromPin": "Source",
+    "viaNode": "4gdz5.iqctvn",
+    "viaPin": "State",
+    "type": "rel",
+    "toNode": "1f79c.tp89uf"
+  },
+  {
+    "fromNode": "5v5kp.q7kcc3",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "43t5j.d8gfrv",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "43t5j.d8gfrv",
+    "fromPin": "Input",
+    "viaNode": "2a75i.i0vlcz",
+    "viaPin": "Output",
+    "type": "rel",
+    "toNode": "npnd.1m6bb5"
+  },
+  {
+    "fromNode": "43t5j.d8gfrv",
+    "fromPin": "Processor",
+    "toNode": "e5kx.v3um6p9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "179d5.rr19tfk",
+    "fromPin": "Zone",
+    "toNode": "3kdmn.enzfi9",
+    "type": "rel"
+  },
+  {
+    "fromNode": "179d5.rr19tfk",
+    "fromPin": "Input",
+    "viaNode": "2opyb.kjak9h",
+    "viaPin": "Destination",
+    "type": "rel",
+    "toNode": "12rke.c8bnjy"
   }
 ]

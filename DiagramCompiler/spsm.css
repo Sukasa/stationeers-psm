@@ -29,6 +29,7 @@ body, table, button, input {
 h1,h2,h3,h4,h5 { margin: 0.2em 0.3em; }
 
 *                          { user-select: none; }
+.psm-compile .reports *    { user-select: text; }
 textarea, input[type=text] { user-select: initial; }
 canvas                     { pointer-events: none; }
 
